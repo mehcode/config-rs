@@ -62,6 +62,18 @@ fn collect(content: &mut HashMap<String, Value>, table: &toml::Table, prefix: Op
                 content.insert(key, value.clone().into());
             }
 
+            toml::Value::Integer(value) => {
+                content.insert(key, value.into());
+            }
+
+            toml::Value::Float(value) => {
+                content.insert(key, value.into());
+            }
+
+            toml::Value::Boolean(value) => {
+                content.insert(key, value.into());
+            }
+
             _ => {
                 // Unhandled
             }
@@ -71,15 +83,44 @@ fn collect(content: &mut HashMap<String, Value>, table: &toml::Table, prefix: Op
 
 impl Source for File {
     fn build(&mut self) -> Result<HashMap<String, Value>, Box<Error>> {
+        let mut content = HashMap::new();
+
         // Find file
         // TODO: Use a nearest algorithm rather than strictly CWD
-        let cwd = env::current_dir()?;
+        let cwd = match env::current_dir() {
+            Ok(cwd) => cwd,
+            Err(err) => {
+                if self.required {
+                    return Err(From::from(err));
+                } else {
+                    return Ok(content);
+                }
+            }
+        };
+
         let filename = cwd.join(self.name.clone() + ".toml");
 
         // Read contents from file
-        let mut file = fs::File::open(filename)?;
+        let mut file = match fs::File::open(filename) {
+            Ok(file) => file,
+            Err(err) => {
+                if self.required {
+                    return Err(From::from(err));
+                } else {
+                    return Ok(content);
+                }
+            }
+        };
+
         let mut buffer = String::new();
-        file.read_to_string(&mut buffer)?;
+        let res = file.read_to_string(&mut buffer);
+        if res.is_err() {
+            if self.required {
+                return Err(From::from(res.err().unwrap()));
+            } else {
+                return Ok(content);
+            }
+        }
 
         // Parse
         let mut parser = toml::Parser::new(&buffer);
@@ -87,7 +128,6 @@ impl Source for File {
         let document = parser.parse().unwrap();
 
         // Iterate through document and fill content
-        let mut content = HashMap::new();
         collect(&mut content, &document, None);
 
         Ok(content)
