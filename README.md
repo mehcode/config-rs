@@ -1,7 +1,7 @@
 # config-rs
 > Application Configuration for Rust
 
-config-rs is a layered configuration system for Rust applications (including [12-factor]).
+config-rs is a layered configuration system for Rust applications (with strong support for [12-factor]).
 
 [12-factor]: https://12factor.net/config
 
