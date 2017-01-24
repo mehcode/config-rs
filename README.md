@@ -1,7 +1,5 @@
 # config-rs
-> Application Configuration for Rust
-
-config-rs is a layered configuration system for Rust applications (including [12-factor]).
+> Layered configuration system for Rust applications (with strong support for [12-factor] applications).
 
 [12-factor]: https://12factor.net/config
 
@@ -17,7 +15,7 @@ config = { git = "https://github.com/mehcode/config-rs.git" }
 Configuration is collected in a series of layers, in order from lowest to highest priority.
 
 1. Explicit Default — `config::set_default`
-2. Source — File, Remote (ETCD, Consul, etc.)
+2. Source — File
 3. Environment
 4. Explicit Set — `config::set`
 
@@ -60,5 +58,5 @@ assert_eq!(config::get_bool("debug"), Some(false));
 // Set an explicit override of a key
 confing::set("debug", true);
 
-assert_eq!(config::get_bool("debug"), true);
+assert_eq!(config::get_bool("debug"), Some(true));
 ```
