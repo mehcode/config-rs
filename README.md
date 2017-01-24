@@ -58,5 +58,5 @@ assert_eq!(config::get_bool("debug"), Some(false));
 // Set an explicit override of a key
 confing::set("debug", true);
 
-assert_eq!(config::get_bool("debug"), true);
+assert_eq!(config::get_bool("debug"), Some(true));
 ```
