@@ -1,18 +1,28 @@
 #![feature(try_from)]
 
+extern crate toml;
+
 mod value;
+mod source;
 
 use value::Value;
 
+pub use source::Source;
+pub use source::File;
+
 use std::env;
+use std::error::Error;
 use std::convert::TryFrom;
 use std::collections::HashMap;
 
 #[derive(Default)]
 pub struct Config {
+    env_prefix: Option<String>,
+
     defaults: HashMap<String, Value>,
     overrides: HashMap<String, Value>,
     environ: HashMap<String, Value>,
+    sources: Vec<HashMap<String, Value>>,
 }
 
 impl Config {
@@ -20,37 +30,85 @@ impl Config {
         Default::default()
     }
 
+    /// Merge in configuration values from the given source.
+    pub fn merge<T>(&mut self, mut source: T) -> Result<(), Box<Error>>
+        where T: Source
+    {
+        self.sources.push(source.build()?);
+
+        Ok(())
+    }
+
+    /// Defines a prefix that environment variables
+    /// must start with to be considered.
+    ///
+    /// By default all environment variables are considered. This can lead to unexpected values
+    /// in configuration (eg. `PATH`).
+    pub fn set_env_prefix(&mut self, prefix: &str) {
+        self.env_prefix = Some(prefix.to_uppercase());
+    }
+
+    /// Sets the default value for this key. The default value is only used
+    /// when no other value is provided.
     pub fn set_default<T>(&mut self, key: &str, value: T)
         where T: Into<Value>
     {
-        self.defaults.insert(key.into(), value.into());
+        self.defaults.insert(key.to_lowercase(), value.into());
     }
 
+    /// Sets an override for this key.
     pub fn set<T>(&mut self, key: &str, value: T)
         where T: Into<Value>
     {
-        self.overrides.insert(key.into(), value.into());
+        self.overrides.insert(key.to_lowercase(), value.into());
     }
 
     pub fn get<'a, T>(&'a mut self, key: &str) -> Option<T>
         where T: TryFrom<&'a mut Value>,
               T: Default
     {
+        // Check explicit override
+
         if let Some(value) = self.overrides.get_mut(key) {
-            T::try_from(value).ok()
-        } else if let Ok(value) = env::var(key.to_uppercase()) {
+            return T::try_from(value).ok();
+        }
+
+        // Check environment
+
+        // Transform key into an env_key which is uppercased
+        // and has the optional prefix applied
+        let mut env_key = String::new();
+
+        if let Some(ref env_prefix) = self.env_prefix {
+            env_key.push_str(env_prefix);
+            env_key.push('_');
+        }
+
+        env_key.push_str(&key.to_uppercase());
+
+        if let Ok(value) = env::var(env_key.clone()) {
             // Store the environment variable into an environ
             // hash map; we want to return references
-
-            // TODO: Key name needs to go through a transform
             self.environ.insert(key.to_lowercase().into(), value.into());
 
-            T::try_from(self.environ.get_mut(key).unwrap()).ok()
-        } else if let Some(value) = self.defaults.get_mut(key) {
-            T::try_from(value).ok()
-        } else {
-            None
+            return T::try_from(self.environ.get_mut(key).unwrap()).ok();
         }
+
+        // Check sources
+
+        for source in &mut self.sources.iter_mut().rev() {
+            if let Some(value) = source.get_mut(key) {
+                return T::try_from(value).ok();
+            }
+        }
+
+        // Check explicit defaults
+
+        if let Some(value) = self.defaults.get_mut(key) {
+            return T::try_from(value).ok();
+        }
+
+        None
     }
 
     pub fn get_str<'a>(&'a mut self, key: &str) -> Option<&'a str> {
@@ -72,32 +130,54 @@ impl Config {
 
 #[cfg(test)]
 mod test {
-    use std::env;
+    // use std::env;
+    use super::Config;
 
     // Retrieval of a non-existent key
     #[test]
     fn test_not_found() {
-        let mut c = super::Config::new();
+        let mut c = Config::new();
 
         assert_eq!(c.get_int("key"), None);
     }
 
-    // Environment override
-    #[test]
-    fn test_env_override() {
-        let mut c = super::Config::new();
+    // // Environment override
+    // #[test]
+    // fn test_env_override() {
+    //     let mut c = Config::new();
 
-        c.set_default("key_1", false);
+    //     c.set_default("key_1", false);
 
-        env::set_var("KEY_1", "1");
+    //     env::set_var("KEY_1", "1");
 
-        assert_eq!(c.get_bool("key_1"), Some(true));
-    }
+    //     assert_eq!(c.get_bool("key_1"), Some(true));
+
+    //     // TODO(@rust): Is there a way to easily kill this at the end of a test?
+    //     env::remove_var("KEY_1");
+    // }
+
+    // // Environment prefix
+    // #[test]
+    // fn test_env_prefix() {
+    //     let mut c = Config::new();
+
+    //     env::set_var("KEY_1", "1");
+    //     env::set_var("CFG_KEY_2", "false");
+
+    //     c.set_env_prefix("CFG");
+
+    //     assert_eq!(c.get_bool("key_1"), None);
+    //     assert_eq!(c.get_bool("key_2"), Some(false));
+
+    //     // TODO(@rust): Is there a way to easily kill this at the end of a test?
+    //     env::remove_var("KEY_1");
+    //     env::remove_var("CFG_KEY_2");
+    // }
 
     // Explicit override
     #[test]
     fn test_default_override() {
-        let mut c = super::Config::new();
+        let mut c = Config::new();
 
         c.set_default("key_1", false);
         c.set_default("key_2", false);
@@ -114,7 +194,7 @@ mod test {
     // Storage and retrieval of String values
     #[test]
     fn test_str() {
-        let mut c = super::Config::new();
+        let mut c = Config::new();
 
         c.set("key", "value");
 
@@ -125,7 +205,7 @@ mod test {
     // Storage and retrieval of Boolean values
     #[test]
     fn test_bool() {
-        let mut c = super::Config::new();
+        let mut c = Config::new();
 
         c.set("key", true);
 
@@ -136,7 +216,7 @@ mod test {
     // Storage and retrieval of Float values
     #[test]
     fn test_float() {
-        let mut c = super::Config::new();
+        let mut c = Config::new();
 
         c.set("key", 3.14);
 
@@ -147,7 +227,7 @@ mod test {
     // Storage and retrieval of Integer values
     #[test]
     fn test_int() {
-        let mut c = super::Config::new();
+        let mut c = Config::new();
 
         c.set("key", 42);
 
@@ -158,7 +238,7 @@ mod test {
     // Storage of various values and retrieval as String
     #[test]
     fn test_retrieve_str() {
-        let mut c = super::Config::new();
+        let mut c = Config::new();
 
         c.set("key_1", 115);
         c.set("key_2", 1.23);
@@ -172,7 +252,7 @@ mod test {
     // Storage of various values and retrieval as Integer
     #[test]
     fn test_retrieve_int() {
-        let mut c = super::Config::new();
+        let mut c = Config::new();
 
         c.set("key_1", "121");
         c.set("key_2", 5.12);
@@ -192,7 +272,7 @@ mod test {
     // Storage of various values and retrieval as Float
     #[test]
     fn test_retrieve_float() {
-        let mut c = super::Config::new();
+        let mut c = Config::new();
 
         c.set("key_1", "121");
         c.set("key_2", "121.512");
@@ -212,7 +292,7 @@ mod test {
     // Storage of various values and retrieval as Boolean
     #[test]
     fn test_retrieve_bool() {
-        let mut c = super::Config::new();
+        let mut c = Config::new();
 
         c.set("key_1", "121");
         c.set("key_2", "1");
