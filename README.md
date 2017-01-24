@@ -17,7 +17,7 @@ config = { git = "https://github.com/mehcode/config-rs.git" }
 Configuration is collected in a series of layers, in order from lowest to highest priority.
 
 1. Explicit Default — `config::set_default`
-2. Source — File, Remote (ETCD, Consul, etc.)
+2. Source — File
 3. Environment
 4. Explicit Set — `config::set`
 
