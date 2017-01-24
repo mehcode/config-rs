@@ -14,8 +14,6 @@ config = { git = "https://github.com/mehcode/config-rs.git" }
 
 ## Usage
 
-### Setting Values
-
 Configuration is collected in a series of layers, in order from lowest to highest priority.
 
 1. Explicit Default — `config::set_default`
@@ -23,64 +21,44 @@ Configuration is collected in a series of layers, in order from lowest to highes
 3. Environment
 4. Explicit Set — `config::set`
 
-#### Defaults
-
-By default, `None` is returned when requesting a configuration value
-that does not exist elsewhere.
-
-Defaults may be established in code.
-
 ```rust
+// Set explicit defaults. This is optional but can be used
+// to ensure a key always has a value.
 config::set_default("port", 80);
-```
 
-#### Environment
+assert_eq!(config::get_int("port"), 80);
 
-```rust
-// Keep your environment unique and predictable
+// Merge in a configuration file
+//
+// ---
+// [development]
+// host = "::1"
+// factor = 5.321
+//
+// [development.redis]
+// port = 80
+// ---
+config::merge(config::File::with_name("Settings").namespace("development"));
+
+assert_eq!(config::get_str("host"), Some("::1"));
+assert_eq!(config::get_int("factor"), Some(5));
+assert_eq!(config::get_str("redis.port"), Some("80"));
+
+// Keep your environment unique and predictable by
+// namespacing environment variable usage
 config::set_env_prefix("rust");
 
-// Enable environment
-// config::bind_env("port");
-// config::bind_env_to("port", "port");
-config::bind_env_all();
-
-// Environment variables are typically set outside of the application
+// Environment variables would normally be set outside of the application
 std::env::set_var("RUST_PORT", "80");
-std::env::set_var("RUST_PORT2", "602");
+std::env::set_var("RUST_HOST", "::0");
+std::env::set_var("RUST_DEBUG", "false");
 
-config::get_int("port");  //= Some(80)
-config::get_int("port2"); //= Some(602)
-```
+assert_eq!(config::get_int("port"), Some(80));
+assert_eq!(config::get_str("host"), Some("::0"));
+assert_eq!(config::get_bool("debug"), Some(false));
 
-#### Source
+// Set an explicit override of a key
+confing::set("debug", true);
 
-##### File
-
-Read `${CWD}/Settings.toml` and populate configuration.
- - `prefix` is used to only pull keys nested under the named key
- - `required(true)` (default) will cause an error to be returned if the file failed to be read/parsed/etc.
-
-```rust
-config::merge(
-    config::source::File::with_name("Settings")
-        .required(false)
-        .prefix("development")
-).unwrap();
-```
-
-### Getting Values
-
-Values will attempt to convert from their underlying type (from when they were set) when accessed.
-
- - `config::get::<T>(key: &str) -> T`
- - `config::get_str(key: &str) -> &str`
- - `config::get_int(key: &str) -> i64`
- - `config::get_float(key: &str) -> float`
- - `config::get_bool(key: &str) -> bool`
-
-```rust
-if config::get("debug").unwrap() {
-    println!("address: {:?}", config::get_int("port"));
-}
+assert_eq!(config::get_bool("debug"), true);
 ```
