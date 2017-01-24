@@ -69,7 +69,7 @@ config::merge(
 ).unwrap();
 ```
 
-## Getting Values
+### Getting Values
 
 Values will attempt to convert from their underlying type (from when they were set) when accessed.
 
