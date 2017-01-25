@@ -23,62 +23,57 @@ static mut CONFIG: Option<Config> = None;
 static CONFIG_INIT: Once = ONCE_INIT;
 
 // Get the global configuration instance
-fn global() -> Option<&'static mut Config> {
+fn global() -> &'static mut Config {
     unsafe {
         CONFIG_INIT.call_once(|| {
             CONFIG = Some(Default::default());
         });
 
-        // TODO(@rust): One-line this if possible
-        if let Some(ref mut c) = CONFIG {
-            return Some(c);
-        }
-
-        None
+        CONFIG.as_mut().unwrap()
     }
 }
 
 pub fn merge<T>(source: T) -> Result<(), Box<Error>>
     where T: Source
 {
-    global().unwrap().merge(source)
+    global().merge(source)
 }
 
 pub fn set_env_prefix(prefix: &str) {
-    global().unwrap().set_env_prefix(prefix)
+    global().set_env_prefix(prefix)
 }
 
 pub fn set_default<T>(key: &str, value: T)
     where T: Into<Value>
 {
-    global().unwrap().set_default(key, value)
+    global().set_default(key, value)
 }
 
 pub fn set<T>(key: &str, value: T)
     where T: Into<Value>
 {
-    global().unwrap().set(key, value)
+    global().set(key, value)
 }
 
 pub fn get<'a, T>(key: &str) -> Option<T>
     where T: TryFrom<&'a mut Value>,
           T: Default
 {
-    global().unwrap().get(key)
+    global().get(key)
 }
 
 pub fn get_str<'a>(key: &str) -> Option<&'a str> {
-    global().unwrap().get_str(key)
+    global().get_str(key)
 }
 
 pub fn get_int(key: &str) -> Option<i64> {
-    global().unwrap().get_int(key)
+    global().get_int(key)
 }
 
 pub fn get_float(key: &str) -> Option<f64> {
-    global().unwrap().get_float(key)
+    global().get_float(key)
 }
 
 pub fn get_bool(key: &str) -> Option<bool> {
-    global().unwrap().get_bool(key)
+    global().get_bool(key)
 }
