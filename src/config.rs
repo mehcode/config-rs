@@ -3,8 +3,8 @@ use source::Source;
 
 use std::env;
 use std::error::Error;
-use std::convert::TryFrom;
 use std::collections::HashMap;
+use std::borrow::Cow;
 
 #[derive(Default)]
 pub struct Config {
@@ -14,6 +14,26 @@ pub struct Config {
     overrides: HashMap<String, Value>,
     environ: HashMap<String, Value>,
     sources: Vec<HashMap<String, Value>>,
+}
+
+trait ConfigGetResult {
+    type Type;
+}
+
+impl<'a> ConfigGetResult for &'a str {
+    type Type = Cow<'a, str>;
+}
+
+impl ConfigGetResult for i64 {
+    type Type = i64;
+}
+
+impl ConfigGetResult for f64 {
+    type Type = f64;
+}
+
+impl ConfigGetResult for bool {
+    type Type = bool;
 }
 
 impl Config {
@@ -54,14 +74,11 @@ impl Config {
         self.overrides.insert(key.to_lowercase(), value.into());
     }
 
-    pub fn get<'a, T>(&'a mut self, key: &str) -> Option<T>
-        where T: TryFrom<&'a mut Value>,
-              T: Default
-    {
+    pub fn get<'a>(&'a mut self, key: &str) -> Option<&'a Value> {
         // Check explicit override
 
-        if let Some(value) = self.overrides.get_mut(key) {
-            return T::try_from(value).ok();
+        if let Some(value) = self.overrides.get(key) {
+            return Some(value);
         }
 
         // Check environment
@@ -78,44 +95,58 @@ impl Config {
         env_key.push_str(&key.to_uppercase());
 
         if let Ok(value) = env::var(env_key.clone()) {
-            // Store the environment variable into an environ
-            // hash map; we want to return references
-            self.environ.insert(key.to_lowercase().into(), value.into());
-
-            return T::try_from(self.environ.get_mut(key).unwrap()).ok();
+            // TODO: Find a better way to do this?
+            self.environ.insert(key.into(), value.into());
+            return self.environ.get(key);
         }
 
         // Check sources
 
-        for source in &mut self.sources.iter_mut().rev() {
-            if let Some(value) = source.get_mut(key) {
-                return T::try_from(value).ok();
+        for source in &mut self.sources.iter().rev() {
+            if let Some(value) = source.get(key) {
+                return Some(value);
             }
         }
 
         // Check explicit defaults
 
-        if let Some(value) = self.defaults.get_mut(key) {
-            return T::try_from(value).ok();
+        if let Some(value) = self.defaults.get(key) {
+            return Some(value);
         }
 
         None
     }
 
-    pub fn get_str<'a>(&'a mut self, key: &str) -> Option<&'a str> {
-        self.get(key)
+    pub fn get_str<'a>(&'a mut self, key: &str) -> Option<Cow<'a, str>> {
+        if let Some(value) = self.get(key) {
+            value.as_str()
+        } else {
+            None
+        }
     }
 
     pub fn get_int(&mut self, key: &str) -> Option<i64> {
-        self.get(key)
+        if let Some(value) = self.get(key) {
+            value.as_int()
+        } else {
+            None
+        }
     }
 
     pub fn get_float(&mut self, key: &str) -> Option<f64> {
-        self.get(key)
+        if let Some(value) = self.get(key) {
+            value.as_float()
+        } else {
+            None
+        }
     }
 
     pub fn get_bool(&mut self, key: &str) -> Option<bool> {
-        self.get(key)
+        if let Some(value) = self.get(key) {
+            value.as_bool()
+        } else {
+            None
+        }
     }
 }
 
@@ -190,7 +221,6 @@ mod test {
         c.set("key", "value");
 
         assert_eq!(c.get_str("key").unwrap(), "value");
-        assert!("value" == c.get::<&str>("key").unwrap());
     }
 
     // Storage and retrieval of Boolean values
@@ -201,7 +231,6 @@ mod test {
         c.set("key", true);
 
         assert_eq!(c.get_bool("key").unwrap(), true);
-        assert!(false != c.get("key").unwrap());
     }
 
     // Storage and retrieval of Float values
@@ -212,7 +241,6 @@ mod test {
         c.set("key", 3.14);
 
         assert_eq!(c.get_float("key").unwrap(), 3.14);
-        assert!(3.14 >= c.get("key").unwrap());
     }
 
     // Storage and retrieval of Integer values
@@ -223,7 +251,6 @@ mod test {
         c.set("key", 42);
 
         assert_eq!(c.get_int("key").unwrap(), 42);
-        assert!(42 == c.get::<i64>("key").unwrap());
     }
 
     // Storage of various values and retrieval as String
@@ -235,9 +262,9 @@ mod test {
         c.set("key_2", 1.23);
         c.set("key_3", false);
 
-        assert_eq!(c.get_str("key_1"), Some("115"));
-        assert_eq!(c.get_str("key_2"), Some("1.23"));
-        assert_eq!(c.get_str("key_3"), Some("false"));
+        assert_eq!(c.get_str("key_1").unwrap(), "115");
+        assert_eq!(c.get_str("key_2").unwrap(), "1.23");
+        assert_eq!(c.get_str("key_3").unwrap(), "false");
     }
 
     // Storage of various values and retrieval as Integer

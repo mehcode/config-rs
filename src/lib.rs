@@ -1,5 +1,5 @@
-#![feature(try_from)]
 #![feature(drop_types_in_const)]
+#![allow(unknown_lints)]
 
 extern crate toml;
 
@@ -8,13 +8,13 @@ mod source;
 mod config;
 
 use std::error::Error;
-use std::convert::TryFrom;
+use std::borrow::Cow;
 use std::sync::{Once, ONCE_INIT};
 
 pub use source::Source;
 pub use source::File;
 
-use value::Value;
+pub use value::Value;
 
 pub use config::Config;
 
@@ -55,14 +55,11 @@ pub fn set<T>(key: &str, value: T)
     global().set(key, value)
 }
 
-pub fn get<'a, T>(key: &str) -> Option<T>
-    where T: TryFrom<&'a mut Value>,
-          T: Default
-{
+pub fn get<'a>(key: &str) -> Option<&'a Value> {
     global().get(key)
 }
 
-pub fn get_str<'a>(key: &str) -> Option<&'a str> {
+pub fn get_str<'a>(key: &str) -> Option<Cow<'a, str>> {
     global().get_str(key)
 }
 
