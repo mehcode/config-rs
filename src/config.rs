@@ -98,11 +98,7 @@ impl Config {
     }
 
     pub fn get_str<'a>(&'a mut self, key: &str) -> Option<Cow<'a, str>> {
-        if let Some(value) = self.get(key) {
-            value.as_str()
-        } else {
-            None
-        }
+        self.get(key).and_then(Value::as_str)
     }
 
     pub fn get_int(&mut self, key: &str) -> Option<i64> {
@@ -304,16 +300,16 @@ mod test {
         c.set("key_10", 0.0);
         c.set("key_11", "asga");
 
-        assert_eq!(c.get_bool("key_1"), Some(false));
+        assert_eq!(c.get_bool("key_1"), None);
         assert_eq!(c.get_bool("key_2"), Some(true));
         assert_eq!(c.get_bool("key_3"), Some(false));
         assert_eq!(c.get_bool("key_4"), Some(true));
-        assert_eq!(c.get_bool("key_5"), Some(false));
+        assert_eq!(c.get_bool("key_5"), None);
         assert_eq!(c.get_bool("key_6"), Some(true));
         assert_eq!(c.get_bool("key_7"), Some(false));
         assert_eq!(c.get_bool("key_8"), Some(true));
         assert_eq!(c.get_bool("key_9"), Some(true));
         assert_eq!(c.get_bool("key_10"), Some(false));
-        assert_eq!(c.get_bool("key_11"), Some(false));
+        assert_eq!(c.get_bool("key_11"), None);
     }
 }
