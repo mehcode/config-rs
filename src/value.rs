@@ -5,7 +5,7 @@ use std::borrow::Cow;
 ///
 /// Has an underlying or native type that comes from the configuration source
 /// but will be coerced into the requested type.
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub enum Value {
     String(String),
     Integer(i64),
@@ -35,10 +35,11 @@ impl Value {
         if let Value::Boolean(value) = *self {
             Some(value)
         } else if let Value::String(ref value) = *self {
-            Some(match value.to_lowercase().as_ref() {
-                "1" | "true" | "on" | "yes" => true,
-                _ => false,
-            })
+            match value.to_lowercase().as_ref() {
+                "1" | "true" | "on" | "yes" => Some(true),
+                "0" | "false" | "off" | "no" => Some(false),
+                _ => None,
+            }
         } else if let Value::Integer(value) = *self {
             Some(value != 0)
         } else if let Value::Float(value) = *self {

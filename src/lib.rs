@@ -5,6 +5,7 @@ extern crate toml;
 
 mod value;
 mod source;
+mod file;
 mod config;
 
 use std::error::Error;
@@ -12,7 +13,7 @@ use std::borrow::Cow;
 use std::sync::{Once, ONCE_INIT};
 
 pub use source::Source;
-pub use source::File;
+pub use file::File;
 
 pub use value::Value;
 
@@ -25,9 +26,7 @@ static CONFIG_INIT: Once = ONCE_INIT;
 // Get the global configuration instance
 fn global() -> &'static mut Config {
     unsafe {
-        CONFIG_INIT.call_once(|| {
-            CONFIG = Some(Default::default());
-        });
+        CONFIG_INIT.call_once(|| { CONFIG = Some(Default::default()); });
 
         CONFIG.as_mut().unwrap()
     }
