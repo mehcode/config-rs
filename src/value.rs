@@ -1,7 +1,10 @@
 use std::convert::From;
 use std::borrow::Cow;
 
-// Variant for a configuration Value
+/// A configuration value.
+///
+/// Has an underlying or native type that comes from the configuration source
+/// but will be coerced into the requested type.
 #[derive(Clone)]
 pub enum Value {
     String(String),
