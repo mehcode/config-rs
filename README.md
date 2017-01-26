@@ -1,4 +1,5 @@
 # config-rs
+[![Build Status](https://travis-ci.org/mehcode/config-rs.svg?branch=master)](https://travis-ci.org/mehcode/config-rs)
 > Layered configuration system for Rust applications (with strong support for [12-factor] applications).
 
 [12-factor]: https://12factor.net/config
