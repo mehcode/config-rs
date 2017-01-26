@@ -16,26 +16,6 @@ pub struct Config {
     sources: Vec<HashMap<String, Value>>,
 }
 
-trait ConfigGetResult {
-    type Type;
-}
-
-impl<'a> ConfigGetResult for &'a str {
-    type Type = Cow<'a, str>;
-}
-
-impl ConfigGetResult for i64 {
-    type Type = i64;
-}
-
-impl ConfigGetResult for f64 {
-    type Type = f64;
-}
-
-impl ConfigGetResult for bool {
-    type Type = bool;
-}
-
 impl Config {
     pub fn new() -> Config {
         Default::default()
