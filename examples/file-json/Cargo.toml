@@ -1,0 +1,6 @@
+[package]
+name = "file-json"
+version = "0.1.0"
+
+[dependencies]
+config = { path = "../..", default-features = false, features = ["json"] }

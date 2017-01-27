@@ -3,5 +3,10 @@ name = "config"
 version = "0.1.0"
 authors = ["Ryan Leckey <leckey.ryan@gmail.com>"]
 
+[features]
+default = ["toml"]
+json = ["serde_json"]
+
 [dependencies]
-toml = "0.2.1"
+toml = { version = "0.2.1", optional = true }
+serde_json = { version = "0.9", optional = true }

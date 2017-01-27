@@ -1,10 +1,9 @@
 use value::Value;
-use source::Source;
+use source::{Source, SourceBuilder};
 
 use std::env;
 use std::error::Error;
 use std::collections::HashMap;
-use std::borrow::Cow;
 
 #[derive(Default)]
 pub struct Config {
@@ -12,8 +11,7 @@ pub struct Config {
 
     defaults: HashMap<String, Value>,
     overrides: HashMap<String, Value>,
-    environ: HashMap<String, Value>,
-    sources: Vec<HashMap<String, Value>>,
+    sources: Vec<Box<Source>>,
 }
 
 impl Config {
@@ -22,8 +20,8 @@ impl Config {
     }
 
     /// Merge in configuration values from the given source.
-    pub fn merge<T>(&mut self, mut source: T) -> Result<(), Box<Error>>
-        where T: Source
+    pub fn merge<T>(&mut self, source: T) -> Result<(), Box<Error>>
+        where T: SourceBuilder
     {
         self.sources.push(source.build()?);
 
@@ -54,11 +52,11 @@ impl Config {
         self.overrides.insert(key.to_lowercase(), value.into());
     }
 
-    pub fn get<'a>(&'a mut self, key: &str) -> Option<&'a Value> {
+    pub fn get(&self, key: &str) -> Option<Value> {
         // Check explicit override
 
         if let Some(value) = self.overrides.get(key) {
-            return Some(value);
+            return Some(value.clone());
         }
 
         // Check environment
@@ -75,9 +73,7 @@ impl Config {
         env_key.push_str(&key.to_uppercase());
 
         if let Ok(value) = env::var(env_key.clone()) {
-            // TODO: Find a better way to do this?
-            self.environ.insert(key.into(), value.into());
-            return self.environ.get(key);
+            return Some(Value::from(value));
         }
 
         // Check sources
@@ -91,38 +87,26 @@ impl Config {
         // Check explicit defaults
 
         if let Some(value) = self.defaults.get(key) {
-            return Some(value);
+            return Some(value.clone());
         }
 
         None
     }
 
-    pub fn get_str<'a>(&'a mut self, key: &str) -> Option<Cow<'a, str>> {
+    pub fn get_str(&self, key: &str) -> Option<String> {
         self.get(key).and_then(Value::as_str)
     }
 
-    pub fn get_int(&mut self, key: &str) -> Option<i64> {
-        if let Some(value) = self.get(key) {
-            value.as_int()
-        } else {
-            None
-        }
+    pub fn get_int(&self, key: &str) -> Option<i64> {
+        self.get(key).and_then(Value::as_int)
     }
 
-    pub fn get_float(&mut self, key: &str) -> Option<f64> {
-        if let Some(value) = self.get(key) {
-            value.as_float()
-        } else {
-            None
-        }
+    pub fn get_float(&self, key: &str) -> Option<f64> {
+        self.get(key).and_then(Value::as_float)
     }
 
-    pub fn get_bool(&mut self, key: &str) -> Option<bool> {
-        if let Some(value) = self.get(key) {
-            value.as_bool()
-        } else {
-            None
-        }
+    pub fn get_bool(&self, key: &str) -> Option<bool> {
+        self.get(key).and_then(Value::as_bool)
     }
 }
 

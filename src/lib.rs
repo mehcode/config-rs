@@ -1,7 +1,11 @@
 #![feature(drop_types_in_const)]
 #![allow(unknown_lints)]
 
+#[cfg(feature = "toml")]
 extern crate toml;
+
+#[cfg(feature = "json")]
+extern crate serde_json;
 
 mod value;
 mod source;
@@ -9,11 +13,10 @@ mod file;
 mod config;
 
 use std::error::Error;
-use std::borrow::Cow;
 use std::sync::{Once, ONCE_INIT};
 
-pub use source::Source;
-pub use file::File;
+pub use source::{Source, SourceBuilder};
+pub use file::{File, FileFormat};
 
 pub use value::Value;
 
@@ -26,14 +29,16 @@ static CONFIG_INIT: Once = ONCE_INIT;
 // Get the global configuration instance
 fn global() -> &'static mut Config {
     unsafe {
-        CONFIG_INIT.call_once(|| { CONFIG = Some(Default::default()); });
+        CONFIG_INIT.call_once(|| {
+            CONFIG = Some(Default::default());
+        });
 
         CONFIG.as_mut().unwrap()
     }
 }
 
 pub fn merge<T>(source: T) -> Result<(), Box<Error>>
-    where T: Source
+    where T: SourceBuilder
 {
     global().merge(source)
 }
@@ -54,11 +59,11 @@ pub fn set<T>(key: &str, value: T)
     global().set(key, value)
 }
 
-pub fn get<'a>(key: &str) -> Option<&'a Value> {
+pub fn get(key: &str) -> Option<Value> {
     global().get(key)
 }
 
-pub fn get_str<'a>(key: &str) -> Option<Cow<'a, str>> {
+pub fn get_str(key: &str) -> Option<String> {
     global().get_str(key)
 }
 

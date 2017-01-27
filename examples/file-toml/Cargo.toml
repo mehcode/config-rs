@@ -1,7 +1,6 @@
 [package]
-name = "basic-file"
+name = "file-toml"
 version = "0.1.0"
-authors = ["Ryan Leckey <leckey.ryan@gmail.com>"]
 
 [dependencies]
 config = { path = "../.." }
