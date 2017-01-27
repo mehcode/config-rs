@@ -14,7 +14,7 @@ mod env;
 mod config;
 
 use std::error::Error;
-use std::sync::{Once, ONCE_INIT};
+use std::sync::{Once, ONCE_INIT, RwLock};
 
 pub use source::{Source, SourceBuilder};
 pub use file::{File, FileFormat};
@@ -25,11 +25,11 @@ pub use value::Value;
 pub use config::Config;
 
 // Global configuration
-static mut CONFIG: Option<Config> = None;
+static mut CONFIG: Option<RwLock<Config>> = None;
 static CONFIG_INIT: Once = ONCE_INIT;
 
 // Get the global configuration instance
-fn global() -> &'static mut Config {
+fn global() -> &'static RwLock<Config> {
     unsafe {
         CONFIG_INIT.call_once(|| { CONFIG = Some(Default::default()); });
 
@@ -40,37 +40,43 @@ fn global() -> &'static mut Config {
 pub fn merge<T>(source: T) -> Result<(), Box<Error>>
     where T: SourceBuilder
 {
-    global().merge(source)
+    global().write()?.merge(source)
 }
 
-pub fn set_default<T>(key: &str, value: T)
+pub fn set_default<T>(key: &str, value: T) -> Result<(), Box<Error>>
     where T: Into<Value>
 {
-    global().set_default(key, value)
+    global().write()?.set_default(key, value);
+
+    // TODO: `set_default` will be able to fail soon so this will not be needed
+    Ok(())
 }
 
-pub fn set<T>(key: &str, value: T)
+pub fn set<T>(key: &str, value: T) -> Result<(), Box<Error>>
     where T: Into<Value>
 {
-    global().set(key, value)
+    global().write()?.set(key, value);
+
+    // TODO: `set_default` will be able to fail soon so this will not be needed
+    Ok(())
 }
 
 pub fn get(key: &str) -> Option<Value> {
-    global().get(key)
+    global().read().unwrap().get(key)
 }
 
 pub fn get_str(key: &str) -> Option<String> {
-    global().get_str(key)
+    global().read().unwrap().get_str(key)
 }
 
 pub fn get_int(key: &str) -> Option<i64> {
-    global().get_int(key)
+    global().read().unwrap().get_int(key)
 }
 
 pub fn get_float(key: &str) -> Option<f64> {
-    global().get_float(key)
+    global().read().unwrap().get_float(key)
 }
 
 pub fn get_bool(key: &str) -> Option<bool> {
-    global().get_bool(key)
+    global().read().unwrap().get_bool(key)
 }
