@@ -1,14 +1,11 @@
 use value::Value;
 use source::{Source, SourceBuilder};
 
-use std::env;
 use std::error::Error;
 use std::collections::HashMap;
 
 #[derive(Default)]
 pub struct Config {
-    env_prefix: Option<String>,
-
     defaults: HashMap<String, Value>,
     overrides: HashMap<String, Value>,
     sources: Vec<Box<Source>>,
@@ -26,15 +23,6 @@ impl Config {
         self.sources.push(source.build()?);
 
         Ok(())
-    }
-
-    /// Defines a prefix that environment variables
-    /// must start with to be considered.
-    ///
-    /// By default all environment variables are considered. This can lead to unexpected values
-    /// in configuration (eg. `PATH`).
-    pub fn set_env_prefix(&mut self, prefix: &str) {
-        self.env_prefix = Some(prefix.to_uppercase());
     }
 
     /// Sets the default value for this key. The default value is only used
@@ -57,23 +45,6 @@ impl Config {
 
         if let Some(value) = self.overrides.get(key) {
             return Some(value.clone());
-        }
-
-        // Check environment
-
-        // Transform key into an env_key which is uppercased
-        // and has the optional prefix applied
-        let mut env_key = String::new();
-
-        if let Some(ref env_prefix) = self.env_prefix {
-            env_key.push_str(env_prefix);
-            env_key.push('_');
-        }
-
-        env_key.push_str(&key.to_uppercase());
-
-        if let Ok(value) = env::var(env_key.clone()) {
-            return Some(Value::from(value));
         }
 
         // Check sources
@@ -118,43 +89,10 @@ mod test {
     // Retrieval of a non-existent key
     #[test]
     fn test_not_found() {
-        let mut c = Config::new();
+        let c = Config::new();
 
         assert_eq!(c.get_int("key"), None);
     }
-
-    // // Environment override
-    // #[test]
-    // fn test_env_override() {
-    //     let mut c = Config::new();
-
-    //     c.set_default("key_1", false);
-
-    //     env::set_var("KEY_1", "1");
-
-    //     assert_eq!(c.get_bool("key_1"), Some(true));
-
-    //     // TODO(@rust): Is there a way to easily kill this at the end of a test?
-    //     env::remove_var("KEY_1");
-    // }
-
-    // // Environment prefix
-    // #[test]
-    // fn test_env_prefix() {
-    //     let mut c = Config::new();
-
-    //     env::set_var("KEY_1", "1");
-    //     env::set_var("CFG_KEY_2", "false");
-
-    //     c.set_env_prefix("CFG");
-
-    //     assert_eq!(c.get_bool("key_1"), None);
-    //     assert_eq!(c.get_bool("key_2"), Some(false));
-
-    //     // TODO(@rust): Is there a way to easily kill this at the end of a test?
-    //     env::remove_var("KEY_1");
-    //     env::remove_var("CFG_KEY_2");
-    // }
 
     // Explicit override
     #[test]
