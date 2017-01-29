@@ -81,23 +81,23 @@ impl<'a> ConfigStore<'a> {
         }
     }
 
-    fn get(&self, key: &str) -> Option<Value> {
+    fn get(&self, key: &str) -> Option<Cow<'a, Value>> {
         if let ConfigStore::Mutable { ref overrides, ref sources, ref defaults } = *self {
             // Check explicit override
             if let Some(value) = overrides.get(key) {
-                return Some(value.clone());
+                return Some(Cow::Borrowed(value));
             }
 
             // Check sources
             for source in &mut sources.iter().rev() {
                 if let Some(value) = source.get(key) {
-                    return Some(value);
+                    return Some(value)
                 }
             }
 
             // Check explicit defaults
             if let Some(value) = defaults.get(key) {
-                return Some(value.clone());
+                return Some(Cow::Borrowed(value));
             }
         }
 
@@ -154,7 +154,7 @@ impl<'a> Config<'a> {
     }
 
     pub fn get(&self, key: &str) -> Option<Cow<'a, Value>> {
-        self.store.get(key).map(Cow::Owned)
+        self.store.get(key)
     }
 
     pub fn get_str(&'a self, key: &str) -> Option<Cow<'a, str>> {

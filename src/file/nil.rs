@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use source::Source;
 use value::Value;
 
@@ -5,7 +7,7 @@ use value::Value;
 pub struct Nil {}
 
 impl Source for Nil {
-    fn get(&self, _: &str) -> Option<Value> {
+    fn get<'a>(&self, _: &str) -> Option<Cow<'a, Value>> {
         None
     }
 }

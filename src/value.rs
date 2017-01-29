@@ -20,10 +20,7 @@ impl<'a> Value<'a> {
     /// Gets the underlying value as a string, performing a conversion only if neccessary.
     pub fn as_str(&'a self) -> Option<Cow<'a, str>> {
         if let Value::String(ref value) = *self {
-            Some(match *value {
-                Cow::Borrowed(v) => Cow::Borrowed(v),
-                Cow::Owned(ref v) => Cow::Borrowed(v),
-            })
+            Some(Cow::Borrowed(&*value))
         } else if let Value::Integer(value) = *self {
             Some(Cow::Owned(value.to_string()))
         } else if let Value::Float(value) = *self {

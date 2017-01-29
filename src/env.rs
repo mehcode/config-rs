@@ -1,5 +1,6 @@
 use std::env;
 use std::error::Error;
+use std::borrow::Cow;
 
 use source;
 use value::Value;
@@ -26,7 +27,7 @@ impl source::SourceBuilder for Environment {
 }
 
 impl source::Source for Environment {
-    fn get(&self, key: &str) -> Option<Value> {
+    fn get<'a>(&self, key: &str) -> Option<Cow<'a, Value>> {
         let mut env_key = String::new();
 
         // Apply prefix
@@ -38,6 +39,6 @@ impl source::Source for Environment {
         env_key.push_str(&key.to_uppercase());
 
         // Attempt to retreive environment variable and coerce into a Value
-        env::var(env_key.clone()).ok().map(Value::from)
+        env::var(env_key.clone()).ok().map(Value::from).map(Cow::Owned)
     }
 }

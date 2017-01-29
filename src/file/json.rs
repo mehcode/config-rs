@@ -19,28 +19,28 @@ impl Content {
     }
 }
 
-fn from_json_value(value: &serde_json::Value) -> Option<Value> {
+fn from_json_value<'a>(value: &serde_json::Value) -> Option<Cow<'a, Value>> {
     match *value {
-        serde_json::Value::String(ref value) => Some(Value::String(Cow::Borrowed(value))),
+        serde_json::Value::String(ref value) => Some(Cow::Owned(Value::String(Cow::Borrowed(value)))),
 
         serde_json::Value::Number(ref value) => {
             if let Some(value) = value.as_i64() {
-                Some(Value::Integer(value))
+                Some(Cow::Owned(Value::Integer(value)))
             } else if let Some(value) = value.as_f64() {
-                Some(Value::Float(value))
+                Some(Cow::Owned(Value::Float(value)))
             } else {
                 None
             }
         }
 
-        serde_json::Value::Bool(value) => Some(Value::Boolean(value)),
+        serde_json::Value::Bool(value) => Some(Cow::Owned(Value::Boolean(value))),
 
         _ => None,
     }
 }
 
 impl Source for Content {
-    fn get(&self, key: &str) -> Option<Value> {
+    fn get<'a>(&self, key: &str) -> Option<Cow<'a, Value>> {
         // TODO: Key segment iteration is not something that should be here directly
         let key_delim = '.';
         let key_segments = key.split(key_delim);

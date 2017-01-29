@@ -20,19 +20,19 @@ impl Content {
     }
 }
 
-fn from_toml_value(value: &toml::Value) -> Option<Value> {
+fn from_toml_value<'a>(value: &toml::Value) -> Option<Cow<'a, Value>> {
     match *value {
-        toml::Value::String(ref value) => Some(Value::String(Cow::Borrowed(value))),
-        toml::Value::Float(value) => Some(Value::Float(value)),
-        toml::Value::Integer(value) => Some(Value::Integer(value)),
-        toml::Value::Boolean(value) => Some(Value::Boolean(value)),
+        toml::Value::String(ref value) => Some(Cow::Owned(Value::String(Cow::Borrowed(value)))),
+        toml::Value::Float(value) => Some(Cow::Owned(Value::Float(value))),
+        toml::Value::Integer(value) => Some(Cow::Owned(Value::Integer(value))),
+        toml::Value::Boolean(value) => Some(Cow::Owned(Value::Boolean(value))),
 
         _ => None,
     }
 }
 
 impl Source for Content {
-    fn get(&self, key: &str) -> Option<Value> {
+    fn get<'a>(&self, key: &str) -> Option<Cow<'a, Value>> {
         // TODO: Key segment iteration is not something that should be here directly
         let key_delim = '.';
         let key_segments = key.split(key_delim);
