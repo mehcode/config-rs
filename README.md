@@ -3,6 +3,15 @@
 > Layered configuration system for Rust applications (with strong support for [12-factor] applications).
 
 [12-factor]: https://12factor.net/config
+ 
+ - Set defaults
+ - Set explicit values (to programmatically override)
+ - Read from [JSON] and [TOML] files
+ - Read from environment
+ - Loosely typed — Configuration values may be read in any supported type, as long as there exists a reasonable conversion
+
+[JSON]: https://github.com/serde-rs/json
+[TOML]: https://github.com/toml-lang/toml
 
 ## Install
 
@@ -11,53 +20,37 @@
 config = { git = "https://github.com/mehcode/config-rs.git" }
 ```
 
+#### Features
+
+ - **json** - Adds support for reading JSON files
+ - **toml** - Adds support for reading TOML files (included by default)
+
 ## Usage
 
-Configuration is collected in a series of layers, in order from lowest to highest priority.
-
-1. Explicit Default — `config::set_default`
-2. Source — File
-3. Environment
-4. Explicit Set — `config::set`
+Configuration is gathered by building a `Source` and then merging that source into the 
+current state of the configuration.
 
 ```rust
-// Set explicit defaults. This is optional but can be used
-// to ensure a key always has a value.
-config::set_default("port", 80);
+// Add environment variables that begin with RUST_
+config::merge(config::Environment::new("RUST"));
 
-assert_eq!(config::get_int("port"), 80);
+// Add 'Settings.json'
+config::merge(config::File::new("Settings", config::FileFormat::Json));
 
-// Merge in a configuration file
-//
-// ---
-// [development]
-// host = "::1"
-// factor = 5.321
-//
-// [development.redis]
-// port = 80
-// ---
-config::merge(config::File::with_name("Settings").namespace("development"));
-
-assert_eq!(config::get_str("host"), Some("::1"));
-assert_eq!(config::get_int("factor"), Some(5));
-assert_eq!(config::get_str("redis.port"), Some("80"));
-
-// Keep your environment unique and predictable by
-// namespacing environment variable usage
-config::set_env_prefix("rust");
-
-// Environment variables would normally be set outside of the application
-std::env::set_var("RUST_PORT", "80");
-std::env::set_var("RUST_HOST", "::0");
-std::env::set_var("RUST_DEBUG", "false");
-
-assert_eq!(config::get_int("port"), Some(80));
-assert_eq!(config::get_str("host"), Some("::0"));
-assert_eq!(config::get_bool("debug"), Some(false));
-
-// Set an explicit override of a key
-confing::set("debug", true);
-
-assert_eq!(config::get_bool("debug"), Some(true));
+// Add 'Settings.$(RUST_ENV).json`
+let name = format!("Settings.{}", config::get_str("env").unwrap());
+config::merge(config::File::new(&name, config::FileFormat::Json));
 ```
+
+Note that in the above example the calls to `config::merge` could have 
+been re-ordered to influence the priority as each successive merge 
+is evaluated on top of the previous.
+
+See the [examples](https://github.com/mehcode/config-rs/tree/master/examples) for 
+more usage information.
+
+## License
+
+config-rs is primarily distributed under the terms of both the MIT license and the Apache License (Version 2.0).
+
+See LICENSE-APACHE and LICENSE-MIT for details.
