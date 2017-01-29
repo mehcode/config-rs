@@ -49,6 +49,13 @@ is evaluated on top of the previous.
 See the [examples](https://github.com/mehcode/config-rs/tree/master/examples) for 
 more usage information.
 
+## Roadmap
+ - [ ] Read from remote source — [etcd](https://github.com/jimmycuadra/rust-etcd) and [consul](https://github.com/stusmall/consul-rust)
+ - [ ] Read from YAML files
+ - [ ] Read from Libconfig files
+ 
+All suggestions are welcome. Please make an issue.
+
 ## License
 
 config-rs is primarily distributed under the terms of both the MIT license and the Apache License (Version 2.0).
