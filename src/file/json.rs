@@ -2,6 +2,7 @@ use serde_json;
 
 use source::Source;
 use std::error::Error;
+use std::borrow::Cow;
 use value::Value;
 
 pub struct Content {
@@ -20,7 +21,7 @@ impl Content {
 
 fn from_json_value(value: &serde_json::Value) -> Option<Value> {
     match *value {
-        serde_json::Value::String(ref value) => Some(Value::String(value.clone())),
+        serde_json::Value::String(ref value) => Some(Value::String(Cow::Borrowed(value))),
 
         serde_json::Value::Number(ref value) => {
             if let Some(value) = value.as_i64() {

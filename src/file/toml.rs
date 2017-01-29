@@ -1,5 +1,6 @@
 use toml;
 use source::Source;
+use std::borrow::Cow;
 use std::error::Error;
 use value::Value;
 
@@ -21,7 +22,7 @@ impl Content {
 
 fn from_toml_value(value: &toml::Value) -> Option<Value> {
     match *value {
-        toml::Value::String(ref value) => Some(Value::String(value.clone())),
+        toml::Value::String(ref value) => Some(Value::String(Cow::Borrowed(value))),
         toml::Value::Float(value) => Some(Value::Float(value)),
         toml::Value::Integer(value) => Some(Value::Integer(value)),
         toml::Value::Boolean(value) => Some(Value::Boolean(value)),

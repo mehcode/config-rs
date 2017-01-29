@@ -2,10 +2,10 @@ extern crate config;
 
 fn main() {
     // Set defaults for `window.width` and `window.height`
-    config::set_default("window.title", "Basic");
-    config::set_default("window.width", 640);
-    config::set_default("window.height", 480);
-    config::set_default("debug", true);
+    config::set_default("window.title", "Basic").unwrap();
+    config::set_default("window.width", 640).unwrap();
+    config::set_default("window.height", 480).unwrap();
+    config::set_default("debug", true).unwrap();
 
     // Note that you can retrieve the stored values as any type as long
     // as there exists a reasonable conversion
