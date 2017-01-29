@@ -5,13 +5,7 @@ description = "Layered configuration system for Rust applications."
 homepage = "https://github.com/mehcode/config-rs"
 repository = "https://github.com/mehcode/config-rs"
 readme = "README.md"
-keywords = [
-    "config",
-    "configuration",
-    "settings",
-    "env",
-    "environment"
-]
+keywords = ["config", "configuration", "settings", "env", "environment"]
 authors = ["Ryan Leckey <leckey.ryan@gmail.com>"]
 
 [features]
