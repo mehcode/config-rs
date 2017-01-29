@@ -19,7 +19,7 @@
 
 ```toml
 [dependencies]
-config = { git = "https://github.com/mehcode/config-rs.git" }
+config = "0.2"
 ```
 
 #### Features
