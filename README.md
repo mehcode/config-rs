@@ -1,4 +1,5 @@
 # config-rs
+[![Docs.rs](https://docs.rs/config/badge.svg)](https://docs.rs/config)
 [![Crates.io](https://img.shields.io/crates/v/config.svg)](https://crates.io/crates/config)
 [![Crates.io](https://img.shields.io/crates/dv/config.svg)](https://crates.io/crates/config)
 [![Build Status](https://travis-ci.org/mehcode/config-rs.svg?branch=master)](https://travis-ci.org/mehcode/config-rs)
