@@ -76,19 +76,16 @@ impl File {
         }
     }
 
-    pub fn path(&mut self, path: &str) -> &mut File {
-        self.path = Some(path.into());
-        self
+    pub fn path(self, path: &str) -> File {
+        File { path: Some(path.into()), ..self }
     }
 
-    pub fn namespace(&mut self, namespace: &str) -> &mut File {
-        self.namespace = Some(namespace.into());
-        self
+    pub fn namespace(self, namespace: &str) -> File {
+        File { namespace: Some(namespace.into()), ..self }
     }
 
-    pub fn required(&mut self, required: bool) -> &mut File {
-        self.required = required;
-        self
+    pub fn required(self, required: bool) -> File {
+        File { required: required, ..self }
     }
 
     // Find configuration file
@@ -149,9 +146,9 @@ impl SourceBuilder for File {
     // is required
     fn build(&self) -> Result<Box<Source>, Box<Error>> {
         if self.required {
-            self.try_build().or_else(|_| Ok(Box::new(nil::Nil {})))
-        } else {
             self.try_build()
+        } else {
+            self.try_build().or_else(|_| Ok(Box::new(nil::Nil {})))
         }
     }
 }

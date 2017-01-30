@@ -6,17 +6,17 @@
 //! current state of the configuration.
 //!
 //! ```rust
-//! fn main() {
-//!     // Add environment variables that begin with RUST_
-//!     config::merge(config::Environment::new("RUST"));
+//! // Add environment variables that begin with RUST_
+//! config::merge(config::Environment::new("RUST")).unwrap();
 //!
-//!     // Add 'Settings.json'
-//!     config::merge(config::File::new("Settings", config::FileFormat::Json));
+//! // Add 'Settings.toml'
+//! config::merge(config::File::new("Settings", config::FileFormat::Toml)
+//!     .required(false)).unwrap();
 //!
-//!     // Add 'Settings.$(RUST_ENV).json`
-//!     let name = format!("Settings.{}", config::get_str("env").unwrap());
-//!     config::merge(config::File::new(&name, config::FileFormat::Json));
-//! }
+//! // Add 'Settings.$(RUST_ENV).toml`
+//! let name = format!("Settings.{}", config::get_str("env").unwrap_or("development".into()));
+//! config::merge(config::File::new(&name, config::FileFormat::Toml)
+//!     .required(false)).unwrap();
 //! ```
 //!
 //! Note that in the above example the calls to `config::merge` could have
@@ -26,23 +26,15 @@
 //! Configuration values can be retrieved with a call to `config::get` and then
 //! coerced into a type with `as_*`.
 //!
-//! ```toml
-//! # Settings.toml
-//! debug = 1
-//! ```
-//!
 //! ```rust
-//! fn main() {
-//!     // Add 'Settings.toml' (from above)
-//!     config::merge(config::File::new("Settings", config::FileFormat::Toml));
-//!
-//!     // Get 'debug' and coerce to a boolean
-//!     assert_eq!(config::get("debug").unwrap().as_bool(), Some(true));
-//!
-//!     // You can use a type suffix on `config::get` to simplify
-//!     assert_eq!(config::get_bool("debug"), Some(true));
-//!     assert_eq!(config::get_str("debug"), Some("true"));
+//! // Get 'debug' and coerce to a boolean
+//! if let Some(value) = config::get("debug") {
+//!     println!("{:?}", value.as_bool());
 //! }
+//!
+//! // You can use a type suffix
+//! println!("{:?}", config::get_bool("debug"));
+//! println!("{:?}", config::get_str("debug"));
 //! ```
 //!
 //! See the [examples](https://github.com/mehcode/config-rs/tree/master/examples) for

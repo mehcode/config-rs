@@ -25,7 +25,7 @@ impl<'a> Value<'a> {
             Value::Float(value) => Some(value.to_string().into()),
             Value::Boolean(value) => Some(value.to_string().into()),
 
-            _ => unimplemented!()
+            _ => unimplemented!(),
         }
     }
 
@@ -44,7 +44,7 @@ impl<'a> Value<'a> {
                 }
             }
 
-            _ => unimplemented!()
+            _ => unimplemented!(),
         }
     }
 
@@ -56,7 +56,7 @@ impl<'a> Value<'a> {
             Value::Boolean(value) => Some(if value { 1 } else { 0 }),
             Value::Float(value) => Some(value.round() as i64),
 
-            _ => unimplemented!()
+            _ => unimplemented!(),
         }
     }
 
@@ -68,7 +68,7 @@ impl<'a> Value<'a> {
             Value::Integer(value) => Some(value as f64),
             Value::Boolean(value) => Some(if value { 1.0 } else { 0.0 }),
 
-            _ => unimplemented!()
+            _ => unimplemented!(),
         }
     }
 }
