@@ -91,7 +91,7 @@ impl<'a> ConfigStore<'a> {
             // Check sources
             for source in &mut sources.iter().rev() {
                 if let Some(value) = source.get(key) {
-                    return Some(value)
+                    return Some(value);
                 }
             }
 

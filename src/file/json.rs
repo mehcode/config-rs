@@ -21,7 +21,9 @@ impl Content {
 
 fn from_json_value<'a>(value: &serde_json::Value) -> Option<Cow<'a, Value>> {
     match *value {
-        serde_json::Value::String(ref value) => Some(Cow::Owned(Value::String(Cow::Borrowed(value)))),
+        serde_json::Value::String(ref value) => {
+            Some(Cow::Owned(Value::String(Cow::Borrowed(value))))
+        }
 
         serde_json::Value::Number(ref value) => {
             if let Some(value) = value.as_i64() {
