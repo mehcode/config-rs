@@ -1,10 +1,10 @@
 use std::error::Error;
-use std::borrow::Cow;
+use std::collections::HashMap;
 
 use value::Value;
 
 pub trait Source {
-    fn get<'a>(&self, key: &str) -> Option<Cow<'a, Value>>;
+    fn collect(&self) -> HashMap<String, Value>;
 }
 
 pub trait SourceBuilder {

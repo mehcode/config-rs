@@ -1,4 +1,4 @@
-use std::borrow::Cow;
+use std::collections::HashMap;
 
 use source::Source;
 use value::Value;
@@ -7,7 +7,7 @@ use value::Value;
 pub struct Nil {}
 
 impl Source for Nil {
-    fn get<'a>(&self, _: &str) -> Option<Cow<'a, Value>> {
-        None
+    fn collect(&self) -> HashMap<String, Value> {
+        HashMap::new()
     }
 }

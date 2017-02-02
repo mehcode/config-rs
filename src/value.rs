@@ -6,26 +6,27 @@ use std::borrow::Cow;
 ///
 /// Has an underlying or native type that comes from the configuration source
 /// but will be coerced into the requested type.
-#[derive(Debug, Clone)]
-pub enum Value<'a> {
-    String(Cow<'a, str>),
+#[derive(Debug, Clone, PartialEq)]
+pub enum Value {
+    String(String),
     Integer(i64),
     Float(f64),
     Boolean(bool),
-    Table(HashMap<String, Value<'a>>),
-    Array(Vec<Value<'a>>),
+    Table(HashMap<String, Value>),
+    Array(Vec<Value>),
 }
 
-impl<'a> Value<'a> {
+impl Value {
     /// Gets the underlying value as a string, performing a conversion only if neccessary.
-    pub fn as_str(&'a self) -> Option<Cow<'a, str>> {
+    #[allow(needless_lifetimes)]
+    pub fn as_str<'a>(&'a self) -> Option<Cow<'a, str>> {
         match *self {
-            Value::String(ref value) => Some(Cow::Borrowed(&*value)),
-            Value::Integer(value) => Some(value.to_string().into()),
-            Value::Float(value) => Some(value.to_string().into()),
-            Value::Boolean(value) => Some(value.to_string().into()),
+            Value::String(ref value) => Some(Cow::Borrowed(value)),
+            Value::Integer(value) => Some(Cow::Owned(value.to_string())),
+            Value::Float(value) => Some(Cow::Owned(value.to_string())),
+            Value::Boolean(value) => Some(Cow::Owned(value.to_string())),
 
-            _ => unimplemented!(),
+            _ => None,
         }
     }
 
@@ -44,7 +45,7 @@ impl<'a> Value<'a> {
                 }
             }
 
-            _ => unimplemented!(),
+            _ => None,
         }
     }
 
@@ -56,7 +57,7 @@ impl<'a> Value<'a> {
             Value::Boolean(value) => Some(if value { 1 } else { 0 }),
             Value::Float(value) => Some(value.round() as i64),
 
-            _ => unimplemented!(),
+            _ => None,
         }
     }
 
@@ -68,7 +69,15 @@ impl<'a> Value<'a> {
             Value::Integer(value) => Some(value as f64),
             Value::Boolean(value) => Some(if value { 1.0 } else { 0.0 }),
 
-            _ => unimplemented!(),
+            _ => None,
+        }
+    }
+
+    /// Gets the underlying type as a map; only works if the type is actually a map.
+    pub fn as_map(&self) -> Option<&HashMap<String, Value>> {
+        match *self {
+            Value::Table(ref value) => Some(value),
+            _ => None
         }
     }
 }
@@ -76,32 +85,38 @@ impl<'a> Value<'a> {
 // Generalized construction from type into variant is needed
 // for setting configuration values
 
-impl<'a> From<String> for Value<'a> {
-    fn from(value: String) -> Value<'a> {
+impl From<String> for Value {
+    fn from(value: String) -> Value {
         Value::String(value.into())
     }
 }
 
-impl<'a> From<&'a str> for Value<'a> {
-    fn from(value: &'a str) -> Value<'a> {
+impl<'a> From<&'a str> for Value {
+    fn from(value: &'a str) -> Value {
         Value::String(value.into())
     }
 }
 
-impl<'a> From<i64> for Value<'a> {
-    fn from(value: i64) -> Value<'a> {
+impl From<i64> for Value {
+    fn from(value: i64) -> Value {
         Value::Integer(value)
     }
 }
 
-impl<'a> From<f64> for Value<'a> {
-    fn from(value: f64) -> Value<'a> {
+impl From<f64> for Value {
+    fn from(value: f64) -> Value {
         Value::Float(value)
     }
 }
 
-impl<'a> From<bool> for Value<'a> {
-    fn from(value: bool) -> Value<'a> {
+impl From<bool> for Value {
+    fn from(value: bool) -> Value {
         Value::Boolean(value)
+    }
+}
+
+impl From<HashMap<String, Value>> for Value {
+    fn from(value: HashMap<String, Value>) -> Value {
+        Value::Table(value)
     }
 }

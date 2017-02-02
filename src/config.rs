@@ -4,7 +4,7 @@ use source::{Source, SourceBuilder};
 use std::error::Error;
 use std::fmt;
 use std::borrow::Cow;
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 
 #[derive(Default, Debug)]
 pub struct FrozenError { }
@@ -22,10 +22,12 @@ impl Error for FrozenError {
 }
 
 // Underlying storage for the configuration
-enum ConfigStore<'a> {
+enum ConfigStore {
     Mutable {
-        defaults: HashMap<String, Value<'a>>,
-        overrides: HashMap<String, Value<'a>>,
+        defaults: HashMap<String, Value>,
+        overrides: HashMap<String, Value>,
+
+        // Ordered list of sources
         sources: Vec<Box<Source>>,
     },
 
@@ -34,7 +36,7 @@ enum ConfigStore<'a> {
     Frozen,
 }
 
-impl<'a> Default for ConfigStore<'a> {
+impl Default for ConfigStore {
     fn default() -> Self {
         ConfigStore::Mutable {
             defaults: HashMap::new(),
@@ -44,7 +46,60 @@ impl<'a> Default for ConfigStore<'a> {
     }
 }
 
-impl<'a> ConfigStore<'a> {
+const KEY_DELIM: char = '.';
+
+fn merge_in(r: &mut HashMap<String, Value>, key: &str, value: &Value) {
+    let key_segments: VecDeque<&str> = key.splitn(2, KEY_DELIM).collect();
+
+    if key_segments.len() > 1 {
+        // Ensure there is at least an empty hash map
+        let key = key_segments[0].to_string();
+        if r.contains_key(&key) {
+            // Coerce to table
+            match *r.get(&key).unwrap() {
+                Value::Table(_) => {
+                    // Do nothing; already table
+                }
+
+                _ => {
+                    // Override with empty table
+                    r.insert(key.clone(), Value::Table(HashMap::new()));
+                }
+            }
+        } else {
+            // Insert table
+            r.insert(key.clone(), Value::Table(HashMap::new()));
+        }
+
+        // Continue to merge
+        if let Value::Table(ref mut table) = *r.get_mut(&key).unwrap() {
+            merge_in(table, key_segments[1], value);
+        }
+
+        return;
+    }
+
+    // Check if we are setting a table (and if we should do a deep merge)
+    if let Value::Table(ref table) = *value {
+        let inner_v = r.get_mut(key);
+        if let Some(&mut Value::Table(ref mut inner_table)) = inner_v {
+            merge_in_all(inner_table, table);
+
+            return;
+        }
+    }
+
+    // Direct set/override whatever is here
+    r.insert(key.into(), value.clone());
+}
+
+fn merge_in_all(r: &mut HashMap<String, Value>, map: &HashMap<String, Value>) {
+    for (key, value) in map {
+        merge_in(r, key, value);
+    }
+}
+
+impl ConfigStore {
     fn merge<T>(&mut self, source: T) -> Result<(), Box<Error>>
         where T: SourceBuilder
     {
@@ -58,10 +113,10 @@ impl<'a> ConfigStore<'a> {
     }
 
     fn set_default<T>(&mut self, key: &str, value: T) -> Result<(), Box<Error>>
-        where T: Into<Value<'a>>
+        where T: Into<Value>
     {
         if let ConfigStore::Mutable { ref mut defaults, .. } = *self {
-            defaults.insert(key.to_lowercase(), value.into());
+            merge_in(defaults, &key.to_lowercase(), &value.into());
 
             Ok(())
         } else {
@@ -70,10 +125,10 @@ impl<'a> ConfigStore<'a> {
     }
 
     fn set<T>(&mut self, key: &str, value: T) -> Result<(), Box<Error>>
-        where T: Into<Value<'a>>
+        where T: Into<Value>
     {
         if let ConfigStore::Mutable { ref mut overrides, .. } = *self {
-            overrides.insert(key.to_lowercase(), value.into());
+            merge_in(overrides, &key.to_lowercase(), &value.into());
 
             Ok(())
         } else {
@@ -81,53 +136,38 @@ impl<'a> ConfigStore<'a> {
         }
     }
 
-    fn get(&self, key: &str) -> Option<Cow<'a, Value>> {
+    fn collect(&self) -> Result<HashMap<String, Value>, Box<Error>> {
         if let ConfigStore::Mutable { ref overrides, ref sources, ref defaults } = *self {
-            // Check explicit override
-            if let Some(value) = overrides.get(key) {
-                return Some(Cow::Borrowed(value));
+            let mut r = HashMap::<String, Value>::new();
+
+            merge_in_all(&mut r, defaults);
+
+            for source in sources {
+                merge_in_all(&mut r, &source.collect());
             }
 
-            // Check sources
-            for source in &mut sources.iter().rev() {
-                if let Some(value) = source.get(key) {
-                    return Some(value);
-                }
-            }
+            merge_in_all(&mut r, overrides);
 
-            // Check explicit defaults
-            if let Some(value) = defaults.get(key) {
-                return Some(Cow::Borrowed(value));
-            }
+            Ok(r)
+        } else {
+            Err(FrozenError::default().into())
         }
-
-        None
     }
 }
 
 #[derive(Default)]
-pub struct Config<'a> {
-    store: ConfigStore<'a>,
+pub struct Config {
+    store: ConfigStore,
+
+    /// Top-level table of the cached configuration
+    ///
+    /// As configuration sources are merged with `Config::merge`, this
+    /// cache is updated.
+    cache: HashMap<String, Value>,
 }
 
-// TODO(@rust): There must be a way to remove this function and use Value::as_str
-#[allow(needless_lifetimes)]
-fn value_into_str<'a>(value: Value<'a>) -> Option<Cow<'a, str>> {
-    if let Value::String(value) = value {
-        Some(value)
-    } else if let Value::Integer(value) = value {
-        Some(Cow::Owned(value.to_string()))
-    } else if let Value::Float(value) = value {
-        Some(Cow::Owned(value.to_string()))
-    } else if let Value::Boolean(value) = value {
-        Some(Cow::Owned(value.to_string()))
-    } else {
-        None
-    }
-}
-
-impl<'a> Config<'a> {
-    pub fn new() -> Config<'a> {
+impl Config {
+    pub fn new() -> Self {
         Default::default()
     }
 
@@ -135,73 +175,73 @@ impl<'a> Config<'a> {
     pub fn merge<T>(&mut self, source: T) -> Result<(), Box<Error>>
         where T: SourceBuilder
     {
-        self.store.merge(source)
+        self.store.merge(source)?;
+        self.refresh()?;
+
+        Ok(())
     }
 
     /// Sets the default value for this key. The default value is only used
     /// when no other value is provided.
     pub fn set_default<T>(&mut self, key: &str, value: T) -> Result<(), Box<Error>>
-        where T: Into<Value<'a>>
+        where T: Into<Value>
     {
-        self.store.set_default(key, value)
+        self.store.set_default(key, value)?;
+        self.refresh()?;
+
+        Ok(())
     }
 
     /// Sets an override for this key.
     pub fn set<T>(&mut self, key: &str, value: T) -> Result<(), Box<Error>>
-        where T: Into<Value<'a>>
+        where T: Into<Value>
     {
-        self.store.set(key, value)
+        self.store.set(key, value)?;
+        self.refresh()?;
+
+        Ok(())
     }
 
-    pub fn get(&self, key: &str) -> Option<Cow<'a, Value>> {
-        self.store.get(key)
+    /// Refresh the configuration cache with fresh
+    /// data from associated sources.
+    ///
+    /// Configuration is automatically refreshed after a mutation
+    /// operation (`set`, `merge`, `set_default`, etc.).
+    pub fn refresh(&mut self) -> Result<(), Box<Error>> {
+        self.cache = self.store.collect()?;
+
+        Ok(())
     }
 
-    pub fn get_str(&'a self, key: &str) -> Option<Cow<'a, str>> {
-        // TODO(@rust): This is a bit nasty looking; 3x match and requires this
-        //              odd into_str method
-        if let Some(value) = self.get(key) {
-            match value {
-                Cow::Borrowed(value) => {
-                    match value.as_str() {
-                        Some(value) => {
-                            match value {
-                                Cow::Borrowed(value) => Some(Cow::Borrowed(value)),
-                                Cow::Owned(value) => Some(Cow::Owned(value)),
-                            }
-                        }
+    pub fn get<'a>(&'a self, key: &str) -> Option<&'a Value> {
+        self.cache.get(key)
+    }
 
-                        _ => None,
-                    }
-                }
-
-                Cow::Owned(value) => value_into_str(value),
-            }
-        } else {
-            None
-        }
+    pub fn get_str<'a>(&'a self, key: &str) -> Option<Cow<'a, str>> {
+        self.get(key).and_then(Value::as_str)
     }
 
     pub fn get_int(&self, key: &str) -> Option<i64> {
-        // TODO(@rust): Why doesn't .and_then(Value::as_int) work?
-        self.get(key).and_then(|v| v.as_int())
+        self.get(key).and_then(Value::as_int)
     }
 
     pub fn get_float(&self, key: &str) -> Option<f64> {
-        // TODO(@rust): Why doesn't .and_then(Value::as_float) work?
-        self.get(key).and_then(|v| v.as_float())
+        self.get(key).and_then(Value::as_float)
     }
 
     pub fn get_bool(&self, key: &str) -> Option<bool> {
-        // TODO(@rust): Why doesn't .and_then(Value::as_bool) work?
-        self.get(key).and_then(|v| v.as_bool())
+        self.get(key).and_then(Value::as_bool)
+    }
+
+    pub fn get_map<'a>(&'a self, key: &str) -> Option<&'a HashMap<String, Value>> {
+        self.get(key).and_then(Value::as_map)
     }
 }
 
 #[cfg(test)]
 mod test {
-    // use std::env;
-    use super::Config;
+    use std::collections::HashMap;
+    use super::{Value, Config};
 
     // Retrieval of a non-existent key
     #[test]
@@ -350,5 +390,42 @@ mod test {
         assert_eq!(c.get_bool("key_9"), Some(true));
         assert_eq!(c.get_bool("key_10"), Some(false));
         assert_eq!(c.get_bool("key_11"), None);
+    }
+
+    // Deep merge of tables
+    #[test]
+    fn test_merge() {
+        let mut c = Config::new();
+
+        {
+            let mut m = HashMap::new();
+            m.insert("port".into(), Value::Integer(6379));
+            m.insert("address".into(), Value::String("::1".into()));
+
+            c.set("redis", m).unwrap();
+        }
+
+        {
+            let m = c.get_map("redis").unwrap();
+
+            assert_eq!(m.get("port").unwrap().as_int().unwrap(), 6379);
+            assert_eq!(m.get("address").unwrap().as_str().unwrap(), "::1");
+        }
+
+        {
+            let mut m = HashMap::new();
+            m.insert("address".into(), Value::String("::0".into()));
+            m.insert("db".into(), Value::Integer(1));
+
+            c.set("redis", m).unwrap();
+        }
+
+        {
+            let m = c.get_map("redis").unwrap();
+
+            assert_eq!(m.get("port").unwrap().as_int().unwrap(), 6379);
+            assert_eq!(m.get("address").unwrap().as_str().unwrap(), "::0");
+            assert_eq!(m.get("db").unwrap().as_str().unwrap(), "1");
+        }
     }
 }

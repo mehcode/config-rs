@@ -65,11 +65,11 @@ pub use value::Value;
 pub use config::Config;
 
 // Global configuration
-static mut CONFIG: Option<RwLock<Config<'static>>> = None;
+static mut CONFIG: Option<RwLock<Config>> = None;
 static CONFIG_INIT: Once = ONCE_INIT;
 
 // Get the global configuration instance
-pub fn global() -> &'static mut RwLock<Config<'static>> {
+pub fn global() -> &'static mut RwLock<Config> {
     unsafe {
         CONFIG_INIT.call_once(|| {
             CONFIG = Some(Default::default());
@@ -86,18 +86,18 @@ pub fn merge<T>(source: T) -> Result<(), Box<Error>>
 }
 
 pub fn set_default<T>(key: &str, value: T) -> Result<(), Box<Error>>
-    where T: Into<Value<'static>>
+    where T: Into<Value>
 {
     global().write().unwrap().set_default(key, value)
 }
 
 pub fn set<T>(key: &str, value: T) -> Result<(), Box<Error>>
-    where T: Into<Value<'static>>
+    where T: Into<Value>
 {
     global().write().unwrap().set(key, value)
 }
 
-pub fn get<'a>(key: &str) -> Option<Cow<'a, Value>> {
+pub fn get<'a>(key: &str) -> Option<&'a Value> {
     // TODO(~): Should this panic! or return None with an error message?
     //          Make an issue if you think it should be an error message.
     let r = global().read().unwrap();

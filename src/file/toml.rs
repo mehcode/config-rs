@@ -1,6 +1,6 @@
 use toml;
 use source::Source;
-use std::borrow::Cow;
+use std::collections::HashMap;
 use std::error::Error;
 use value::Value;
 
@@ -20,39 +20,43 @@ impl Content {
     }
 }
 
-fn from_toml_value<'a>(value: &toml::Value) -> Option<Cow<'a, Value>> {
+fn from_toml_value(value: &toml::Value) -> Value {
     match *value {
-        toml::Value::String(ref value) => Some(Cow::Owned(Value::String(Cow::Borrowed(value)))),
-        toml::Value::Float(value) => Some(Cow::Owned(Value::Float(value))),
-        toml::Value::Integer(value) => Some(Cow::Owned(Value::Integer(value))),
-        toml::Value::Boolean(value) => Some(Cow::Owned(Value::Boolean(value))),
+        toml::Value::String(ref value) => Value::String(value.clone()),
+        toml::Value::Float(value) => Value::Float(value),
+        toml::Value::Integer(value) => Value::Integer(value),
+        toml::Value::Boolean(value) => Value::Boolean(value),
 
-        _ => None,
+        toml::Value::Table(ref table) => {
+            let mut m = HashMap::new();
+
+            for (key, value) in table {
+                m.insert(key.clone(), from_toml_value(value));
+            }
+
+            Value::Table(m)
+        }
+
+        toml::Value::Array(ref array) => {
+            let mut l = Vec::new();
+
+            for value in array {
+                l.push(from_toml_value(value));
+            }
+
+            Value::Array(l)
+        }
+
+        _ => { unimplemented!(); }
     }
 }
 
 impl Source for Content {
-    fn get<'a>(&self, key: &str) -> Option<Cow<'a, Value>> {
-        // TODO: Key segment iteration is not something that should be here directly
-        let key_delim = '.';
-        let key_segments = key.split(key_delim);
-        let mut toml_cursor = &self.root;
-        for segment in key_segments {
-            match *toml_cursor {
-                toml::Value::Table(ref table) => {
-                    if let Some(value) = table.get(segment) {
-                        toml_cursor = value;
-                    }
-                }
-
-                _ => {
-                    // This is not a table or array
-                    // Traversal is not possible
-                    return None;
-                }
-            }
+    fn collect(&self) -> HashMap<String, Value> {
+        if let Value::Table(table) = from_toml_value(&self.root) {
+            table
+        } else {
+            unreachable!();
         }
-
-        from_toml_value(toml_cursor)
     }
 }

@@ -14,6 +14,7 @@ mod toml;
 #[cfg(feature = "json")]
 mod json;
 
+#[derive(Clone, Copy)]
 pub enum FileFormat {
     /// TOML (parsed with toml)
     #[cfg(feature = "toml")]
@@ -47,53 +48,34 @@ impl FileFormat {
     }
 }
 
-pub struct File {
+pub trait FileSource {
+    fn try_build(&self, format: FileFormat) -> Result<Box<Source>, Box<Error>>;
+}
+
+pub struct FileSourceString(String);
+
+impl FileSource for FileSourceString {
+    fn try_build(&self, format: FileFormat) -> Result<Box<Source>, Box<Error>> {
+        format.parse(&self.0)
+    }
+}
+
+pub struct FileSourceFile {
     /// Basename of configuration file
     name: String,
 
     /// Directory where configuration file is found
     /// When not specified, the current working directory (CWD) is considered
     path: Option<String>,
-
-    /// Namespace to restrict configuration from the file
-    namespace: Option<String>,
-
-    /// Format of file (which dictates what driver to use); Defauts to TOML.
-    format: FileFormat,
-
-    /// A required File will error if it cannot be found
-    required: bool,
 }
 
-impl File {
-    pub fn new(name: &str, format: FileFormat) -> File {
-        File {
-            name: name.into(),
-            format: format,
-            required: true,
-            path: None,
-            namespace: None,
-        }
-    }
-
-    pub fn path(self, path: &str) -> File {
-        File { path: Some(path.into()), ..self }
-    }
-
-    pub fn namespace(self, namespace: &str) -> File {
-        File { namespace: Some(namespace.into()), ..self }
-    }
-
-    pub fn required(self, required: bool) -> File {
-        File { required: required, ..self }
-    }
-
+impl FileSourceFile {
     // Find configuration file
     // Use algorithm similar to .git detection by git
-    fn find_file(&self) -> Result<PathBuf, Box<Error>> {
+    fn find_file(&self, format: FileFormat) -> Result<PathBuf, Box<Error>> {
         // Build expected configuration file
         let mut basename = PathBuf::new();
-        let extensions = self.format.extensions();
+        let extensions = format.extensions();
 
         if let Some(ref path) = self.path {
             basename.push(path.clone());
@@ -125,11 +107,12 @@ impl File {
             }
         }
     }
+}
 
-    // Build normally and return error on failure
-    fn try_build(&self) -> Result<Box<Source>, Box<Error>> {
+impl FileSource for FileSourceFile {
+    fn try_build(&self, format: FileFormat) -> Result<Box<Source>, Box<Error>> {
         // Find file
-        let filename = self.find_file()?;
+        let filename = self.find_file(format)?;
 
         // Read contents from file
         let mut file = fs::File::open(filename)?;
@@ -137,11 +120,71 @@ impl File {
         file.read_to_string(&mut text)?;
 
         // Parse the file
-        self.format.parse(&text)
+        format.parse(&text)
     }
 }
 
-impl SourceBuilder for File {
+pub struct File<T: FileSource> {
+    /// Source of the file
+    source: T,
+
+    /// Namespace to restrict configuration from the file
+    namespace: Option<String>,
+
+    /// Format of file (which dictates what driver to use); Defauts to TOML.
+    format: FileFormat,
+
+    /// A required File will error if it cannot be found
+    required: bool,
+}
+
+impl File<FileSourceString> {
+    pub fn from_str(s: &str, format: FileFormat) -> File<FileSourceString> {
+        File {
+            format: format,
+            required: true,
+            namespace: None,
+            source: FileSourceString(s.into()),
+        }
+    }
+}
+
+impl File<FileSourceFile> {
+    pub fn new(name: &str, format: FileFormat) -> File<FileSourceFile> {
+        File {
+            format: format,
+            required: true,
+            namespace: None,
+            source: FileSourceFile {
+                name: name.into(),
+                path: None,
+            }
+        }
+    }
+}
+
+impl<T: FileSource> File<T> {
+    pub fn required(self, required: bool) -> File<T> {
+        File { required: required, ..self }
+    }
+
+    // Build normally and return error on failure
+    fn try_build(&self) -> Result<Box<Source>, Box<Error>> {
+        self.source.try_build(self.format)
+    }
+}
+
+impl File<FileSourceFile> {
+    pub fn path(self, path: &str) -> Self {
+        File { source: FileSourceFile { path: Some(path.into()), ..self.source } , ..self }
+    }
+
+    pub fn namespace(self, namespace: &str) -> Self {
+        File { namespace: Some(namespace.into()), ..self }
+    }
+}
+
+impl<T: FileSource> SourceBuilder for File<T> {
     // Use try_build but only pass an error through if this source
     // is required
     fn build(&self) -> Result<Box<Source>, Box<Error>> {

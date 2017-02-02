@@ -1,6 +1,6 @@
 use std::env;
 use std::error::Error;
-use std::borrow::Cow;
+use std::collections::HashMap;
 
 use source;
 use value::Value;
@@ -27,18 +27,32 @@ impl source::SourceBuilder for Environment {
 }
 
 impl source::Source for Environment {
-    fn get<'a>(&self, key: &str) -> Option<Cow<'a, Value>> {
-        let mut env_key = String::new();
+    fn collect(&self) -> HashMap<String, Value> {
+        // Iterate through environment variables
+        let mut r = HashMap::new();
 
-        // Apply prefix
-        if let Some(ref prefix) = self.prefix {
-            env_key.push_str(prefix);
-            env_key.push('_');
+        // Make prefix pattern
+        let prefix_pat = if let Some(ref prefix) = self.prefix {
+            Some(prefix.clone() + "_".into())
+        } else { None };
+
+        for (key, value) in env::vars() {
+            let mut key = key.to_string();
+
+            // Check if key matches prefix
+            if let Some(ref prefix_pat) = prefix_pat {
+                if key.starts_with(prefix_pat) {
+                    // Remove the prefix from the key
+                    key = key[prefix_pat.len()..].to_string();
+                } else {
+                    // Skip this key
+                    continue;
+                }
+            }
+
+            r.insert(key, Value::String(value));
         }
 
-        env_key.push_str(&key.to_uppercase());
-
-        // Attempt to retreive environment variable and coerce into a Value
-        env::var(env_key.clone()).ok().map(Value::from).map(Cow::Owned)
+        r
     }
 }
