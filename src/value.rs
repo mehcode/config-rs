@@ -80,6 +80,13 @@ impl Value {
             _ => None
         }
     }
+    /// Gets the underlying type as a slice; only works if the type is actually a slice.
+    pub fn as_slice(&self) -> Option<&[Value]> {
+        match *self {
+            Value::Array(ref value) => Some(value),
+            _ => None
+        }
+    }
 }
 
 // Generalized construction from type into variant is needed
@@ -115,8 +122,32 @@ impl From<bool> for Value {
     }
 }
 
-impl From<HashMap<String, Value>> for Value {
-    fn from(value: HashMap<String, Value>) -> Value {
-        Value::Table(value)
+// impl From<HashMap<String, Value>> for Value {
+//     fn from(value: HashMap<String, Value>) -> Value {
+//         Value::Table(value)
+//     }
+// }
+
+impl<T> From<HashMap<String, T>> for Value where T: Into<Value> {
+    fn from(values: HashMap<String, T>) -> Value {
+        let mut r = HashMap::new();
+
+        for (k, v) in values {
+            r.insert(k.clone(), v.into());
+        }
+
+        Value::Table(r)
+    }
+}
+
+impl<T> From<Vec<T>> for Value where T: Into<Value> {
+    fn from(values: Vec<T>) -> Value {
+        let mut l = Vec::new();
+
+        for v in values {
+            l.push(v.into());
+        }
+
+        Value::Array(l)
     }
 }

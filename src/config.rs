@@ -236,6 +236,10 @@ impl Config {
     pub fn get_map<'a>(&'a self, key: &str) -> Option<&'a HashMap<String, Value>> {
         self.get(key).and_then(Value::as_map)
     }
+    
+    pub fn get_slice<'a>(&'a self, key: &str) -> Option<&'a [Value]> {
+        self.get(key).and_then(Value::as_slice)
+    }
 }
 
 #[cfg(test)]
@@ -392,9 +396,41 @@ mod test {
         assert_eq!(c.get_bool("key_11"), None);
     }
 
-    // Deep merge of tables
     #[test]
-    fn test_merge() {
+    fn test_slice() {
+        let mut c = Config::new();
+
+        c.set("values", vec![
+            Value::Integer(10),
+            Value::Integer(325),
+            Value::Integer(12),
+        ]);
+
+        let values = c.get_slice("values").unwrap();
+
+        assert_eq!(values.len(), 3);
+        assert_eq!(values[1].as_int(), Some(325));
+    }
+
+    #[test]
+    fn test_slice_into() {
+        let mut c = Config::new();
+
+        c.set("values", vec![
+            10,
+            325,
+            12,
+        ]);
+
+        let values = c.get_slice("values").unwrap();
+
+        assert_eq!(values.len(), 3);
+        assert_eq!(values[1].as_int(), Some(325));
+
+    }
+
+    #[test]
+    fn test_map() {
         let mut c = Config::new();
 
         {
@@ -426,6 +462,26 @@ mod test {
             assert_eq!(m.get("port").unwrap().as_int().unwrap(), 6379);
             assert_eq!(m.get("address").unwrap().as_str().unwrap(), "::0");
             assert_eq!(m.get("db").unwrap().as_str().unwrap(), "1");
+        }
+    }
+
+    #[test]
+    fn test_map_into() {
+        let mut c = Config::new();
+
+        {
+            let mut m = HashMap::new();
+            m.insert("port".into(), 6379);
+            m.insert("db".into(), 2);
+
+            c.set("redis", m).unwrap();
+        }
+
+        {
+            let m = c.get_map("redis").unwrap();
+
+            assert_eq!(m.get("port").unwrap().as_int().unwrap(), 6379);
+            assert_eq!(m.get("db").unwrap().as_int().unwrap(), 2);
         }
     }
 }
