@@ -11,7 +11,7 @@
  - Read from [JSON], [TOML], and [YAML] files
  - Read from environment
  - Loosely typed — Configuration values may be read in any supported type, as long as there exists a reasonable conversion
- - Access nested fields using a formatted path — Uses a subset of JSONPath. Currently supports the child ( `redis.port` ) and subscript operators ( `databases[0].name` )
+ - Access nested fields using a formatted path — Uses a subset of JSONPath; currently supports the child ( `redis.port` ) and subscript operators ( `databases[0].name` )
 
 [JSON]: https://github.com/serde-rs/json
 [TOML]: https://github.com/toml-lang/toml
@@ -24,10 +24,9 @@
 config = "0.2"
 ```
 
-#### Features
-
- - **json** - Adds support for reading JSON files
- - **toml** - Adds support for reading TOML files (included by default)
+ - `json` - Adds support for reading JSON files
+ - `yaml` - Adds support for reading YAML files
+ - `toml` - Adds support for reading TOML files (included by default)
 
 ## Usage
 
@@ -76,13 +75,6 @@ fn main() {
 
 See the [examples](https://github.com/mehcode/config-rs/tree/master/examples) for
 more usage information.
-
-## Roadmap
- - [ ] Read from remote source — [etcd](https://github.com/jimmycuadra/rust-etcd) and [consul](https://github.com/stusmall/consul-rust)
- - [ ] Read from YAML files
- - [ ] Read from Libconfig files
-
-All suggestions are welcome. Please make an issue.
 
 ## License
 
