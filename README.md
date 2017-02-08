@@ -5,12 +5,13 @@
 > Layered configuration system for Rust applications (with strong support for [12-factor] applications).
 
 [12-factor]: https://12factor.net/config
- 
+
  - Set defaults
  - Set explicit values (to programmatically override)
  - Read from [JSON] and [TOML] files
  - Read from environment
  - Loosely typed — Configuration values may be read in any supported type, as long as there exists a reasonable conversion
+ - Access nested fields using a formatted path — Uses a subset of JSONPath. Currently supports the child ( `redis.port` ) and subscript operators ( `databases[0].name` ).
 
 [JSON]: https://github.com/serde-rs/json
 [TOML]: https://github.com/toml-lang/toml
@@ -29,7 +30,7 @@ config = "0.2"
 
 ## Usage
 
-Configuration is gathered by building a `Source` and then merging that source into the 
+Configuration is gathered by building a `Source` and then merging that source into the
 current state of the configuration.
 
 ```rust
@@ -46,11 +47,11 @@ fn main() {
 }
 ```
 
-Note that in the above example the calls to `config::merge` could have 
-been re-ordered to influence the priority as each successive merge 
+Note that in the above example the calls to `config::merge` could have
+been re-ordered to influence the priority as each successive merge
 is evaluated on top of the previous.
 
-Configuration values can be retrieved with a call to `config::get` and then 
+Configuration values can be retrieved with a call to `config::get` and then
 coerced into a type with `as_*`.
 
 ```toml
@@ -72,14 +73,14 @@ fn main() {
 }
 ```
 
-See the [examples](https://github.com/mehcode/config-rs/tree/master/examples) for 
+See the [examples](https://github.com/mehcode/config-rs/tree/master/examples) for
 more usage information.
 
 ## Roadmap
  - [ ] Read from remote source — [etcd](https://github.com/jimmycuadra/rust-etcd) and [consul](https://github.com/stusmall/consul-rust)
  - [ ] Read from YAML files
  - [ ] Read from Libconfig files
- 
+
 All suggestions are welcome. Please make an issue.
 
 ## License
