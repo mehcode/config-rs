@@ -50,6 +50,9 @@ extern crate toml;
 #[cfg(feature = "json")]
 extern crate serde_json;
 
+#[cfg(feature = "yaml")]
+extern crate yaml_rust;
+
 mod value;
 mod source;
 mod file;

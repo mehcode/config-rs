@@ -1,0 +1,6 @@
+[package]
+name = "file-yaml"
+version = "0.1.0"
+
+[dependencies]
+config = { path = "../..", default-features = false, features = ["yaml"] }
