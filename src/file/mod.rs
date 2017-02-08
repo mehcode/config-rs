@@ -47,29 +47,29 @@ impl FileFormat {
     }
 
     #[allow(unused_variables)]
-    fn parse(&self, text: &str) -> Result<Box<Source>, Box<Error>> {
+    fn parse(&self, text: &str, namespace: Option<&String>) -> Result<Box<Source>, Box<Error>> {
         match *self {
             #[cfg(feature = "toml")]
-            FileFormat::Toml => toml::Content::parse(text),
+            FileFormat::Toml => toml::Content::parse(text, namespace),
 
             #[cfg(feature = "json")]
-            FileFormat::Json => json::Content::parse(text),
+            FileFormat::Json => json::Content::parse(text, namespace),
 
             #[cfg(feature = "yaml")]
-            FileFormat::Yaml => yaml::Content::parse(text),
+            FileFormat::Yaml => yaml::Content::parse(text, namespace),
         }
     }
 }
 
 pub trait FileSource {
-    fn try_build(&self, format: FileFormat) -> Result<Box<Source>, Box<Error>>;
+    fn try_build(&self, format: FileFormat, namespace: Option<&String>) -> Result<Box<Source>, Box<Error>>;
 }
 
 pub struct FileSourceString(String);
 
 impl FileSource for FileSourceString {
-    fn try_build(&self, format: FileFormat) -> Result<Box<Source>, Box<Error>> {
-        format.parse(&self.0)
+    fn try_build(&self, format: FileFormat, namespace: Option<&String>) -> Result<Box<Source>, Box<Error>> {
+        format.parse(&self.0, namespace)
     }
 }
 
@@ -123,7 +123,7 @@ impl FileSourceFile {
 }
 
 impl FileSource for FileSourceFile {
-    fn try_build(&self, format: FileFormat) -> Result<Box<Source>, Box<Error>> {
+    fn try_build(&self, format: FileFormat, namespace: Option<&String>) -> Result<Box<Source>, Box<Error>> {
         // Find file
         let filename = self.find_file(format)?;
 
@@ -133,7 +133,7 @@ impl FileSource for FileSourceFile {
         file.read_to_string(&mut text)?;
 
         // Parse the file
-        format.parse(&text)
+        format.parse(&text, namespace)
     }
 }
 
@@ -181,19 +181,19 @@ impl<T: FileSource> File<T> {
         File { required: required, ..self }
     }
 
+    pub fn namespace(self, namespace: &str) -> Self {
+        File { namespace: Some(namespace.into()), ..self }
+    }
+
     // Build normally and return error on failure
     fn try_build(&self) -> Result<Box<Source>, Box<Error>> {
-        self.source.try_build(self.format)
+        self.source.try_build(self.format, self.namespace.as_ref())
     }
 }
 
 impl File<FileSourceFile> {
     pub fn path(self, path: &str) -> Self {
         File { source: FileSourceFile { path: Some(path.into()), ..self.source }, ..self }
-    }
-
-    pub fn namespace(self, namespace: &str) -> Self {
-        File { namespace: Some(namespace.into()), ..self }
     }
 }
 

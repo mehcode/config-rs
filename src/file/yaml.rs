@@ -13,14 +13,29 @@ pub struct Content {
 }
 
 impl Content {
-    pub fn parse(text: &str) -> Result<Box<Source>, Box<Error>> {
+    pub fn parse(text: &str, namespace: Option<&String>) -> Result<Box<Source>, Box<Error>> {
         let mut docs = yaml::YamlLoader::load_from_str(text)?;
 
-        match docs.len() {
-            0 => Ok(Box::new(Content { root: yaml::Yaml::Hash(BTreeMap::new()) })),
-            1 => Ok(Box::new(Content { root: mem::replace(&mut docs[0], yaml::Yaml::Null) })),
-            n => Err(Box::new(MultipleDocumentsError(n))),
+        // Designate root
+        let mut root = match docs.len() {
+            0 => yaml::Yaml::Hash(BTreeMap::new()),
+            1 => mem::replace(&mut docs[0], yaml::Yaml::Null),
+            n => { return Err(Box::new(MultipleDocumentsError(n))); }
+        };
+
+        // Limit to namespace
+        if let Some(namespace) = namespace {
+            if let yaml::Yaml::Hash(mut root_map) = root {
+                if let Some(value) = root_map.remove(&yaml::Yaml::String(namespace.clone())) {
+                    root = value;
+                } else {
+                    // TODO: Warn?
+                    root = yaml::Yaml::Hash(BTreeMap::new());
+                }
+            }
         }
+
+        Ok(Box::new(Content { root: root }))
     }
 
     pub fn from_yaml(doc: yaml::Yaml) -> Content {

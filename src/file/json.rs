@@ -11,9 +11,21 @@ pub struct Content {
 }
 
 impl Content {
-    pub fn parse(text: &str) -> Result<Box<Source>, Box<Error>> {
+    pub fn parse(text: &str, namespace: Option<&String>) -> Result<Box<Source>, Box<Error>> {
         // Parse
-        let root = serde_json::from_str(text)?;
+        let mut root: serde_json::Value = serde_json::from_str(text)?;
+
+        // Limit to namespace
+        if let Some(namespace) = namespace {
+            if let serde_json::Value::Object(mut root_map) = root {
+                if let Some(value) = root_map.remove(namespace) {
+                    root = value;
+                } else {
+                    // TODO: Warn?
+                    root = serde_json::Value::Object(serde_json::Map::new());
+                }
+            }
+        }
 
         Ok(Box::new(Content { root: root }))
     }

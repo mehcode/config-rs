@@ -1,6 +1,6 @@
 use toml;
 use source::Source;
-use std::collections::HashMap;
+use std::collections::{HashMap, BTreeMap};
 use std::error::Error;
 use value::Value;
 
@@ -10,11 +10,21 @@ pub struct Content {
 }
 
 impl Content {
-    pub fn parse(text: &str) -> Result<Box<Source>, Box<Error>> {
+    pub fn parse(text: &str, namespace: Option<&String>) -> Result<Box<Source>, Box<Error>> {
         // Parse
         let mut parser = toml::Parser::new(text);
         // TODO: Get a solution to make this return an Error-able
-        let root = parser.parse().unwrap();
+        let mut root = parser.parse().unwrap();
+
+        // Limit to namespace
+        if let Some(namespace) = namespace {
+            if let Some(toml::Value::Table(table)) = root.remove(namespace) {
+                root = table;
+            } else {
+                // TODO: Warn?
+                root = BTreeMap::new();
+            }
+        }
 
         Ok(Box::new(Content { root: toml::Value::Table(root) }))
     }

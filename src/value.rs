@@ -8,6 +8,7 @@ use std::borrow::Cow;
 /// but will be coerced into the requested type.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Value {
+    Nil,
     String(String),
     Integer(i64),
     Float(f64),

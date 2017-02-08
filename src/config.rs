@@ -4,8 +4,9 @@ use path;
 
 use std::error::Error;
 use std::fmt;
+use std::str::FromStr;
 use std::borrow::Cow;
-use std::collections::{HashMap, VecDeque};
+use std::collections::HashMap;
 
 #[derive(Default, Debug)]
 pub struct FrozenError { }
@@ -47,57 +48,164 @@ impl Default for ConfigStore {
     }
 }
 
-const KEY_DELIM: char = '.';
+fn merge_in_all(r: &mut HashMap<String, Value>, map: &HashMap<String, Value>) {
+    for (key, value) in map {
+        path_set_str(r, key, value);
+    }
+}
 
-fn merge_in(r: &mut HashMap<String, Value>, key: &str, value: &Value) {
-    let key_segments: VecDeque<&str> = key.splitn(2, KEY_DELIM).collect();
+// Child ( Child ( Identifier( "x" ), "y" ), "z" )
+fn path_get_mut<'a>(root: &'a mut HashMap<String, Value>, expr: path::Expression) -> Option<&'a mut Value> {
+    match expr {
+        path::Expression::Identifier(text) => Some(root.entry(text.clone()).or_insert(Value::Nil)),
 
-    if key_segments.len() > 1 {
-        // Ensure there is at least an empty hash map
-        let key = key_segments[0].to_string();
-        if r.contains_key(&key) {
-            // Coerce to table
-            match *r.get(&key).unwrap() {
-                Value::Table(_) => {
-                    // Do nothing; already table
+        path::Expression::Child(expr, member) => {
+            match path_get_mut(root, *expr) {
+                Some(&mut Value::Table(ref mut table)) => Some(table.entry(member.clone()).or_insert(Value::Nil)),
+
+                Some(v @ _) => {
+                    *v = Value::Table(HashMap::new());
+                    if let Value::Table(ref mut table) = *v {
+                        Some(table.entry(member.clone()).or_insert(Value::Nil))
+                    } else {
+                        None
+                    }
+                }
+
+                _ => None,
+            }
+        }
+
+        path::Expression::Subscript(expr, mut index) => {
+            match path_get_mut(root, *expr) {
+                Some(&mut Value::Array(ref mut array)) => {
+                    let len = array.len() as i32;
+
+                    if index < 0 {
+                        index = len + index;
+                    }
+
+                    if index < 0 {
+                        None
+                    } else {
+                        // Ensure there is enough room
+                        array.resize((index + 1) as usize, Value::Nil);
+
+                        Some(&mut array[index as usize])
+                    }
+                }
+
+                _ => None,
+            }
+        }
+    }
+}
+
+fn require_table(r: &mut HashMap<String, Value>, key: &String) {
+    if r.contains_key(key) {
+        // Coerce to table
+        match *r.get(key).unwrap() {
+            Value::Table(_) => {
+                // Do nothing; already table
+            }
+
+            _ => {
+                // Override with empty table
+                r.insert(key.clone(), Value::Table(HashMap::new()));
+            }
+        }
+    } else {
+        // Insert table
+        r.insert(key.clone(), Value::Table(HashMap::new()));
+    }
+}
+
+fn path_set(root: &mut HashMap<String, Value>, expr: path::Expression, value: &Value) {
+    match expr {
+        path::Expression::Identifier(text) => {
+            match *value {
+                Value::Table(ref table_v) => {
+                    require_table(root, &text);
+                    if let Value::Table(ref mut target) = *root.get_mut(&text).unwrap() {
+                        merge_in_all(target, table_v);
+                    }
                 }
 
                 _ => {
-                    // Override with empty table
-                    r.insert(key.clone(), Value::Table(HashMap::new()));
+                    root.insert(text, value.clone());
                 }
             }
-        } else {
-            // Insert table
-            r.insert(key.clone(), Value::Table(HashMap::new()));
         }
 
-        // Continue to merge
-        if let Value::Table(ref mut table) = *r.get_mut(&key).unwrap() {
-            merge_in(table, key_segments[1], value);
+        path::Expression::Child(expr, member) => {
+            if let Some(parent) = path_get_mut(root, *expr) {
+                match *parent {
+                    Value::Table(ref mut table) => {
+                        path_set(table, path::Expression::Identifier(member), value);
+                    }
+
+                    _ => {
+                        // Coerce to a table and do the insert anyway
+                        *parent = Value::Table(HashMap::new());
+                        if let Value::Table(ref mut table) = *parent {
+                            path_set(table, path::Expression::Identifier(member), value);
+                        }
+                    }
+                }
+            }
         }
 
-        return;
+        path::Expression::Subscript(inner_expr, mut index) => {
+            if let Some(parent) = path_get_mut(root, *inner_expr) {
+                match *parent {
+                    Value::Array(ref mut array) => {
+                        let len = array.len() as i32;
+
+                        if index < 0 {
+                            index = len + index;
+                        }
+
+                        if index >= 0 {
+                            array[index as usize] = value.clone();
+                        }
+                    }
+
+                    Value::Nil => {
+                        // Add an array and do this again
+                        *parent = Value::Array(Vec::new());
+                        if let Value::Array(ref mut array) = *parent {
+                            let len = array.len() as i32;
+
+                            if index < 0 {
+                                index = len + index;
+                            }
+
+                            if index >= 0 {
+                                array.resize((index + 1) as usize, Value::Nil);
+                                array[index as usize] = value.clone();
+                            }
+                        }
+                    }
+
+                    _ => {
+                        // Do nothing
+                    }
+                }
+            }
+        }
     }
-
-    // Check if we are setting a table (and if we should do a deep merge)
-    if let Value::Table(ref table) = *value {
-        let inner_v = r.get_mut(key);
-        if let Some(&mut Value::Table(ref mut inner_table)) = inner_v {
-            merge_in_all(inner_table, table);
-
-            return;
-        }
-    }
-
-    // Direct set/override whatever is here
-    r.insert(key.into(), value.clone());
 }
 
-fn merge_in_all(r: &mut HashMap<String, Value>, map: &HashMap<String, Value>) {
-    for (key, value) in map {
-        merge_in(r, key, value);
-    }
+fn path_set_str(root: &mut HashMap<String, Value>, key: &str, value: &Value) {
+    match path::Expression::from_str(key) {
+        Ok(expr) => {
+            path_set(root, expr, value);
+        },
+
+        Err(_) => {
+            // TODO: Log warning here
+        }
+    };
 }
 
 impl ConfigStore {
@@ -117,7 +225,7 @@ impl ConfigStore {
         where T: Into<Value>
     {
         if let ConfigStore::Mutable { ref mut defaults, .. } = *self {
-            merge_in(defaults, &key.to_lowercase(), &value.into());
+            path_set_str(defaults, &key.to_lowercase(), &value.into());
 
             Ok(())
         } else {
@@ -129,7 +237,7 @@ impl ConfigStore {
         where T: Into<Value>
     {
         if let ConfigStore::Mutable { ref mut overrides, .. } = *self {
-            merge_in(overrides, &key.to_lowercase(), &value.into());
+            path_set_str(overrides, &key.to_lowercase(), &value.into());
 
             Ok(())
         } else {
@@ -215,7 +323,7 @@ impl Config {
     }
 
     // Child ( Child ( Identifier( "x" ), "y" ), "z" )
-    fn path_get<'a, 'b>(&'a self, expr: path::Expression) -> Option<&'a Value> {
+    fn path_get<'a>(&'a self, expr: path::Expression) -> Option<&'a Value> {
         match expr {
             path::Expression::Identifier(text) => self.cache.get(&text),
 
@@ -250,7 +358,7 @@ impl Config {
     }
 
     pub fn get<'a>(&'a self, key_path: &str) -> Option<&'a Value> {
-        let key_expr: path::Expression = match key_path.parse() {
+        let key_expr: path::Expression = match key_path.to_lowercase().parse() {
             Ok(expr) => expr,
             Err(_) => {
                 // TODO: Log warning here
@@ -544,5 +652,53 @@ mod test {
             assert_eq!(m.get("port").unwrap().as_int().unwrap(), 6379);
             assert_eq!(m.get("db").unwrap().as_int().unwrap(), 2);
         }
+    }
+
+    #[test]
+    fn test_map_set_coerce() {
+        let mut c = Config::new();
+
+        // Coerce value to table
+        c.set("redis", 10).unwrap();
+        c.set("redis.port", 6379).unwrap();
+
+        assert_eq!(c.get_int("redis.port"), Some(6379));
+
+        // Coerce nil to table
+        c.set("server.port", 80).unwrap();
+
+        assert_eq!(c.get_int("server.port"), Some(80));
+    }
+
+    #[test]
+    fn test_slice_set_coerce() {
+        let mut c = Config::new();
+
+        // Coerce nil to slice
+        c.set("values[2]", 45).unwrap();
+
+        assert_eq!(c.get_int("values[2]"), Some(45));
+    }
+
+    #[test]
+    fn test_file_namespace() {
+        use file::{File, FileFormat};
+
+        let mut c = Config::new();
+        let text = r#"
+            [development]
+            port = 8080
+
+            [production]
+            port = 80
+        "#;
+
+        c.merge(File::from_str(text, FileFormat::Toml).namespace("development")).unwrap();
+
+        assert_eq!(c.get_int("port"), Some(8080));
+
+        c.merge(File::from_str(text, FileFormat::Toml).namespace("production")).unwrap();
+
+        assert_eq!(c.get_int("port"), Some(80));
     }
 }
