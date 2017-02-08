@@ -452,7 +452,7 @@ mod test {
             Value::Integer(10),
             Value::Integer(325),
             Value::Integer(12),
-        ]);
+        ]).unwrap();
 
         let values = c.get_slice("values").unwrap();
 
@@ -468,7 +468,7 @@ mod test {
             10,
             325,
             12,
-        ]);
+        ]).unwrap();
 
         let values = c.get_slice("values").unwrap();
 
