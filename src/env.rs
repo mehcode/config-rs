@@ -34,7 +34,9 @@ impl source::Source for Environment {
         // Make prefix pattern
         let prefix_pat = if let Some(ref prefix) = self.prefix {
             Some(prefix.clone() + "_".into())
-        } else { None };
+        } else {
+            None
+        };
 
         for (key, value) in env::vars() {
             let mut key = key.to_string();

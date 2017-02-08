@@ -1,5 +1,6 @@
 use value::Value;
 use source::{Source, SourceBuilder};
+use path;
 
 use std::error::Error;
 use std::fmt;
@@ -213,8 +214,55 @@ impl Config {
         Ok(())
     }
 
-    pub fn get<'a>(&'a self, key: &str) -> Option<&'a Value> {
-        self.cache.get(key)
+    // Child ( Child ( Identifier( "x" ), "y" ), "z" )
+    fn path_get<'a, 'b>(&'a self, expr: path::Expression) -> Option<&'a Value> {
+        match expr {
+            path::Expression::Identifier(text) => {
+                self.cache.get(&text)
+            }
+
+            path::Expression::Child(expr, member) => {
+                match self.path_get(*expr) {
+                    Some(&Value::Table(ref table)) => {
+                        table.get(&member)
+                    }
+
+                    _ => None
+                }
+            }
+
+            path::Expression::Subscript(expr, mut index) => {
+                match self.path_get(*expr) {
+                    Some(&Value::Array(ref array)) => {
+                        let len = array.len() as i32;
+
+                        if index < 0 {
+                            index = len + index;
+                        }
+
+                        if index < 0 || index >= len {
+                            None
+                        } else {
+                            Some(&array[index as usize])
+                        }
+                    }
+
+                    _ => None
+                }
+            }
+        }
+    }
+
+    pub fn get<'a>(&'a self, key_path: &str) -> Option<&'a Value> {
+        let key_expr: path::Expression = match key_path.parse() {
+            Ok(expr) => expr,
+            Err(_) => {
+                // TODO: Log warning here
+                return None;
+            }
+        };
+
+        self.path_get(key_expr)
     }
 
     pub fn get_str<'a>(&'a self, key: &str) -> Option<Cow<'a, str>> {
@@ -427,5 +475,26 @@ mod test {
             assert_eq!(m.get("address").unwrap().as_str().unwrap(), "::0");
             assert_eq!(m.get("db").unwrap().as_str().unwrap(), "1");
         }
+    }
+
+    // Path expression
+    #[test]
+    fn test_path() {
+        use file::{File, FileFormat};
+
+        let mut c = Config::new();
+
+        c.merge(File::from_str(r#"
+            [redis]
+            address = "localhost:6379"
+
+            [[databases]]
+            name = "test_db"
+            options = { trace = true }
+        "#, FileFormat::Toml)).unwrap();
+
+        assert_eq!(c.get_str("redis.address").unwrap(), "localhost:6379");
+        assert_eq!(c.get_str("databases[0].name").unwrap(), "test_db");
+        assert_eq!(c.get_str("databases[0].options.trace").unwrap(), "true");
     }
 }

@@ -158,7 +158,7 @@ impl File<FileSourceFile> {
             source: FileSourceFile {
                 name: name.into(),
                 path: None,
-            }
+            },
         }
     }
 }
@@ -176,7 +176,7 @@ impl<T: FileSource> File<T> {
 
 impl File<FileSourceFile> {
     pub fn path(self, path: &str) -> Self {
-        File { source: FileSourceFile { path: Some(path.into()), ..self.source } , ..self }
+        File { source: FileSourceFile { path: Some(path.into()), ..self.source }, ..self }
     }
 
     pub fn namespace(self, namespace: &str) -> Self {

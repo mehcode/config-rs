@@ -21,9 +21,7 @@ impl Content {
 
 fn from_json_value(value: &serde_json::Value) -> Value {
     match *value {
-        serde_json::Value::String(ref value) => {
-            Value::String(value.clone())
-        }
+        serde_json::Value::String(ref value) => Value::String(value.clone()),
 
         serde_json::Value::Number(ref value) => {
             if let Some(value) = value.as_i64() {
@@ -58,7 +56,9 @@ fn from_json_value(value: &serde_json::Value) -> Value {
         }
 
         // TODO: What's left is JSON Null; how should we handle that?
-        _ => { unimplemented!(); }
+        _ => {
+            unimplemented!();
+        }
     }
 }
 

@@ -47,7 +47,9 @@ fn from_toml_value(value: &toml::Value) -> Value {
             Value::Array(l)
         }
 
-        _ => { unimplemented!(); }
+        _ => {
+            unimplemented!();
+        }
     }
 }
 

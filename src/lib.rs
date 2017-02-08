@@ -1,6 +1,7 @@
 #![feature(drop_types_in_const)]
 
 #![allow(unknown_lints)]
+#![feature(trace_macros)]
 
 //! Configuration is gathered by building a `Source` and then merging that source into the
 //! current state of the configuration.
@@ -40,6 +41,9 @@
 //! See the [examples](https://github.com/mehcode/config-rs/tree/master/examples) for
 //! more usage information.
 
+#[macro_use]
+extern crate nom;
+
 #[cfg(feature = "toml")]
 extern crate toml;
 
@@ -50,6 +54,7 @@ mod value;
 mod source;
 mod file;
 mod env;
+mod path;
 mod config;
 
 use std::error::Error;

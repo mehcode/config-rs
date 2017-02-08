@@ -77,7 +77,7 @@ impl Value {
     pub fn as_map(&self) -> Option<&HashMap<String, Value>> {
         match *self {
             Value::Table(ref value) => Some(value),
-            _ => None
+            _ => None,
         }
     }
 }
