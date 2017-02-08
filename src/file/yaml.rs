@@ -7,10 +7,9 @@ use std::collections::{BTreeMap, HashMap};
 use std::mem;
 use value::Value;
 
-
 pub struct Content {
     // Root table of the YAML document
-    root: yaml::Yaml
+    root: yaml::Yaml,
 }
 
 impl Content {
@@ -19,10 +18,8 @@ impl Content {
 
         match docs.len() {
             0 => Ok(Box::new(Content { root: yaml::Yaml::Hash(BTreeMap::new()) })),
-            1 => Ok(Box::new(Content {
-                root: mem::replace(&mut docs[0], yaml::Yaml::Null)
-            })),
-            n => Err(Box::new(MultipleDocumentsError(n)))
+            1 => Ok(Box::new(Content { root: mem::replace(&mut docs[0], yaml::Yaml::Null) })),
+            n => Err(Box::new(MultipleDocumentsError(n))),
         }
     }
 
@@ -52,7 +49,9 @@ fn from_yaml_value<'a>(value: &yaml::Yaml) -> Value {
             Value::Array(l)
         }
         // TODO: how should we handle Null and BadValue?
-        _ => { unimplemented!(); }
+        _ => {
+            unimplemented!();
+        }
 
     }
 }

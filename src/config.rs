@@ -217,17 +217,13 @@ impl Config {
     // Child ( Child ( Identifier( "x" ), "y" ), "z" )
     fn path_get<'a, 'b>(&'a self, expr: path::Expression) -> Option<&'a Value> {
         match expr {
-            path::Expression::Identifier(text) => {
-                self.cache.get(&text)
-            }
+            path::Expression::Identifier(text) => self.cache.get(&text),
 
             path::Expression::Child(expr, member) => {
                 match self.path_get(*expr) {
-                    Some(&Value::Table(ref table)) => {
-                        table.get(&member)
-                    }
+                    Some(&Value::Table(ref table)) => table.get(&member),
 
-                    _ => None
+                    _ => None,
                 }
             }
 
@@ -247,7 +243,7 @@ impl Config {
                         }
                     }
 
-                    _ => None
+                    _ => None,
                 }
             }
         }
@@ -448,11 +444,9 @@ mod test {
     fn test_slice() {
         let mut c = Config::new();
 
-        c.set("values", vec![
-            Value::Integer(10),
-            Value::Integer(325),
-            Value::Integer(12),
-        ]).unwrap();
+        c.set("values",
+                 vec![Value::Integer(10), Value::Integer(325), Value::Integer(12)])
+            .unwrap();
 
         let values = c.get_slice("values").unwrap();
 
@@ -464,11 +458,8 @@ mod test {
     fn test_slice_into() {
         let mut c = Config::new();
 
-        c.set("values", vec![
-            10,
-            325,
-            12,
-        ]).unwrap();
+        c.set("values", vec![10, 325, 12])
+            .unwrap();
 
         let values = c.get_slice("values").unwrap();
 
@@ -526,7 +517,9 @@ mod test {
             [[databases]]
             name = "test_db"
             options = { trace = true }
-        "#, FileFormat::Toml)).unwrap();
+        "#,
+                                  FileFormat::Toml))
+            .unwrap();
 
         assert_eq!(c.get_str("redis.address").unwrap(), "localhost:6379");
         assert_eq!(c.get_str("databases[0].name").unwrap(), "test_db");

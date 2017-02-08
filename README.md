@@ -8,13 +8,14 @@
 
  - Set defaults
  - Set explicit values (to programmatically override)
- - Read from [JSON] and [TOML] files
+ - Read from [JSON], [TOML], and [YAML] files
  - Read from environment
  - Loosely typed — Configuration values may be read in any supported type, as long as there exists a reasonable conversion
- - Access nested fields using a formatted path — Uses a subset of JSONPath. Currently supports the child ( `redis.port` ) and subscript operators ( `databases[0].name` ).
+ - Access nested fields using a formatted path — Uses a subset of JSONPath. Currently supports the child ( `redis.port` ) and subscript operators ( `databases[0].name` )
 
 [JSON]: https://github.com/serde-rs/json
 [TOML]: https://github.com/toml-lang/toml
+[YAML]: https://github.com/chyh1990/yaml-rust
 
 ## Install
 

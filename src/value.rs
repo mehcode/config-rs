@@ -84,7 +84,7 @@ impl Value {
     pub fn as_slice(&self) -> Option<&[Value]> {
         match *self {
             Value::Array(ref value) => Some(value),
-            _ => None
+            _ => None,
         }
     }
 }
@@ -128,7 +128,9 @@ impl From<bool> for Value {
 //     }
 // }
 
-impl<T> From<HashMap<String, T>> for Value where T: Into<Value> {
+impl<T> From<HashMap<String, T>> for Value
+    where T: Into<Value>
+{
     fn from(values: HashMap<String, T>) -> Value {
         let mut r = HashMap::new();
 
@@ -140,7 +142,9 @@ impl<T> From<HashMap<String, T>> for Value where T: Into<Value> {
     }
 }
 
-impl<T> From<Vec<T>> for Value where T: Into<Value> {
+impl<T> From<Vec<T>> for Value
+    where T: Into<Value>
+{
     fn from(values: Vec<T>) -> Value {
         let mut l = Vec::new();
 
