@@ -5,7 +5,6 @@ use path;
 use std::error::Error;
 use std::fmt;
 use std::str::FromStr;
-use std::borrow::Cow;
 use std::collections::HashMap;
 
 #[derive(Default, Debug)]
@@ -357,7 +356,7 @@ impl Config {
         }
     }
 
-    pub fn get<'a>(&'a self, key_path: &str) -> Option<&'a Value> {
+    pub fn get(&self, key_path: &str) -> Option<Value> {
         let key_expr: path::Expression = match key_path.to_lowercase().parse() {
             Ok(expr) => expr,
             Err(_) => {
@@ -366,31 +365,31 @@ impl Config {
             }
         };
 
-        self.path_get(key_expr)
+        self.path_get(key_expr).cloned()
     }
 
-    pub fn get_str<'a>(&'a self, key: &str) -> Option<Cow<'a, str>> {
-        self.get(key).and_then(Value::as_str)
+    pub fn get_str(&self, key: &str) -> Option<String> {
+        self.get(key).and_then(Value::into_str)
     }
 
     pub fn get_int(&self, key: &str) -> Option<i64> {
-        self.get(key).and_then(Value::as_int)
+        self.get(key).and_then(Value::into_int)
     }
 
     pub fn get_float(&self, key: &str) -> Option<f64> {
-        self.get(key).and_then(Value::as_float)
+        self.get(key).and_then(Value::into_float)
     }
 
     pub fn get_bool(&self, key: &str) -> Option<bool> {
-        self.get(key).and_then(Value::as_bool)
+        self.get(key).and_then(Value::into_bool)
     }
 
-    pub fn get_map<'a>(&'a self, key: &str) -> Option<&'a HashMap<String, Value>> {
-        self.get(key).and_then(Value::as_map)
+    pub fn get_table(&self, key: &str) -> Option<HashMap<String, Value>> {
+        self.get(key).and_then(Value::into_table)
     }
 
-    pub fn get_slice<'a>(&'a self, key: &str) -> Option<&'a [Value]> {
-        self.get(key).and_then(Value::as_slice)
+    pub fn get_array(self, key: &str) -> Option<Vec<Value>> {
+        self.get(key).and_then(Value::into_array)
     }
 }
 
@@ -556,10 +555,10 @@ mod test {
                  vec![Value::Integer(10), Value::Integer(325), Value::Integer(12)])
             .unwrap();
 
-        let values = c.get_slice("values").unwrap();
+        let values = c.get_array("values").unwrap();
 
         assert_eq!(values.len(), 3);
-        assert_eq!(values[1].as_int(), Some(325));
+        assert_eq!(values[1].clone().into_int(), Some(325));
     }
 
     #[test]
@@ -569,10 +568,10 @@ mod test {
         c.set("values", vec![10, 325, 12])
             .unwrap();
 
-        let values = c.get_slice("values").unwrap();
+        let values = c.get_array("values").unwrap();
 
         assert_eq!(values.len(), 3);
-        assert_eq!(values[1].as_int(), Some(325));
+        assert_eq!(values[1].clone().into_int(), Some(325));
 
     }
 
@@ -589,10 +588,10 @@ mod test {
         }
 
         {
-            let m = c.get_map("redis").unwrap();
+            let m = c.get_table("redis").unwrap();
 
-            assert_eq!(m.get("port").unwrap().as_int().unwrap(), 6379);
-            assert_eq!(m.get("address").unwrap().as_str().unwrap(), "::1");
+            assert_eq!(m.get("port").cloned().unwrap().into_int().unwrap(), 6379);
+            assert_eq!(m.get("address").cloned().unwrap().into_str().unwrap(), "::1");
         }
 
         {
@@ -604,11 +603,11 @@ mod test {
         }
 
         {
-            let m = c.get_map("redis").unwrap();
+            let m = c.get_table("redis").unwrap();
 
-            assert_eq!(m.get("port").unwrap().as_int().unwrap(), 6379);
-            assert_eq!(m.get("address").unwrap().as_str().unwrap(), "::0");
-            assert_eq!(m.get("db").unwrap().as_str().unwrap(), "1");
+            assert_eq!(m.get("port").cloned().unwrap().into_int().unwrap(), 6379);
+            assert_eq!(m.get("address").cloned().unwrap().into_str().unwrap(), "::0");
+            assert_eq!(m.get("db").cloned().unwrap().into_str().unwrap(), "1");
         }
     }
 
@@ -647,10 +646,10 @@ mod test {
         }
 
         {
-            let m = c.get_map("redis").unwrap();
+            let m = c.get_table("redis").unwrap();
 
-            assert_eq!(m.get("port").unwrap().as_int().unwrap(), 6379);
-            assert_eq!(m.get("db").unwrap().as_int().unwrap(), 2);
+            assert_eq!(m.get("port").cloned().unwrap().into_int().unwrap(), 6379);
+            assert_eq!(m.get("db").cloned().unwrap().into_int().unwrap(), 2);
         }
     }
 

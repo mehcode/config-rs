@@ -1,6 +1,5 @@
 use std::convert::From;
 use std::collections::HashMap;
-use std::borrow::Cow;
 
 /// A configuration value.
 ///
@@ -18,22 +17,23 @@ pub enum Value {
 }
 
 impl Value {
-    /// Gets the underlying value as a string, performing a conversion only if neccessary.
-    #[allow(needless_lifetimes)]
-    pub fn as_str<'a>(&'a self) -> Option<Cow<'a, str>> {
-        match *self {
-            Value::String(ref value) => Some(Cow::Borrowed(value)),
-            Value::Integer(value) => Some(Cow::Owned(value.to_string())),
-            Value::Float(value) => Some(Cow::Owned(value.to_string())),
-            Value::Boolean(value) => Some(Cow::Owned(value.to_string())),
+    /// Converts `self` into a string, if possible.
+    /// Returns None otherwise.
+    pub fn into_str(self) -> Option<String> {
+        match self {
+            Value::String(value) => Some(value),
+            Value::Integer(value) => Some(value.to_string()),
+            Value::Float(value) => Some(value.to_string()),
+            Value::Boolean(value) => Some(value.to_string()),
 
             _ => None,
         }
     }
 
-    /// Gets the underlying type as a boolean, performing a conversion only if neccessary.
-    pub fn as_bool(&self) -> Option<bool> {
-        match *self {
+    /// Converts `self` into a bool, if possible.
+    /// Returns None otherwise.
+    pub fn into_bool(self) -> Option<bool> {
+        match self {
             Value::Boolean(value) => Some(value),
             Value::Integer(value) => Some(value != 0),
             Value::Float(value) => Some(value != 0.0),
@@ -50,9 +50,10 @@ impl Value {
         }
     }
 
-    /// Gets the underlying type as an integer, performing a conversion only if neccessary.
-    pub fn as_int(&self) -> Option<i64> {
-        match *self {
+    /// Converts `self` into an i64, if possible.
+    /// Returns None otherwise.
+    pub fn into_int(self) -> Option<i64> {
+        match self {
             Value::Integer(value) => Some(value),
             Value::String(ref value) => value.parse().ok(),
             Value::Boolean(value) => Some(if value { 1 } else { 0 }),
@@ -62,9 +63,10 @@ impl Value {
         }
     }
 
-    /// Gets the underlying type as a floating-point, performing a conversion only if neccessary.
-    pub fn as_float(&self) -> Option<f64> {
-        match *self {
+    /// Converts `self` into a f64, if possible.
+    /// Returns None otherwise.
+    pub fn into_float(self) -> Option<f64> {
+        match self {
             Value::Float(value) => Some(value),
             Value::String(ref value) => value.parse().ok(),
             Value::Integer(value) => Some(value as f64),
@@ -74,17 +76,20 @@ impl Value {
         }
     }
 
-    /// Gets the underlying type as a map; only works if the type is actually a map.
-    pub fn as_map(&self) -> Option<&HashMap<String, Value>> {
-        match *self {
-            Value::Table(ref value) => Some(value),
+    /// If the `Value` is a Table, returns the associated Map.
+    /// Returns None otherwise.
+    pub fn into_table(self) -> Option<HashMap<String, Value>> {
+        match self {
+            Value::Table(value) => Some(value),
             _ => None,
         }
     }
-    /// Gets the underlying type as a slice; only works if the type is actually a slice.
-    pub fn as_slice(&self) -> Option<&[Value]> {
-        match *self {
-            Value::Array(ref value) => Some(value),
+
+    /// If the `Value` is an Array, returns the associated Vector.
+    /// Returns None otherwise.
+    pub fn into_array(self) -> Option<Vec<Value>> {
+        match self {
+            Value::Array(value) => Some(value),
             _ => None,
         }
     }
@@ -122,12 +127,6 @@ impl From<bool> for Value {
         Value::Boolean(value)
     }
 }
-
-// impl From<HashMap<String, Value>> for Value {
-//     fn from(value: HashMap<String, Value>) -> Value {
-//         Value::Table(value)
-//     }
-// }
 
 impl<T> From<HashMap<String, T>> for Value
     where T: Into<Value>

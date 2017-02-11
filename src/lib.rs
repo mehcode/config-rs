@@ -30,7 +30,7 @@
 //! ```rust
 //! // Get 'debug' and coerce to a boolean
 //! if let Some(value) = config::get("debug") {
-//!     println!("{:?}", value.as_bool());
+//!     println!("{:?}", value.into_bool());
 //! }
 //!
 //! // You can use a type suffix
@@ -62,7 +62,7 @@ mod config;
 
 use std::error::Error;
 use std::sync::{Once, ONCE_INIT, RwLock};
-use std::borrow::Cow;
+use std::collections::HashMap;
 
 pub use source::{Source, SourceBuilder};
 pub use file::{File, FileFormat};
@@ -105,52 +105,32 @@ pub fn set<T>(key: &str, value: T) -> Result<(), Box<Error>>
     global().write().unwrap().set(key, value)
 }
 
-pub fn get<'a>(key: &str) -> Option<&'a Value> {
+pub fn get(key: &str) -> Option<Value> {
     // TODO(~): Should this panic! or return None with an error message?
     //          Make an issue if you think it should be an error message.
-    let r = global().read().unwrap();
-
-    let c = &*r;
-
-    // TODO(@rust): Figure out how to not to use unsafe here
-    unsafe {
-        let c: &'static Config = std::mem::transmute(c);
-        c.get(key)
-    }
+    global().read().unwrap().get(key)
 }
 
-pub fn get_str<'a>(key: &str) -> Option<Cow<'a, str>> {
-    let r = global().read().unwrap();
-
-    unsafe {
-        let c: &'static Config = std::mem::transmute(&*r);
-        c.get_str(key)
-    }
+pub fn get_str(key: &str) -> Option<String> {
+    get(key).and_then(Value::into_str)
 }
 
 pub fn get_int(key: &str) -> Option<i64> {
-    let r = global().read().unwrap();
-
-    unsafe {
-        let c: &'static Config = std::mem::transmute(&*r);
-        c.get_int(key)
-    }
+    get(key).and_then(Value::into_int)
 }
 
 pub fn get_float(key: &str) -> Option<f64> {
-    let r = global().read().unwrap();
-
-    unsafe {
-        let c: &'static Config = std::mem::transmute(&*r);
-        c.get_float(key)
-    }
+    get(key).and_then(Value::into_float)
 }
 
 pub fn get_bool(key: &str) -> Option<bool> {
-    let r = global().read().unwrap();
+    get(key).and_then(Value::into_bool)
+}
 
-    unsafe {
-        let c: &'static Config = std::mem::transmute(&*r);
-        c.get_bool(key)
-    }
+pub fn get_table(key: &str) -> Option<HashMap<String, Value>> {
+    get(key).and_then(Value::into_table)
+}
+
+pub fn get_array(key: &str) -> Option<Vec<Value>> {
+    get(key).and_then(Value::into_array)
 }
