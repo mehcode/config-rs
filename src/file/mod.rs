@@ -47,7 +47,7 @@ impl FileFormat {
     }
 
     #[allow(unused_variables)]
-    fn parse(&self, text: &str, namespace: Option<&String>) -> Result<Box<Source>, Box<Error>> {
+    fn parse(&self, text: &str, namespace: Option<&String>) -> Result<Box<Source + Send + Sync>, Box<Error>> {
         match *self {
             #[cfg(feature = "toml")]
             FileFormat::Toml => toml::Content::parse(text, namespace),
@@ -65,7 +65,7 @@ pub trait FileSource {
     fn try_build(&self,
                  format: FileFormat,
                  namespace: Option<&String>)
-                 -> Result<Box<Source>, Box<Error>>;
+                 -> Result<Box<Source + Send + Sync>, Box<Error>>;
 }
 
 pub struct FileSourceString(String);
@@ -74,7 +74,7 @@ impl FileSource for FileSourceString {
     fn try_build(&self,
                  format: FileFormat,
                  namespace: Option<&String>)
-                 -> Result<Box<Source>, Box<Error>> {
+                 -> Result<Box<Source + Send + Sync>, Box<Error>> {
         format.parse(&self.0, namespace)
     }
 }
@@ -132,7 +132,7 @@ impl FileSource for FileSourceFile {
     fn try_build(&self,
                  format: FileFormat,
                  namespace: Option<&String>)
-                 -> Result<Box<Source>, Box<Error>> {
+                 -> Result<Box<Source + Send + Sync>, Box<Error>> {
         // Find file
         let filename = self.find_file(format)?;
 
@@ -195,7 +195,7 @@ impl<T: FileSource> File<T> {
     }
 
     // Build normally and return error on failure
-    fn try_build(&self) -> Result<Box<Source>, Box<Error>> {
+    fn try_build(&self) -> Result<Box<Source + Send + Sync>, Box<Error>> {
         self.source.try_build(self.format, self.namespace.as_ref())
     }
 }
@@ -209,7 +209,7 @@ impl File<FileSourceFile> {
 impl<T: FileSource> SourceBuilder for File<T> {
     // Use try_build but only pass an error through if this source
     // is required
-    fn build(&self) -> Result<Box<Source>, Box<Error>> {
+    fn build(&self) -> Result<Box<Source + Send + Sync>, Box<Error>> {
         if self.required {
             self.try_build()
         } else {

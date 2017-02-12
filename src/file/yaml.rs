@@ -13,7 +13,7 @@ pub struct Content {
 }
 
 impl Content {
-    pub fn parse(text: &str, namespace: Option<&String>) -> Result<Box<Source>, Box<Error>> {
+    pub fn parse(text: &str, namespace: Option<&String>) -> Result<Box<Source + Send + Sync>, Box<Error>> {
         let mut docs = yaml::YamlLoader::load_from_str(text)?;
 
         // Designate root

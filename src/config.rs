@@ -29,7 +29,7 @@ enum ConfigStore {
         overrides: HashMap<String, Value>,
 
         // Ordered list of sources
-        sources: Vec<Box<Source>>,
+        sources: Vec<Box<Source + Send + Sync>>,
     },
 
     // TODO: Will be used for frozen configuratino soon
@@ -213,7 +213,7 @@ fn path_set_str(root: &mut HashMap<String, Value>, key: &str, value: &Value) {
 
 impl ConfigStore {
     fn merge<T>(&mut self, source: T) -> Result<(), Box<Error>>
-        where T: SourceBuilder
+        where T: SourceBuilder + Send + Sync
     {
         if let ConfigStore::Mutable { ref mut sources, .. } = *self {
             sources.push(source.build()?);
@@ -285,7 +285,7 @@ impl Config {
 
     /// Merge in configuration values from the given source.
     pub fn merge<T>(&mut self, source: T) -> Result<(), Box<Error>>
-        where T: SourceBuilder
+        where T: SourceBuilder + Send + Sync
     {
         self.store.merge(source)?;
         self.refresh()?;

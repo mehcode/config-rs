@@ -8,5 +8,5 @@ pub trait Source {
 }
 
 pub trait SourceBuilder {
-    fn build(&self) -> Result<Box<Source>, Box<Error>>;
+    fn build(&self) -> Result<Box<Source + Send + Sync>, Box<Error>>;
 }

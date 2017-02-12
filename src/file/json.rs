@@ -11,7 +11,7 @@ pub struct Content {
 }
 
 impl Content {
-    pub fn parse(text: &str, namespace: Option<&String>) -> Result<Box<Source>, Box<Error>> {
+    pub fn parse(text: &str, namespace: Option<&String>) -> Result<Box<Source + Send + Sync>, Box<Error>> {
         // Parse
         let mut root: serde_json::Value = serde_json::from_str(text)?;
 

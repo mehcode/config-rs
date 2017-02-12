@@ -21,7 +21,7 @@ impl Environment {
 }
 
 impl source::SourceBuilder for Environment {
-    fn build(&self) -> Result<Box<source::Source>, Box<Error>> {
+    fn build(&self) -> Result<Box<source::Source + Send + Sync>, Box<Error>> {
         Ok(Box::new(self.clone()))
     }
 }
