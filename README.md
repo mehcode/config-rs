@@ -1,4 +1,5 @@
 # config-rs
+![Rust](https://img.shields.io/badge/rust-stable-brightgreen.svg)
 [![Build Status](https://travis-ci.org/mehcode/config-rs.svg?branch=master)](https://travis-ci.org/mehcode/config-rs)
 [![Crates.io](https://img.shields.io/crates/d/config.svg)](https://crates.io/crates/config)
 [![Docs.rs](https://docs.rs/config/badge.svg)](https://docs.rs/config)
