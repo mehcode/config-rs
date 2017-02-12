@@ -20,7 +20,9 @@ impl Content {
         let mut root = match docs.len() {
             0 => yaml::Yaml::Hash(BTreeMap::new()),
             1 => mem::replace(&mut docs[0], yaml::Yaml::Null),
-            n => { return Err(Box::new(MultipleDocumentsError(n))); }
+            n => {
+                return Err(Box::new(MultipleDocumentsError(n)));
+            }
         };
 
         // Limit to namespace

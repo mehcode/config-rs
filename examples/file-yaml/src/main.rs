@@ -1,10 +1,12 @@
 extern crate config;
 
 fn main() {
-    // Read configuration from "Settings.yaml"
-    config::merge(config::File::new("Settings", config::FileFormat::Yaml)).unwrap();
+    let mut c = config::Config::new();
 
-    println!("debug  = {:?}", config::get("debug"));
-    println!("pi     = {:?}", config::get("pi"));
-    println!("weight = {:?}", config::get("weight"));
+    // Read configuration from "Settings.yaml"
+    c.merge(config::File::new("Settings", config::FileFormat::Yaml)).unwrap();
+
+    println!("debug  = {:?}", c.get("debug"));
+    println!("pi     = {:?}", c.get("pi"));
+    println!("weight = {:?}", c.get("weight"));
 }

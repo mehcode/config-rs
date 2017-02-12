@@ -62,13 +62,19 @@ impl FileFormat {
 }
 
 pub trait FileSource {
-    fn try_build(&self, format: FileFormat, namespace: Option<&String>) -> Result<Box<Source>, Box<Error>>;
+    fn try_build(&self,
+                 format: FileFormat,
+                 namespace: Option<&String>)
+                 -> Result<Box<Source>, Box<Error>>;
 }
 
 pub struct FileSourceString(String);
 
 impl FileSource for FileSourceString {
-    fn try_build(&self, format: FileFormat, namespace: Option<&String>) -> Result<Box<Source>, Box<Error>> {
+    fn try_build(&self,
+                 format: FileFormat,
+                 namespace: Option<&String>)
+                 -> Result<Box<Source>, Box<Error>> {
         format.parse(&self.0, namespace)
     }
 }
@@ -123,7 +129,10 @@ impl FileSourceFile {
 }
 
 impl FileSource for FileSourceFile {
-    fn try_build(&self, format: FileFormat, namespace: Option<&String>) -> Result<Box<Source>, Box<Error>> {
+    fn try_build(&self,
+                 format: FileFormat,
+                 namespace: Option<&String>)
+                 -> Result<Box<Source>, Box<Error>> {
         // Find file
         let filename = self.find_file(format)?;
 

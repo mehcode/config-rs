@@ -1,23 +1,26 @@
-#![feature(drop_types_in_const)]
-
-#![allow(unknown_lints)]
-#![feature(trace_macros)]
-
 //! Configuration is gathered by building a `Source` and then merging that source into the
 //! current state of the configuration.
 //!
 //! ```rust
-//! // Add environment variables that begin with RUST_
-//! config::merge(config::Environment::new("RUST")).unwrap();
+//! extern crate config;
 //!
-//! // Add 'Settings.toml'
-//! config::merge(config::File::new("Settings", config::FileFormat::Toml)
-//!     .required(false)).unwrap();
+//! use std::env;
+//! use config::{Config, File, FileFormat, Environment};
 //!
-//! // Add 'Settings.$(RUST_ENV).toml`
-//! let name = format!("Settings.{}", config::get_str("env").unwrap_or("development".into()));
-//! config::merge(config::File::new(&name, config::FileFormat::Toml)
-//!     .required(false)).unwrap();
+//! fn main() {
+//!     // Create a new local configuration
+//!     let mut c = Config::new();
+//!
+//!     // Add 'Settings.toml'
+//!     c.merge(File::new("Settings", FileFormat::Toml).required(false)).unwrap();
+//!
+//!     // Add 'Settings.$(RUST_ENV).toml`
+//!     let name = format!("Settings.{}", env::var("env").unwrap_or("development".into()));
+//!     c.merge(File::new(&name, FileFormat::Toml).required(false)).unwrap();
+//!
+//!     // Add environment variables that begin with APP_
+//!     c.merge(Environment::new("APP")).unwrap();
+//! }
 //! ```
 //!
 //! Note that in the above example the calls to `config::merge` could have
@@ -28,14 +31,33 @@
 //! coerced into a type with `as_*`.
 //!
 //! ```rust
+//! # extern crate config;
+//! #
+//! # use std::env;
+//! # use config::{Config, File, FileFormat, Environment};
+//! #
+//! # fn main() {
+//! #    // Create a new local configuration
+//! #    let mut c = Config::new();
+//! #
+//! #    // Add 'Settings.toml'
+//! #    c.merge(File::new("Settings", FileFormat::Toml).required(false)).unwrap();
+//! #
+//! #    // Add 'Settings.$(RUST_ENV).toml`
+//! #    let name = format!("Settings.{}", env::var("env").unwrap_or("development".into()));
+//! #    c.merge(File::new(&name, FileFormat::Toml).required(false)).unwrap();
+//! #
+//! #    // Add environment variables that begin with APP_
+//! #    c.merge(Environment::new("APP")).unwrap();
 //! // Get 'debug' and coerce to a boolean
-//! if let Some(value) = config::get("debug") {
+//! if let Some(value) = c.get("debug") {
 //!     println!("{:?}", value.into_bool());
 //! }
 //!
 //! // You can use a type suffix
-//! println!("{:?}", config::get_bool("debug"));
-//! println!("{:?}", config::get_str("debug"));
+//! println!("{:?}", c.get_bool("debug"));
+//! println!("{:?}", c.get_str("debug"));
+//! # }
 //! ```
 //!
 //! See the [examples](https://github.com/mehcode/config-rs/tree/master/examples) for
@@ -60,77 +82,8 @@ mod env;
 mod path;
 mod config;
 
-use std::error::Error;
-use std::sync::{Once, ONCE_INIT, RwLock};
-use std::collections::HashMap;
-
 pub use source::{Source, SourceBuilder};
 pub use file::{File, FileFormat};
 pub use env::Environment;
-
 pub use value::Value;
-
 pub use config::Config;
-
-// Global configuration
-static mut CONFIG: Option<RwLock<Config>> = None;
-static CONFIG_INIT: Once = ONCE_INIT;
-
-// Get the global configuration instance
-pub fn global() -> &'static mut RwLock<Config> {
-    unsafe {
-        CONFIG_INIT.call_once(|| {
-            CONFIG = Some(Default::default());
-        });
-
-        CONFIG.as_mut().unwrap()
-    }
-}
-
-pub fn merge<T>(source: T) -> Result<(), Box<Error>>
-    where T: SourceBuilder
-{
-    global().write().unwrap().merge(source)
-}
-
-pub fn set_default<T>(key: &str, value: T) -> Result<(), Box<Error>>
-    where T: Into<Value>
-{
-    global().write().unwrap().set_default(key, value)
-}
-
-pub fn set<T>(key: &str, value: T) -> Result<(), Box<Error>>
-    where T: Into<Value>
-{
-    global().write().unwrap().set(key, value)
-}
-
-pub fn get(key: &str) -> Option<Value> {
-    // TODO(~): Should this panic! or return None with an error message?
-    //          Make an issue if you think it should be an error message.
-    global().read().unwrap().get(key)
-}
-
-pub fn get_str(key: &str) -> Option<String> {
-    get(key).and_then(Value::into_str)
-}
-
-pub fn get_int(key: &str) -> Option<i64> {
-    get(key).and_then(Value::into_int)
-}
-
-pub fn get_float(key: &str) -> Option<f64> {
-    get(key).and_then(Value::into_float)
-}
-
-pub fn get_bool(key: &str) -> Option<bool> {
-    get(key).and_then(Value::into_bool)
-}
-
-pub fn get_table(key: &str) -> Option<HashMap<String, Value>> {
-    get(key).and_then(Value::into_table)
-}
-
-pub fn get_array(key: &str) -> Option<Vec<Value>> {
-    get(key).and_then(Value::into_array)
-}

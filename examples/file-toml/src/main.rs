@@ -1,9 +1,12 @@
 extern crate config;
 
 fn main() {
-    // Read configuration from $(cwd)/Cargo.toml
-    config::merge(config::File::new("Cargo", config::FileFormat::Toml)).unwrap();
+    let mut c = config::Config::new();
 
-    println!("package.name = {:?}", config::get_str("package.name"));
-    println!("package.version = {:?}", config::get_str("package.version"));
+    // Read configuration from "Settings.toml"
+    c.merge(config::File::new("Settings", config::FileFormat::Toml)).unwrap();
+
+    println!("debug  = {:?}", c.get("debug"));
+    println!("pi     = {:?}", c.get("pi"));
+    println!("weight = {:?}", c.get("weight"));
 }

@@ -8,7 +8,7 @@ use std::str::FromStr;
 use std::collections::HashMap;
 
 #[derive(Default, Debug)]
-pub struct FrozenError { }
+pub struct FrozenError {}
 
 impl fmt::Display for FrozenError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -54,13 +54,17 @@ fn merge_in_all(r: &mut HashMap<String, Value>, map: &HashMap<String, Value>) {
 }
 
 // Child ( Child ( Identifier( "x" ), "y" ), "z" )
-fn path_get_mut<'a>(root: &'a mut HashMap<String, Value>, expr: path::Expression) -> Option<&'a mut Value> {
+fn path_get_mut<'a>(root: &'a mut HashMap<String, Value>,
+                    expr: path::Expression)
+                    -> Option<&'a mut Value> {
     match expr {
         path::Expression::Identifier(text) => Some(root.entry(text.clone()).or_insert(Value::Nil)),
 
         path::Expression::Child(expr, member) => {
             match path_get_mut(root, *expr) {
-                Some(&mut Value::Table(ref mut table)) => Some(table.entry(member.clone()).or_insert(Value::Nil)),
+                Some(&mut Value::Table(ref mut table)) => {
+                    Some(table.entry(member.clone()).or_insert(Value::Nil))
+                }
 
                 Some(v @ _) => {
                     *v = Value::Table(HashMap::new());
@@ -199,7 +203,7 @@ fn path_set_str(root: &mut HashMap<String, Value>, key: &str, value: &Value) {
     match path::Expression::from_str(key) {
         Ok(expr) => {
             path_set(root, expr, value);
-        },
+        }
 
         Err(_) => {
             // TODO: Log warning here
@@ -591,7 +595,8 @@ mod test {
             let m = c.get_table("redis").unwrap();
 
             assert_eq!(m.get("port").cloned().unwrap().into_int().unwrap(), 6379);
-            assert_eq!(m.get("address").cloned().unwrap().into_str().unwrap(), "::1");
+            assert_eq!(m.get("address").cloned().unwrap().into_str().unwrap(),
+                       "::1");
         }
 
         {
@@ -606,7 +611,8 @@ mod test {
             let m = c.get_table("redis").unwrap();
 
             assert_eq!(m.get("port").cloned().unwrap().into_int().unwrap(), 6379);
-            assert_eq!(m.get("address").cloned().unwrap().into_str().unwrap(), "::0");
+            assert_eq!(m.get("address").cloned().unwrap().into_str().unwrap(),
+                       "::0");
             assert_eq!(m.get("db").cloned().unwrap().into_str().unwrap(), "1");
         }
     }

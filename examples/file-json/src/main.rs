@@ -1,10 +1,12 @@
 extern crate config;
 
 fn main() {
-    // Read configuration from "Settings.json"
-    config::merge(config::File::new("Settings", config::FileFormat::Json)).unwrap();
+    let mut c = config::Config::new();
 
-    println!("debug  = {:?}", config::get("debug"));
-    println!("pi     = {:?}", config::get("pi"));
-    println!("weight = {:?}", config::get("weight"));
+    // Read configuration from "Settings.json"
+    c.merge(config::File::new("Settings", config::FileFormat::Json)).unwrap();
+
+    println!("debug  = {:?}", c.get("debug"));
+    println!("pi     = {:?}", c.get("pi"));
+    println!("weight = {:?}", c.get("weight"));
 }
