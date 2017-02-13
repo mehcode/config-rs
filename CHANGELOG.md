@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
  - Remove global ( `config::get` ) API — It's now required to create a local configuration instance with `config::Config::new()` first
 
 ## 0.3.0 - 2017-02-08
- - YAML from @tmccombs
+ - YAML from [@tmccombs](https://github.com/tmccombs)
  - Nested field retrieval
  - Deep merging of sources (was shallow)
  - `config::File::from_str` to parse and merge a file from a string
