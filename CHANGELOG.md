@@ -5,7 +5,18 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## 0.4.0 - 2017-02-12
- - Remove global ( `config::get` ) API — It's now required to create a local configuration instance with `config::Config::new()` first
+ - Remove global ( `config::get` ) API — It's now required to create a local configuration instance with `config::Config::new()` first.
+ 
+   If you'd like to have a global configuration instance, use `lazy_static!` as follows:
+   
+   ```rust
+   use std::sync::RwLock;
+   use config::Config;
+
+   lazy_static! {
+       static ref CONFIG: RwLock<Config> = Default::default();
+   }
+   ```
 
 ## 0.3.0 - 2017-02-08
  - YAML from [@tmccombs](https://github.com/tmccombs)
