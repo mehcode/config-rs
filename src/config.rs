@@ -392,7 +392,7 @@ impl Config {
         self.get(key).and_then(Value::into_table)
     }
 
-    pub fn get_array(self, key: &str) -> Option<Vec<Value>> {
+    pub fn get_array(&self, key: &str) -> Option<Vec<Value>> {
         self.get(key).and_then(Value::into_array)
     }
 }
@@ -560,6 +560,7 @@ mod test {
             .unwrap();
 
         let values = c.get_array("values").unwrap();
+        let _values = c.get_array("values").unwrap();
 
         assert_eq!(values.len(), 3);
         assert_eq!(values[1].clone().into_int(), Some(325));
@@ -573,6 +574,7 @@ mod test {
             .unwrap();
 
         let values = c.get_array("values").unwrap();
+        let _values = c.get_array("values").unwrap();
 
         assert_eq!(values.len(), 3);
         assert_eq!(values[1].clone().into_int(), Some(325));
