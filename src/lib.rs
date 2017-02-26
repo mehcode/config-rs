@@ -75,6 +75,9 @@ extern crate serde_json;
 #[cfg(feature = "yaml")]
 extern crate yaml_rust;
 
+#[macro_use]
+extern crate lazy_static;
+
 mod value;
 mod source;
 mod file;

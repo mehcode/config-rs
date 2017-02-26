@@ -16,6 +16,7 @@ yaml = ["yaml-rust"]
 
 [dependencies]
 nom = "^2.1"
+lazy_static = "0.2"
 
 toml = { version = "0.2.1", optional = true }
 serde_json = { version = "0.9", optional = true }

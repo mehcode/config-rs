@@ -2,7 +2,8 @@ use std::env;
 use std::error::Error;
 use std::io::{self, Read};
 use std::fs;
-use std::path::PathBuf;
+use std::path::{PathBuf, Path};
+use std::collections::HashMap;
 
 use source::{Source, SourceBuilder};
 
@@ -17,7 +18,7 @@ mod json;
 #[cfg(feature = "yaml")]
 mod yaml;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Eq, PartialEq, Hash)]
 pub enum FileFormat {
     /// TOML (parsed with toml)
     #[cfg(feature = "toml")]
@@ -32,18 +33,29 @@ pub enum FileFormat {
     Yaml,
 }
 
+
+
+lazy_static! {
+    static ref ALL_EXTENSIONS: HashMap<FileFormat, Vec<&'static str>> = {
+        let mut formats: HashMap<FileFormat, Vec<_>> = HashMap::new();
+
+        #[cfg(feature = "toml")]
+        formats.insert(FileFormat::Toml, vec!["toml"]);
+
+        #[cfg(feature = "json")]
+        formats.insert(FileFormat::Json, vec!["json"]);
+
+        #[cfg(feature = "yaml")]
+        formats.insert(FileFormat::Yaml, vec!["yaml", "yml"]);
+        formats
+    };
+}
+
+
 impl FileFormat {
-    fn extensions(&self) -> Vec<&'static str> {
-        match *self {
-            #[cfg(feature = "toml")]
-            FileFormat::Toml => vec!["toml"],
 
-            #[cfg(feature = "json")]
-            FileFormat::Json => vec!["json"],
-
-            #[cfg(feature = "yaml")]
-            FileFormat::Yaml => vec!["yaml", "yml"],
-        }
+    fn extensions(&self) -> &'static Vec<&'static str> {
+        ALL_EXTENSIONS.get(self).unwrap()
     }
 
     #[allow(unused_variables)]
@@ -107,7 +119,7 @@ impl FileSourceFile {
 
         loop {
             let mut filename = dir.as_path().join(basename.clone());
-            for ext in &extensions {
+            for ext in extensions {
                 filename.set_extension(ext);
 
                 if filename.is_file() {
@@ -172,6 +184,19 @@ impl File<FileSourceString> {
 }
 
 impl File<FileSourceFile> {
+    // Given the basename of a file, tries reading it in all the registered formats. #21
+    pub fn with_name(name: &str) -> File<FileSourceFile> {
+        let possible_format = ALL_EXTENSIONS.iter().find( |&(_, extension_names)|
+            extension_names.iter().any( |&extension_name|
+               Path::new(&format!("{}.{}",name, extension_name)).exists()
+            )
+        );
+        match possible_format {
+            Some((format, _)) => File::new(name, *format),
+            None => panic!("The format of the file {} is not understood", name),
+        }
+    }
+
     pub fn new(name: &str, format: FileFormat) -> File<FileSourceFile> {
         File {
             format: format,
