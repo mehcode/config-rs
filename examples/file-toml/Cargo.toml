@@ -1,6 +1,9 @@
 [package]
 name = "file-toml"
 version = "0.1.0"
+workspace = "../../"
 
 [dependencies]
-config = { path = "../.." }
+config = { path = "../../lib", features = ["toml"] }
+serde = "^0.9"
+serde_derive = "^0.9"
