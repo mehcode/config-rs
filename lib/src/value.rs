@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::collections::HashMap;
 use std::fmt::Display;
 use error::*;
@@ -187,6 +188,37 @@ impl Value {
             ValueKind::Array(_) => Err(ConfigError::invalid_type(self.origin.clone(), Unexpected::Seq, &"a floating point")),
         }
     }
+
+    /// Returns `self` into a str, if possible.
+    pub fn into_str(self) -> Result<String> {
+        match self.kind {
+            ValueKind::String(value) => Ok(value),
+
+            // Cannot convert
+            ValueKind::Float(value) => Err(ConfigError::invalid_type(self.origin, Unexpected::Float(value), &"a string")),
+            ValueKind::Integer(value) => Err(ConfigError::invalid_type(self.origin, Unexpected::Integer(value), &"a string")),
+            ValueKind::Boolean(value) => Err(ConfigError::invalid_type(self.origin, Unexpected::Bool(value), &"a string")),
+            ValueKind::Nil => Err(ConfigError::invalid_type(self.origin, Unexpected::Unit, &"a string")),
+            ValueKind::Table(_) => Err(ConfigError::invalid_type(self.origin, Unexpected::Map, &"a string")),
+            ValueKind::Array(_) => Err(ConfigError::invalid_type(self.origin, Unexpected::Seq, &"a string")),
+        }
+    }
+
+    /// Returns `self` into an array, if possible
+    pub fn into_array(self) -> Result<Vec<Value>> {
+        match self.kind {
+            ValueKind::Array(value) => Ok(value),
+            
+            // Cannot convert
+            ValueKind::Float(value) => Err(ConfigError::invalid_type(self.origin, Unexpected::Float(value), &"an array")),
+            ValueKind::String(value) => Err(ConfigError::invalid_type(self.origin, Unexpected::Str(value), &"an array")),
+            ValueKind::Integer(value) => Err(ConfigError::invalid_type(self.origin, Unexpected::Integer(value), &"an array")),
+            ValueKind::Boolean(value) => Err(ConfigError::invalid_type(self.origin, Unexpected::Bool(value), &"an array")),
+            ValueKind::Nil => Err(ConfigError::invalid_type(self.origin, Unexpected::Unit, &"an array")),
+            ValueKind::Table(_) => Err(ConfigError::invalid_type(self.origin, Unexpected::Map, &"an array")),            
+        }
+    }
+
     /// If the `Value` is a Table, returns the associated Map.
     pub fn into_table(self) -> Result<HashMap<String, Value>> {
         match self.kind {
