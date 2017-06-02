@@ -1,4 +1,5 @@
 use std::error::Error;
+use std::borrow::Cow;
 use std::result;
 use std::fmt;
 use serde::de;
@@ -61,7 +62,7 @@ pub enum ConfigError {
 impl ConfigError {
     // FIXME: pub(crate)
     #[doc(hidden)]
-    pub fn invalid_type(origin: Option<String>, unexpected: Unexpected, expected: &'static str) -> ConfigError {
+    pub fn invalid_type(origin: Option<String>, unexpected: Unexpected, expected: &'static str) -> Self {
         ConfigError::Type {
             origin: origin,
             unexpected: unexpected,
@@ -148,7 +149,7 @@ impl Error for ConfigError {
 }
 
 impl de::Error for ConfigError {
-    fn custom<T: fmt::Display>(msg: T) -> ConfigError {
+    fn custom<T: fmt::Display>(msg: T) -> Self {
         ConfigError::Message(msg.to_string())
     }
 }

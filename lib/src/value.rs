@@ -6,13 +6,16 @@ use error::*;
 #[derive(Debug, Clone)]
 pub enum ValueKind {
     Nil,
-    String(String),
+    Boolean(bool),
     Integer(i64),
     Float(f64),
-    Boolean(bool),
-    Table(HashMap<String, Value>),
-    Array(Vec<Value>),
+    String(String),
+    Table(Table),
+    Array(Array),
 }
+
+pub type Array = Vec<Value>;
+pub type Table = HashMap<String, Value>;
 
 impl Default for ValueKind {
     fn default() -> Self {
@@ -23,7 +26,7 @@ impl Default for ValueKind {
 impl<T> From<Option<T>> for ValueKind
     where T: Into<ValueKind>
 {
-    fn from(value: Option<T>) -> ValueKind {
+    fn from(value: Option<T>) -> Self {
         match value {
             Some(value) => value.into(),
             None => ValueKind::Nil,
@@ -32,31 +35,31 @@ impl<T> From<Option<T>> for ValueKind
 }
 
 impl From<String> for ValueKind {
-    fn from(value: String) -> ValueKind {
+    fn from(value: String) -> Self {
         ValueKind::String(value.into())
     }
 }
 
 impl<'a> From<&'a str> for ValueKind {
-    fn from(value: &'a str) -> ValueKind {
+    fn from(value: &'a str) -> Self {
         ValueKind::String(value.into())
     }
 }
 
 impl From<i64> for ValueKind {
-    fn from(value: i64) -> ValueKind {
+    fn from(value: i64) -> Self {
         ValueKind::Integer(value)
     }
 }
 
 impl From<f64> for ValueKind {
-    fn from(value: f64) -> ValueKind {
+    fn from(value: f64) -> Self {
         ValueKind::Float(value)
     }
 }
 
 impl From<bool> for ValueKind {
-    fn from(value: bool) -> ValueKind {
+    fn from(value: bool) -> Self {
         ValueKind::Boolean(value)
     }
 }
@@ -64,7 +67,7 @@ impl From<bool> for ValueKind {
 impl<T> From<HashMap<String, T>> for ValueKind
     where T: Into<Value>
 {
-    fn from(values: HashMap<String, T>) -> ValueKind {
+    fn from(values: HashMap<String, T>) -> Self {
         let mut r = HashMap::new();
 
         for (k, v) in values {
@@ -78,7 +81,7 @@ impl<T> From<HashMap<String, T>> for ValueKind
 impl<T> From<Vec<T>> for ValueKind
     where T: Into<Value>
 {
-    fn from(values: Vec<T>) -> ValueKind {
+    fn from(values: Vec<T>) -> Self {
         let mut l = Vec::new();
 
         for v in values {
@@ -115,7 +118,7 @@ pub struct Value {
 }
 
 impl Value {
-    pub fn new<V>(origin: Option<&String>, kind: V) -> Value
+    pub fn new<V>(origin: Option<&String>, kind: V) -> Self
         where V: Into<ValueKind>
     {
         Value {
@@ -137,14 +140,14 @@ impl Value {
                     "0" | "false" | "off" | "no" => Ok(false),
 
                     // Unexpected string value
-                    s @ _ => Err(ConfigError::invalid_type(self.origin.clone(), Unexpected::Str(s.into()), &"a boolean")),
+                    s @ _ => Err(ConfigError::invalid_type(self.origin.clone(), Unexpected::Str(s.into()), "a boolean")),
                 }
             }
 
             // Unexpected type
-            ValueKind::Nil => Err(ConfigError::invalid_type(self.origin.clone(), Unexpected::Unit, &"a boolean")),
-            ValueKind::Table(_) => Err(ConfigError::invalid_type(self.origin.clone(), Unexpected::Map, &"a boolean")),
-            ValueKind::Array(_) => Err(ConfigError::invalid_type(self.origin.clone(), Unexpected::Seq, &"a boolean")),
+            ValueKind::Nil => Err(ConfigError::invalid_type(self.origin.clone(), Unexpected::Unit, "a boolean")),
+            ValueKind::Table(_) => Err(ConfigError::invalid_type(self.origin.clone(), Unexpected::Map, "a boolean")),
+            ValueKind::Array(_) => Err(ConfigError::invalid_type(self.origin.clone(), Unexpected::Seq, "a boolean")),
         }
     }
 
@@ -155,16 +158,16 @@ impl Value {
 
             ValueKind::String(ref s) => s.parse().map_err(|_| {
                 // Unexpected string
-                ConfigError::invalid_type(self.origin.clone(), Unexpected::Str(s.clone()), &"an integer")
+                ConfigError::invalid_type(self.origin.clone(), Unexpected::Str(s.clone()), "an integer")
             }),
 
             ValueKind::Boolean(value) => Ok(if value { 1 } else { 0 }),
             ValueKind::Float(value) => Ok(value.round() as i64),
 
             // Unexpected type
-            ValueKind::Nil => Err(ConfigError::invalid_type(self.origin.clone(), Unexpected::Unit, &"an integer")),
-            ValueKind::Table(_) => Err(ConfigError::invalid_type(self.origin.clone(), Unexpected::Map, &"an integer")),
-            ValueKind::Array(_) => Err(ConfigError::invalid_type(self.origin.clone(), Unexpected::Seq, &"an integer")),
+            ValueKind::Nil => Err(ConfigError::invalid_type(self.origin.clone(), Unexpected::Unit, "an integer")),
+            ValueKind::Table(_) => Err(ConfigError::invalid_type(self.origin.clone(), Unexpected::Map, "an integer")),
+            ValueKind::Array(_) => Err(ConfigError::invalid_type(self.origin.clone(), Unexpected::Seq, "an integer")),
         }
     }
 
@@ -175,30 +178,61 @@ impl Value {
 
             ValueKind::String(ref s) => s.parse().map_err(|_| {
                 // Unexpected string
-                ConfigError::invalid_type(self.origin.clone(), Unexpected::Str(s.clone()), &"a floating point")
+                ConfigError::invalid_type(self.origin.clone(), Unexpected::Str(s.clone()), "a floating point")
             }),
 
             ValueKind::Integer(value) => Ok(value as f64),
             ValueKind::Boolean(value) => Ok(if value { 1.0 } else { 0.0 }),
 
             // Unexpected type
-            ValueKind::Nil => Err(ConfigError::invalid_type(self.origin.clone(), Unexpected::Unit, &"a floating point")),
-            ValueKind::Table(_) => Err(ConfigError::invalid_type(self.origin.clone(), Unexpected::Map, &"a floating point")),
-            ValueKind::Array(_) => Err(ConfigError::invalid_type(self.origin.clone(), Unexpected::Seq, &"a floating point")),
+            ValueKind::Nil => Err(ConfigError::invalid_type(self.origin.clone(), Unexpected::Unit, "a floating point")),
+            ValueKind::Table(_) => Err(ConfigError::invalid_type(self.origin.clone(), Unexpected::Map, "a floating point")),
+            ValueKind::Array(_) => Err(ConfigError::invalid_type(self.origin.clone(), Unexpected::Seq, "a floating point")),
         }
     }
+
+    /// Returns `self` into a str, if possible.
+    pub fn into_str(self) -> Result<String> {
+        match self.kind {
+            ValueKind::String(value) => Ok(value),
+
+            // Cannot convert
+            ValueKind::Float(value) => Err(ConfigError::invalid_type(self.origin, Unexpected::Float(value), "a string")),
+            ValueKind::Integer(value) => Err(ConfigError::invalid_type(self.origin, Unexpected::Integer(value), "a string")),
+            ValueKind::Boolean(value) => Err(ConfigError::invalid_type(self.origin, Unexpected::Bool(value), "a string")),
+            ValueKind::Nil => Err(ConfigError::invalid_type(self.origin, Unexpected::Unit, "a string")),
+            ValueKind::Table(_) => Err(ConfigError::invalid_type(self.origin, Unexpected::Map, "a string")),
+            ValueKind::Array(_) => Err(ConfigError::invalid_type(self.origin, Unexpected::Seq, "a string")),
+        }
+    }
+
+    /// Returns `self` into an array, if possible
+    pub fn into_array(self) -> Result<Vec<Value>> {
+        match self.kind {
+            ValueKind::Array(value) => Ok(value),
+            
+            // Cannot convert
+            ValueKind::Float(value) => Err(ConfigError::invalid_type(self.origin, Unexpected::Float(value), "an array")),
+            ValueKind::String(value) => Err(ConfigError::invalid_type(self.origin, Unexpected::Str(value), "an array")),
+            ValueKind::Integer(value) => Err(ConfigError::invalid_type(self.origin, Unexpected::Integer(value), "an array")),
+            ValueKind::Boolean(value) => Err(ConfigError::invalid_type(self.origin, Unexpected::Bool(value), "an array")),
+            ValueKind::Nil => Err(ConfigError::invalid_type(self.origin, Unexpected::Unit, "an array")),
+            ValueKind::Table(_) => Err(ConfigError::invalid_type(self.origin, Unexpected::Map, "an array")),            
+        }
+    }
+
     /// If the `Value` is a Table, returns the associated Map.
     pub fn into_table(self) -> Result<HashMap<String, Value>> {
         match self.kind {
             ValueKind::Table(value) => Ok(value),
 
             // Cannot convert
-            ValueKind::Float(value) => Err(ConfigError::invalid_type(self.origin, Unexpected::Float(value), &"a map")),
-            ValueKind::String(value) => Err(ConfigError::invalid_type(self.origin, Unexpected::Str(value), &"a map")),
-            ValueKind::Integer(value) => Err(ConfigError::invalid_type(self.origin, Unexpected::Integer(value), &"a map")),
-            ValueKind::Boolean(value) => Err(ConfigError::invalid_type(self.origin, Unexpected::Bool(value), &"a map")),
-            ValueKind::Nil => Err(ConfigError::invalid_type(self.origin, Unexpected::Unit, &"a map")),
-            ValueKind::Array(_) => Err(ConfigError::invalid_type(self.origin, Unexpected::Seq, &"a map")),
+            ValueKind::Float(value) => Err(ConfigError::invalid_type(self.origin, Unexpected::Float(value), "a map")),
+            ValueKind::String(value) => Err(ConfigError::invalid_type(self.origin, Unexpected::Str(value), "a map")),
+            ValueKind::Integer(value) => Err(ConfigError::invalid_type(self.origin, Unexpected::Integer(value), "a map")),
+            ValueKind::Boolean(value) => Err(ConfigError::invalid_type(self.origin, Unexpected::Bool(value), "a map")),
+            ValueKind::Nil => Err(ConfigError::invalid_type(self.origin, Unexpected::Unit, "a map")),
+            ValueKind::Array(_) => Err(ConfigError::invalid_type(self.origin, Unexpected::Seq, "a map")),
         }
     }
 }
@@ -206,7 +240,7 @@ impl Value {
 impl<T> From<T> for Value
     where T: Into<ValueKind>
 {
-    fn from(value: T) -> Value {
+    fn from(value: T) -> Self {
         Value {
             origin: None,
             kind: value.into(),
