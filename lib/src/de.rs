@@ -11,7 +11,7 @@ impl de::Deserializer for Value {
 
     #[inline]
     fn deserialize<V>(self, visitor: V) -> Result<V::Value>
-        where V: de::Visitor,
+        where V: de::Visitor
     {
         // Deserialize based on the underlying type
         match self.kind {
@@ -21,14 +21,27 @@ impl de::Deserializer for Value {
             ValueKind::String(s) => visitor.visit_string(s),
             ValueKind::Array(values) => unimplemented!(),
             ValueKind::Table(map) => visitor.visit_map(MapVisitor::new(map)),
-            _ => { unimplemented!(); }
+            _ => {
+                unimplemented!();
+            }
+        }
+    }
+
+    #[inline]
+    fn deserialize_option<V>(self, visitor: V) -> Result<V::Value>
+        where V: de::Visitor
+    {
+        // Match an explicit nil as None and everything else as Some
+        match self.kind {
+            ValueKind::Nil => visitor.visit_none(),
+            _ => visitor.visit_some(self),
         }
     }
 
     forward_to_deserialize! {
         bool u8 u16 u32 u64 i8 i16 i32 i64 f32 f64 char str string seq
         seq_fixed_size bytes byte_buf map struct unit enum newtype_struct
-        struct_field ignored_any unit_struct tuple_struct tuple option
+        struct_field ignored_any unit_struct tuple_struct tuple
     }
 }
 
@@ -62,7 +75,10 @@ struct MapVisitor {
 
 impl MapVisitor {
     fn new(mut table: HashMap<String, Value>) -> Self {
-        MapVisitor { elements: table.drain().collect(), index: 0 }
+        MapVisitor {
+            elements: table.drain().collect(),
+            index: 0,
+        }
     }
 }
 
@@ -70,7 +86,7 @@ impl de::MapVisitor for MapVisitor {
     type Error = ConfigError;
 
     fn visit_key_seed<K>(&mut self, seed: K) -> Result<Option<K::Value>>
-        where K: de::DeserializeSeed,
+        where K: de::DeserializeSeed
     {
         if self.index >= self.elements.len() {
             return Ok(None);
@@ -84,7 +100,7 @@ impl de::MapVisitor for MapVisitor {
     }
 
     fn visit_value_seed<V>(&mut self, seed: V) -> Result<V::Value>
-        where V: de::DeserializeSeed,
+        where V: de::DeserializeSeed
     {
         de::DeserializeSeed::deserialize(seed, self.elements.remove(0).1)
     }

@@ -43,7 +43,8 @@ pub struct Config {
 impl Config {
     /// Merge in a configuration property source.
     pub fn merge<T>(&mut self, source: T) -> Result<()>
-        where T: 'static, T: Source + Send + Sync
+        where T: 'static,
+              T: Source + Send + Sync
     {
         match self.kind {
             ConfigKind::Mutable { ref mut sources, .. } => {
@@ -65,14 +66,12 @@ impl Config {
     /// operation (`set`, `merge`, `set_default`, etc.).
     pub fn refresh(&mut self) -> Result<()> {
         self.cache = match self.kind {
-            ConfigKind::Mutable { ref overrides, ref sources, ref defaults } => {
-                let mut cache = Value::new(None, HashMap::<String, Value>::new());
-
-                // HACK!
-                cache = sources[0].collect()?;
-
-                cache
-            }
+            // TODO: We need to actually merge in all the stuff
+            ConfigKind::Mutable {
+                ref overrides,
+                ref sources,
+                ref defaults,
+            } => sources[0].collect()?,
 
             ConfigKind::Frozen => {
                 return Err(ConfigError::Frozen);
@@ -95,9 +94,7 @@ impl Config {
                 T::deserialize(value)
             }
 
-            None => {
-                Err(ConfigError::NotFound(key.into()))
-            }
+            None => Err(ConfigError::NotFound(key.into())),
         }
     }
 }
