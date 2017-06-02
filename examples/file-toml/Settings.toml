@@ -1,4 +1,0 @@
-debug = true
-pi = 3.14159
-weight = 150
-location = { x = 10, y = 30 }

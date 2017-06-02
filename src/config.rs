@@ -81,6 +81,10 @@ impl Config {
         Ok(())
     }
 
+    pub fn deserialize<T: Deserialize>(&self) -> Result<T> {
+        return T::deserialize(self.cache.clone());
+    }
+
     pub fn get<T: Deserialize>(&self, key: &str) -> Result<T> {
         // Parse the key into a path expression
         let expr: path::Expression = key.to_lowercase().parse()?;

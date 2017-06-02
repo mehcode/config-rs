@@ -1,7 +1,0 @@
-[package]
-name = "basic"
-version = "0.1.0"
-workspace = "../../"
-
-[dependencies]
-config = { path = "../../lib" }

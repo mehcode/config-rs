@@ -1,0 +1,12 @@
+debug = true
+debug_s = "true"
+production = false
+production_s = "false"
+
+[place]
+name = "Torre di Pisa"
+longitude = 43.7224985
+latitude = 10.3970522
+favorite = false
+reviews = 3866
+rating = 4.5

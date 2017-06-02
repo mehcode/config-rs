@@ -52,8 +52,8 @@ fn postfix(expr: Expression) -> Box<Fn(&[u8]) -> IResult<&[u8], Expression>> {
     });
 }
 
-pub fn from_str(input: &[u8]) -> IResult<&[u8], Expression> {
-    match ident(input) {
+pub fn from_str(input: &str) -> Result<Expression, ErrorKind> {
+    match ident(input.as_bytes()) {
         IResult::Done(mut rem, mut expr) => {
             while rem.len() > 0 {
                 match postfix(expr)(rem) {
@@ -64,16 +64,16 @@ pub fn from_str(input: &[u8]) -> IResult<&[u8], Expression> {
 
                     // Forward Incomplete and Error
                     result @ _ => {
-                        return result;
+                        return result.to_result();
                     }
                 }
             }
 
-            IResult::Done(&[], expr)
+            Ok(expr)
         }
 
         // Forward Incomplete and Error
-        result @ _ => result,
+        result @ _ => result.to_result(),
     }
 }
 

@@ -28,6 +28,78 @@ impl de::Deserializer for Value {
     }
 
     #[inline]
+    fn deserialize_bool<V: de::Visitor>(self, visitor: V) -> Result<V::Value> {
+        visitor.visit_bool(self.into_bool()?)
+    }
+
+    #[inline]
+    fn deserialize_i8<V: de::Visitor>(self, visitor: V) -> Result<V::Value> {
+        // FIXME: This should *fail* if the value does not fit in the requets integer type
+        visitor.visit_i8(self.into_int()? as i8)
+    }
+
+    #[inline]
+    fn deserialize_i16<V: de::Visitor>(self, visitor: V) -> Result<V::Value> {
+        // FIXME: This should *fail* if the value does not fit in the requets integer type
+        visitor.visit_i16(self.into_int()? as i16)
+    }
+
+    #[inline]
+    fn deserialize_i32<V: de::Visitor>(self, visitor: V) -> Result<V::Value> {
+        // FIXME: This should *fail* if the value does not fit in the requets integer type
+        visitor.visit_i32(self.into_int()? as i32)
+    }
+
+    #[inline]
+    fn deserialize_i64<V: de::Visitor>(self, visitor: V) -> Result<V::Value> {
+        visitor.visit_i64(self.into_int()?)
+    }
+
+    #[inline]
+    fn deserialize_u8<V: de::Visitor>(self, visitor: V) -> Result<V::Value> {
+        // FIXME: This should *fail* if the value does not fit in the requets integer type
+        visitor.visit_u8(self.into_int()? as u8)
+    }
+
+    #[inline]
+    fn deserialize_u16<V: de::Visitor>(self, visitor: V) -> Result<V::Value> {
+        // FIXME: This should *fail* if the value does not fit in the requets integer type
+        visitor.visit_u16(self.into_int()? as u16)
+    }
+
+    #[inline]
+    fn deserialize_u32<V: de::Visitor>(self, visitor: V) -> Result<V::Value> {
+        // FIXME: This should *fail* if the value does not fit in the requets integer type
+        visitor.visit_u32(self.into_int()? as u32)
+    }
+
+    #[inline]
+    fn deserialize_u64<V: de::Visitor>(self, visitor: V) -> Result<V::Value> {
+        // FIXME: This should *fail* if the value does not fit in the requets integer type
+        visitor.visit_u64(self.into_int()? as u64)
+    }
+
+    #[inline]
+    fn deserialize_f32<V: de::Visitor>(self, visitor: V) -> Result<V::Value> {
+        visitor.visit_f32(self.into_float()? as f32)
+    }
+
+    #[inline]
+    fn deserialize_f64<V: de::Visitor>(self, visitor: V) -> Result<V::Value> {
+        visitor.visit_f64(self.into_float()?)
+    }
+
+    #[inline]
+    fn deserialize_str<V: de::Visitor>(self, visitor: V) -> Result<V::Value> {
+        visitor.visit_string(self.into_str()?)
+    }
+
+    #[inline]
+    fn deserialize_string<V: de::Visitor>(self, visitor: V) -> Result<V::Value> {
+        visitor.visit_string(self.into_str()?)
+    }
+
+    #[inline]
     fn deserialize_option<V>(self, visitor: V) -> Result<V::Value>
         where V: de::Visitor
     {
@@ -39,7 +111,7 @@ impl de::Deserializer for Value {
     }
 
     forward_to_deserialize! {
-        bool u8 u16 u32 u64 i8 i16 i32 i64 f32 f64 char str string seq
+        char seq
         seq_fixed_size bytes byte_buf map struct unit enum newtype_struct
         struct_field ignored_any unit_struct tuple_struct tuple
     }

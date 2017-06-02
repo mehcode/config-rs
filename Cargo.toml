@@ -1,8 +1,26 @@
-[workspace]
-members = [
-    "lib",
-    "examples/basic",
-    # "examples/file-json",
-    "examples/file-toml",
-    # "examples/file-yaml",
-]
+[package]
+name = "config"
+version = "0.5.0-pre"
+description = "Layered configuration system for Rust applications."
+homepage = "https://github.com/mehcode/config-rs"
+repository = "https://github.com/mehcode/config-rs"
+readme = "README.md"
+keywords = ["config", "configuration", "settings", "env", "environment"]
+authors = ["Ryan Leckey <leckey.ryan@gmail.com>"]
+license = "MIT/Apache-2.0"
+
+[features]
+default = ["toml", "json", "yaml"]
+json = ["serde_json"]
+yaml = ["yaml-rust"]
+
+[dependencies]
+serde = "^0.9"
+nom = "^2.1"
+
+toml = { version = "^0.3", optional = true }
+serde_json = { version = "^0.9", optional = true }
+yaml-rust = { version = "^0.3.5", optional = true }
+
+[dev-dependencies]
+serde_derive = "^0.9"

@@ -1,7 +1,0 @@
-[package]
-name = "file-yaml"
-version = "0.1.0"
-workspace = "../../"
-
-[dependencies]
-config = { path = "../../lib", default-features = false, features = ["yaml"] }

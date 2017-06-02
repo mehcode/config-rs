@@ -16,9 +16,7 @@ impl FromStr for Expression {
     type Err = ConfigError;
 
     fn from_str(s: &str) -> Result<Expression> {
-        parser::from_str(s.as_bytes()).to_result().map_err(|kind| {
-            ConfigError::PathParse(kind)
-        })
+        parser::from_str(s).map_err(|kind| ConfigError::PathParse(kind))
     }
 }
 
