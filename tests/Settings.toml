@@ -3,6 +3,9 @@ debug_s = "true"
 production = false
 production_s = "false"
 
+# errors
+boolean_s_parse = "fals"
+
 [place]
 name = "Torre di Pisa"
 longitude = 43.7224985

@@ -105,7 +105,7 @@ impl fmt::Display for ConfigError {
                     unexpected, expected)?;
 
                 if let Some(ref origin) = *origin {
-                    write!(f, " in {}", origin)?;
+                    write!(f, " from {}", origin)?;
                 }
 
                 Ok(())
@@ -115,7 +115,7 @@ impl fmt::Display for ConfigError {
                 write!(f, "{}", cause)?;
 
                 if let Some(ref uri) = *uri {
-                    write!(f, " in {}", uri)?;
+                    write!(f, " from {}", uri)?;
                 }
 
                 Ok(())
