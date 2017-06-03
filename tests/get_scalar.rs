@@ -42,3 +42,11 @@ fn test_scalar_type_loose() {
     assert!(c.get("production_s").ok() == Some(0));
     assert!(c.get("production_s").ok() == Some(0.0));
 }
+
+#[test]
+fn test_get_scalar_path() {
+    let c = make();
+
+    assert_eq!(c.get("place.favorite").ok(), Some(false));
+    assert_eq!(c.get("place.creator.name").ok(), Some("John Smith".to_string()));
+}
