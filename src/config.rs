@@ -3,14 +3,15 @@ use serde::de::Deserialize;
 
 use error::*;
 use source::Source;
-use value::Value;
+
+use value::{Value, ValueWithKey};
 use path;
 
 enum ConfigKind {
     // A mutable configuration. This is the default.
     Mutable {
-        defaults: HashMap<String, Value>,
-        overrides: HashMap<String, Value>,
+        defaults: HashMap<path::Expression, Value>,
+        overrides: HashMap<path::Expression, Value>,
         sources: Vec<Box<Source + Send + Sync>>,
     },
 
@@ -71,7 +72,29 @@ impl Config {
                 ref overrides,
                 ref sources,
                 ref defaults,
-            } => sources[0].collect()?,
+            } => {
+                let mut cache: Value = HashMap::<String, Value>::new().into();
+
+                // Add defaults
+                for (key, val) in defaults {
+                    key.set(&mut cache, val.clone());
+                }
+
+                // Add sources
+                for source in sources {
+                    let props = source.collect()?;
+                    for (key, val) in &props {
+                        path::Expression::Identifier(key.clone()).set(&mut cache, val.clone());
+                    }
+                }
+
+                // Add overrides
+                for (key, val) in overrides {
+                    key.set(&mut cache, val.clone());
+                }
+
+                cache
+            },
 
             ConfigKind::Frozen => {
                 return Err(ConfigError::Frozen);
@@ -81,11 +104,11 @@ impl Config {
         Ok(())
     }
 
-    pub fn deserialize<T: Deserialize>(&self) -> Result<T> {
+    pub fn deserialize<'de, T: Deserialize<'de>>(&self) -> Result<T> {
         return T::deserialize(self.cache.clone());
     }
 
-    pub fn get<T: Deserialize>(&self, key: &str) -> Result<T> {
+    pub fn get<'de, T: Deserialize<'de>>(&self, key: &'de str) -> Result<T> {
         // Parse the key into a path expression
         let expr: path::Expression = key.to_lowercase().parse()?;
 
@@ -95,10 +118,48 @@ impl Config {
         match value {
             Some(value) => {
                 // Deserialize the received value into the requested type
-                T::deserialize(value)
+                T::deserialize(ValueWithKey::new(value, key))
             }
 
             None => Err(ConfigError::NotFound(key.into())),
         }
+    }
+
+    pub fn set_default<T>(&mut self, key: &str, value: T) -> Result<()>
+        where T: Into<Value>
+    {
+        match self.kind {
+            ConfigKind::Mutable {
+                ref mut defaults,
+                ..
+            } => {
+                defaults.insert(key.parse()?, value.into());
+            }
+
+            ConfigKind::Frozen => {
+                return Err(ConfigError::Frozen)
+            }
+        };
+
+        self.refresh()
+    }
+
+    pub fn set<T>(&mut self, key: &str, value: T) -> Result<()>
+        where T: Into<Value>
+    {
+        match self.kind {
+            ConfigKind::Mutable {
+                ref mut overrides,
+                ..
+            } => {
+                overrides.insert(key.parse()?, value.into());
+            }
+
+            ConfigKind::Frozen => {
+                return Err(ConfigError::Frozen)
+            }
+        };
+
+        self.refresh()
     }
 }
