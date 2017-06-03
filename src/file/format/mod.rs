@@ -1,6 +1,7 @@
 use source::Source;
 use value::Value;
 use std::error::Error;
+use std::collections::HashMap;
 
 #[cfg(feature = "toml")]
 mod toml;
@@ -45,7 +46,7 @@ impl FileFormat {
     // TODO: pub(crate)
     #[doc(hidden)]
     #[allow(unused_variables)]
-    pub fn parse(&self, uri: Option<&String>, text: &str, namespace: Option<&String>) -> Result<Value, Box<Error>> {
+    pub fn parse(&self, uri: Option<&String>, text: &str, namespace: Option<&String>) -> Result<HashMap<String, Value>, Box<Error>> {
         match *self {
             #[cfg(feature = "toml")]
             FileFormat::Toml => toml::parse(uri, text, namespace),

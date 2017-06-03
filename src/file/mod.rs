@@ -4,6 +4,7 @@ pub mod source;
 use source::Source;
 use error::*;
 use value::Value;
+use std::collections::HashMap;
 
 use self::source::FileSource;
 pub use self::format::FileFormat;
@@ -58,7 +59,7 @@ impl<T: FileSource> File<T> {
 }
 
 impl<T: FileSource> Source for File<T> {
-    fn collect(&self) -> Result<Value> {
+    fn collect(&self) -> Result<HashMap<String, Value>> {
         // Coerce the file contents to a string
         let (uri, contents) = self.source.resolve(self.format).map_err(|err| {
             ConfigError::Foreign(err)

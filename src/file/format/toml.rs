@@ -2,9 +2,9 @@ use toml;
 use source::Source;
 use std::collections::{HashMap, BTreeMap};
 use std::error::Error;
-use value::Value;
+use value::{Value, ValueKind};
 
-pub fn parse(uri: Option<&String>, text: &str, namespace: Option<&String>) -> Result<Value, Box<Error>> {
+pub fn parse(uri: Option<&String>, text: &str, namespace: Option<&String>) -> Result<HashMap<String, Value>, Box<Error>> {
     // Parse a TOML value from the provided text
     let mut root: toml::Value = toml::from_str(text)?;
 
@@ -25,10 +25,15 @@ pub fn parse(uri: Option<&String>, text: &str, namespace: Option<&String>) -> Re
         });
     }
 
-    Ok(from_toml_value(uri, &root))
+    // TODO: Have a proper error fire if the root of a file is ever not a Table
+    let value = from_toml_value(uri, &root);
+    match value.kind {
+        ValueKind::Table(map) => Ok(map),
+
+        _ => Ok(HashMap::new()),
+    }
 }
 
-// TODO: Extend value origin with line/column numbers when able
 fn from_toml_value(uri: Option<&String>, value: &toml::Value) -> Value {
     match *value {
         toml::Value::String(ref value) => Value::new(uri, value.to_string()),
