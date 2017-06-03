@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 use std::fmt::Display;
+use std::fmt;
 use error::*;
+use serde::de::{Deserialize, Deserializer, Visitor};
 
 /// Underlying kind of the configuration value.
 #[derive(Debug, Clone)]
@@ -99,7 +101,7 @@ pub struct Value {
     ///
     /// A Value originating from a File might contain:
     /// ```
-    /// Settings.toml at line 1 column 2
+    /// Settings.toml
     /// ```
     ///
     /// A Value originating from the environment would contain:
@@ -125,6 +127,10 @@ impl Value {
             origin: origin.cloned(),
             kind: kind.into(),
         }
+    }
+
+    pub fn try_into<'de, T: Deserialize<'de>>(self) -> Result<T> {
+        return T::deserialize(self);
     }
 
     /// Returns `self` as a bool, if possible.
@@ -316,6 +322,134 @@ impl Value {
     }
 }
 
+impl<'de> Deserialize<'de> for Value {
+    #[inline]
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Value, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        struct ValueVisitor;
+
+        impl<'de> Visitor<'de> for ValueVisitor {
+            type Value = Value;
+
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                formatter.write_str("any valid configuration value")
+            }
+
+            #[inline]
+            fn visit_bool<E>(self, value: bool) -> ::std::result::Result<Value, E> {
+                Ok(value.into())
+            }
+
+            #[inline]
+            fn visit_i8<E>(self, value: i8) -> ::std::result::Result<Value, E> {
+                Ok((value as i64).into())
+            }
+
+            #[inline]
+            fn visit_i16<E>(self, value: i16) -> ::std::result::Result<Value, E> {
+                Ok((value as i64).into())
+            }
+
+            #[inline]
+            fn visit_i32<E>(self, value: i32) -> ::std::result::Result<Value, E> {
+                Ok((value as i64).into())
+            }
+
+            #[inline]
+            fn visit_i64<E>(self, value: i64) -> ::std::result::Result<Value, E> {
+                Ok(value.into())
+            }
+
+            #[inline]
+            fn visit_u8<E>(self, value: u8) -> ::std::result::Result<Value, E> {
+                Ok((value as i64).into())
+            }
+
+            #[inline]
+            fn visit_u16<E>(self, value: u16) -> ::std::result::Result<Value, E> {
+                Ok((value as i64).into())
+            }
+
+            #[inline]
+            fn visit_u32<E>(self, value: u32) -> ::std::result::Result<Value, E> {
+                Ok((value as i64).into())
+            }
+
+            #[inline]
+            fn visit_u64<E>(self, value: u64) -> ::std::result::Result<Value, E> {
+                // FIXME: This is bad
+                Ok((value as i64).into())
+            }
+
+            #[inline]
+            fn visit_f64<E>(self, value: f64) -> ::std::result::Result<Value, E> {
+                Ok(value.into())
+            }
+
+            #[inline]
+            fn visit_str<E>(self, value: &str) -> ::std::result::Result<Value, E>
+            where
+                E: ::serde::de::Error,
+            {
+                self.visit_string(String::from(value))
+            }
+
+            #[inline]
+            fn visit_string<E>(self, value: String) -> ::std::result::Result<Value, E> {
+                Ok(value.into())
+            }
+
+            #[inline]
+            fn visit_none<E>(self) -> ::std::result::Result<Value, E> {
+                Ok(Value::new(None, ValueKind::Nil))
+            }
+
+            #[inline]
+            fn visit_some<D>(self, deserializer: D) -> ::std::result::Result<Value, D::Error>
+                where D: Deserializer<'de>
+            {
+                Deserialize::deserialize(deserializer)
+            }
+
+            #[inline]
+            fn visit_unit<E>(self) -> ::std::result::Result<Value, E> {
+                Ok(Value::new(None, ValueKind::Nil))
+            }
+
+            #[inline]
+            fn visit_seq<V>(self, mut visitor: V) -> ::std::result::Result<Value, V::Error>
+            where
+                V: ::serde::de::SeqAccess<'de>,
+            {
+                let mut vec = Array::new();
+
+                while let Some(elem) = try!(visitor.next_element()) {
+                    vec.push(elem);
+                }
+
+                Ok(vec.into())
+            }
+
+            fn visit_map<V>(self, mut visitor: V) -> ::std::result::Result<Value, V::Error>
+            where
+                V: ::serde::de::MapAccess<'de>,
+            {
+                let mut values = Table::new();
+
+                while let Some((key, value)) = try!(visitor.next_entry()) {
+                    values.insert(key, value);
+                }
+
+                Ok(values.into())
+            }
+        }
+
+        deserializer.deserialize_any(ValueVisitor)
+    }
+}
+
 impl<T> From<T> for Value
     where T: Into<ValueKind>
 {
@@ -323,6 +457,62 @@ impl<T> From<T> for Value
         Value {
             origin: None,
             kind: value.into(),
+        }
+    }
+}
+
+pub struct ValueWithKey<'a>(pub Value, &'a str);
+
+impl<'a> ValueWithKey<'a> {
+    pub fn new(value: Value, key: &'a str) -> Self
+    {
+        ValueWithKey(value, key)
+    }
+
+    pub fn into_bool(self) -> Result<bool> {
+        match self.0.into_bool() {
+            Ok(value) => Ok(value),
+            Err(error) => Err(error.extend_with_key(self.1))
+        }
+    }
+
+    /// Returns `self` into an i64, if possible.
+    pub fn into_int(self) -> Result<i64> {
+        match self.0.into_int() {
+            Ok(value) => Ok(value),
+            Err(error) => Err(error.extend_with_key(self.1))
+        }
+    }
+
+    /// Returns `self` into a f64, if possible.
+    pub fn into_float(self) -> Result<f64> {
+        match self.0.into_float() {
+            Ok(value) => Ok(value),
+            Err(error) => Err(error.extend_with_key(self.1))
+        }
+    }
+
+    /// Returns `self` into a str, if possible.
+    pub fn into_str(self) -> Result<String> {
+        match self.0.into_str() {
+            Ok(value) => Ok(value),
+            Err(error) => Err(error.extend_with_key(self.1))
+        }
+    }
+
+    /// Returns `self` into an array, if possible
+    pub fn into_array(self) -> Result<Vec<Value>> {
+        match self.0.into_array() {
+            Ok(value) => Ok(value),
+            Err(error) => Err(error.extend_with_key(self.1))
+        }
+    }
+
+    /// If the `Value` is a Table, returns the associated Map.
+    pub fn into_table(self) -> Result<HashMap<String, Value>> {
+        match self.0.into_table() {
+            Ok(value) => Ok(value),
+            Err(error) => Err(error.extend_with_key(self.1))
         }
     }
 }
