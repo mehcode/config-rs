@@ -15,12 +15,12 @@ json = ["serde_json"]
 yaml = ["yaml-rust"]
 
 [dependencies]
-serde = "^0.9"
-nom = "^2.1"
+serde = "^1.0.8"
+nom = "^3.0.0"
 
-toml = { version = "^0.3", optional = true }
-serde_json = { version = "^0.9", optional = true }
+toml = { version = "^0.4.1", optional = true }
+serde_json = { version = "^1.0.2", optional = true }
 yaml-rust = { version = "^0.3.5", optional = true }
 
 [dev-dependencies]
-serde_derive = "^0.9"
+serde_derive = "^1.0.8"
