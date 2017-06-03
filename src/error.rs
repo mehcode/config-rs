@@ -50,12 +50,13 @@ pub enum ConfigError {
         origin: Option<String>,
         unexpected: Unexpected,
         expected: &'static str,
+        key: Option<String>,
     },
 
     /// Custom message
     Message(String),
 
-    /// Unadorned error from a foreign source.
+    /// Unadorned error from a foreign origin.
     Foreign(Box<Error>),
 }
 
@@ -66,8 +67,26 @@ impl ConfigError {
         ConfigError::Type {
             origin: origin,
             unexpected: unexpected,
-            expected: expected
+            expected: expected,
+            key: None,
          }
+    }
+
+    // FIXME: pub(crate)
+    #[doc(hidden)]
+    pub fn extend_with_key(self, key: &str) -> Self {
+        match self {
+            ConfigError::Type { origin, unexpected, expected, .. } => {
+                ConfigError::Type {
+                    origin: origin,
+                    unexpected: unexpected,
+                    expected: expected,
+                    key: Some(key.into()),
+                }
+            }
+
+            _ => self,
+        }
     }
 }
 
@@ -100,12 +119,16 @@ impl fmt::Display for ConfigError {
                 write!(f, "configuration property {:?} not found", key)
             }
 
-            ConfigError::Type { ref origin, ref unexpected, expected } => {
+            ConfigError::Type { ref origin, ref unexpected, expected, ref key } => {
                 write!(f, "invalid type: {}, expected {}",
                     unexpected, expected)?;
 
+                if let Some(ref key) = *key {
+                    write!(f, " for key `{}`", key)?;
+                }
+
                 if let Some(ref origin) = *origin {
-                    write!(f, " from {}", origin)?;
+                    write!(f, " in {}", origin)?;
                 }
 
                 Ok(())
@@ -115,7 +138,7 @@ impl fmt::Display for ConfigError {
                 write!(f, "{}", cause)?;
 
                 if let Some(ref uri) = *uri {
-                    write!(f, " from {}", uri)?;
+                    write!(f, " in {}", uri)?;
                 }
 
                 Ok(())
