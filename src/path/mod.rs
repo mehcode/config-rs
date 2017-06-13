@@ -17,12 +17,12 @@ impl FromStr for Expression {
     type Err = ConfigError;
 
     fn from_str(s: &str) -> Result<Expression> {
-        parser::from_str(s).map_err(|kind| ConfigError::PathParse(kind))
+        parser::from_str(s).map_err(ConfigError::PathParse)
     }
 }
 
 impl Expression {
-    pub fn get<'a>(self, root: &'a Value) -> Option<&'a Value> {
+    pub fn get(self, root: &Value) -> Option<&Value> {
         match self {
             Expression::Identifier(id) => {
                 match root.kind {
@@ -61,7 +61,7 @@ impl Expression {
             Expression::Identifier(ref id) => {
                 match root.kind {
                     ValueKind::Table(ref mut map) => {
-                        Some(map.entry(id.clone()).or_insert(Value::new(None, ValueKind::Nil)))
+                        Some(map.entry(id.clone()).or_insert_with(|| Value::new(None, ValueKind::Nil)))
                     }
 
                     _ => None,
@@ -73,14 +73,14 @@ impl Expression {
                     Some(value) => {
                         match value.kind {
                             ValueKind::Table(ref mut map) => {
-                                Some(map.entry(key.clone()).or_insert(Value::new(None, ValueKind::Nil)))
+                                Some(map.entry(key.clone()).or_insert_with(|| Value::new(None, ValueKind::Nil)))
                             }
 
                             _ => {
                                 *value = HashMap::<String, Value>::new().into();
 
                                 if let ValueKind::Table(ref mut map) = value.kind {
-                                    Some(map.entry(key.clone()).or_insert(Value::new(None, ValueKind::Nil)))
+                                    Some(map.entry(key.clone()).or_insert_with(|| Value::new(None, ValueKind::Nil)))
                                 } else {
                                     println!("WHAT THE FUCK?");
 
@@ -116,7 +116,7 @@ impl Expression {
                     ValueKind::Table(ref incoming_map) => {
                         // Pull out another table
                         let mut target = if let ValueKind::Table(ref mut map) = root.kind {
-                            map.entry(id.clone()).or_insert(HashMap::<String, Value>::new().into())
+                            map.entry(id.clone()).or_insert_with(|| HashMap::<String, Value>::new().into())
                         } else {
                             unreachable!();
                         };

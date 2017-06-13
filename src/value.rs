@@ -120,6 +120,7 @@ pub struct Value {
 }
 
 impl Value {
+    /// Create a new value instance that will remember its source uri.
     pub fn new<V>(origin: Option<&String>, kind: V) -> Self
         where V: Into<ValueKind>
     {
@@ -129,11 +130,13 @@ impl Value {
         }
     }
 
+    /// Attempt to deserialize this value into the requested type.
     pub fn try_into<'de, T: Deserialize<'de>>(self) -> Result<T> {
-        return T::deserialize(self);
+        T::deserialize(self)
     }
 
     /// Returns `self` as a bool, if possible.
+    // FIXME: Should this not be `try_into_*` ?
     pub fn into_bool(self) -> Result<bool> {
         match self.kind {
             ValueKind::Boolean(value) => Ok(value),
@@ -146,7 +149,7 @@ impl Value {
                     "0" | "false" | "off" | "no" => Ok(false),
 
                     // Unexpected string value
-                    s @ _ => {
+                    s => {
                         Err(ConfigError::invalid_type(self.origin.clone(),
                                                       Unexpected::Str(s.into()),
                                                       "a boolean"))
@@ -168,6 +171,7 @@ impl Value {
     }
 
     /// Returns `self` into an i64, if possible.
+    // FIXME: Should this not be `try_into_*` ?
     pub fn into_int(self) -> Result<i64> {
         match self.kind {
             ValueKind::Integer(value) => Ok(value),
@@ -204,6 +208,7 @@ impl Value {
     }
 
     /// Returns `self` into a f64, if possible.
+    // FIXME: Should this not be `try_into_*` ?
     pub fn into_float(self) -> Result<f64> {
         match self.kind {
             ValueKind::Float(value) => Ok(value),
@@ -246,6 +251,7 @@ impl Value {
     }
 
     /// Returns `self` into a str, if possible.
+    // FIXME: Should this not be `try_into_*` ?
     pub fn into_str(self) -> Result<String> {
         match self.kind {
             ValueKind::String(value) => Ok(value),
@@ -268,6 +274,7 @@ impl Value {
     }
 
     /// Returns `self` into an array, if possible
+    // FIXME: Should this not be `try_into_*` ?
     pub fn into_array(self) -> Result<Vec<Value>> {
         match self.kind {
             ValueKind::Array(value) => Ok(value),
@@ -295,6 +302,7 @@ impl Value {
     }
 
     /// If the `Value` is a Table, returns the associated Map.
+    // FIXME: Should this not be `try_into_*` ?
     pub fn into_table(self) -> Result<HashMap<String, Value>> {
         match self.kind {
             ValueKind::Table(value) => Ok(value),

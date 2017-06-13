@@ -43,13 +43,31 @@ pub enum ConfigError {
     PathParse(nom::ErrorKind),
 
     /// Configuration could not be parsed from file.
-    FileParse { uri: Option<String>, cause: Box<Error> },
+    FileParse {
+        /// The URI used to access the file (if not loaded from a string).
+        /// Example: `/path/to/config.json`
+        uri: Option<String>,
+
+        /// The captured error from attempting to parse the file in its desired format.
+        /// This is the actual error object from the library used for the parsing.
+        cause: Box<Error>
+    },
 
     /// Value could not be converted into the requested type.
     Type {
+        /// The URI that references the source that the value came from.
+        /// Example: `/path/to/config.json` or `Environment` or `etcd://localhost`
+        // TODO: Why is this called Origin but FileParse has a uri field?
         origin: Option<String>,
+
+        /// What we found when parsing the value
         unexpected: Unexpected,
+
+        /// What was expected when parsing the value
         expected: &'static str,
+
+        /// The key in the configuration hash of this value (if available where the
+        /// error is generated).
         key: Option<String>,
     },
 
@@ -153,8 +171,7 @@ impl Error for ConfigError {
             ConfigError::Frozen => "configuration is frozen",
             ConfigError::NotFound(_) => "configuration property not found",
             ConfigError::Type { .. } => "invalid type",
-            ConfigError::Foreign(ref cause) => cause.description(),
-            ConfigError::FileParse { ref cause, .. } => cause.description(),
+            ConfigError::Foreign(ref cause) | ConfigError::FileParse { ref cause, .. } => cause.description(),
             ConfigError::PathParse(ref kind) => kind.description(),
 
             _ => "configuration error",
@@ -163,8 +180,7 @@ impl Error for ConfigError {
 
     fn cause(&self) -> Option<&Error> {
         match *self {
-            ConfigError::Foreign(ref cause) => Some(cause.as_ref()),
-            ConfigError::FileParse { ref cause, .. } => Some(cause.as_ref()),
+            ConfigError::Foreign(ref cause) | ConfigError::FileParse { ref cause, .. } => Some(cause.as_ref()),
 
             _ => None
         }

@@ -105,7 +105,7 @@ impl Config {
     }
 
     pub fn deserialize<'de, T: Deserialize<'de>>(&self) -> Result<T> {
-        return T::deserialize(self.cache.clone());
+        T::deserialize(self.cache.clone())
     }
 
     pub fn get<'de, T: Deserialize<'de>>(&self, key: &'de str) -> Result<T> {

@@ -1,10 +1,12 @@
 extern crate config;
 extern crate serde;
+extern crate float_cmp;
 
 #[macro_use]
 extern crate serde_derive;
 
 use config::*;
+use float_cmp::ApproxEqUlps;
 
 #[derive(Debug, Deserialize)]
 struct Place {
@@ -39,11 +41,11 @@ fn test_file_struct() {
     // Deserialize the entire file as single struct
     let s: Settings = c.deserialize().unwrap();
 
-    assert_eq!(s.debug, 1.0);
+    assert!(s.debug.approx_eq_ulps(&1.0, 2));
     assert_eq!(s.production, Some("false".to_string()));
     assert_eq!(s.place.name, "Torre di Pisa");
-    assert_eq!(s.place.longitude, 43.7224985);
-    assert_eq!(s.place.latitude, 10.3970522);
+    assert!(s.place.longitude.approx_eq_ulps(&43.7224985, 2));
+    assert!(s.place.latitude.approx_eq_ulps(&10.3970522, 2));
     assert_eq!(s.place.favorite, false);
     assert_eq!(s.place.reviews, 3866);
     assert_eq!(s.place.rating, Some(4.5));
@@ -59,8 +61,8 @@ fn test_scalar_struct() {
     let p: Place = c.get("place").unwrap();
 
     assert_eq!(p.name, "Torre di Pisa");
-    assert_eq!(p.longitude, 43.7224985);
-    assert_eq!(p.latitude, 10.3970522);
+    assert!(p.longitude.approx_eq_ulps(&43.7224985, 2));
+    assert!(p.latitude.approx_eq_ulps(&10.3970522, 2));
     assert_eq!(p.favorite, false);
     assert_eq!(p.reviews, 3866);
     assert_eq!(p.rating, Some(4.5));

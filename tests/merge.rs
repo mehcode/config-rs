@@ -17,8 +17,8 @@ fn make() -> Config {
 fn test_merge() {
     let c = make();
 
-    assert!(c.get("debug").ok() == Some(false));
-    assert!(c.get("production").ok() == Some(true));
-    assert!(c.get("place.creator.name").ok() == Some("Somebody New".to_string()));
-    assert!(c.get("place.rating").ok() == Some(4.9));
+    assert_eq!(c.get("debug").ok(), Some(false));
+    assert_eq!(c.get("production").ok(), Some(true));
+    assert_eq!(c.get("place.creator.name").ok(), Some("Somebody New".to_string()));
+    assert_eq!(c.get("place.rating").ok(), Some(4.9));
 }

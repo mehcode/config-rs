@@ -28,8 +28,9 @@ named!(integer <i32>,
 
 named!(ident<Expression>, map!(ident_, Expression::Identifier));
 
+#[allow(cyclomatic_complexity)]
 fn postfix(expr: Expression) -> Box<Fn(&[u8]) -> IResult<&[u8], Expression>> {
-    return Box::new(move |i: &[u8]| {
+    Box::new(move |i: &[u8]| {
         alt!(i,
             do_parse!(
                 tag!(".") >>
@@ -49,13 +50,13 @@ fn postfix(expr: Expression) -> Box<Fn(&[u8]) -> IResult<&[u8], Expression>> {
                 char!(']')
             )
         )
-    });
+    })
 }
 
 pub fn from_str(input: &str) -> Result<Expression, ErrorKind> {
     match ident(input.as_bytes()) {
         IResult::Done(mut rem, mut expr) => {
-            while rem.len() > 0 {
+            while !rem.is_empty() {
                 match postfix(expr)(rem) {
                     IResult::Done(rem_, expr_) => {
                         rem = rem_;
@@ -63,7 +64,7 @@ pub fn from_str(input: &str) -> Result<Expression, ErrorKind> {
                     }
 
                     // Forward Incomplete and Error
-                    result @ _ => {
+                    result => {
                         return result.to_result();
                     }
                 }
@@ -73,7 +74,7 @@ pub fn from_str(input: &str) -> Result<Expression, ErrorKind> {
         }
 
         // Forward Incomplete and Error
-        result @ _ => result.to_result(),
+        result => result.to_result(),
     }
 }
 
