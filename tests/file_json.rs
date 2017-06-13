@@ -5,8 +5,9 @@ extern crate float_cmp;
 #[macro_use]
 extern crate serde_derive;
 
-use config::*;
+use std::collections::HashMap;
 use float_cmp::ApproxEqUlps;
+use config::*;
 
 #[derive(Debug, Deserialize)]
 struct Place {
@@ -16,6 +17,7 @@ struct Place {
     favorite: bool,
     telephone: Option<String>,
     reviews: u64,
+    creator: HashMap<String, Value>,
     rating: Option<f32>,
 }
 
@@ -24,18 +26,20 @@ struct Settings {
     debug: f64,
     production: Option<String>,
     place: Place,
+    #[serde(rename = "arr")]
+    elements: Vec<String>,
 }
 
 fn make() -> Config {
     let mut c = Config::default();
-    c.merge(File::new("tests/Settings", FileFormat::Toml))
+    c.merge(File::new("tests/Settings", FileFormat::Json))
         .unwrap();
 
     c
 }
 
 #[test]
-fn test_file_struct() {
+fn test_file() {
     let c = make();
 
     // Deserialize the entire file as single struct
@@ -50,21 +54,18 @@ fn test_file_struct() {
     assert_eq!(s.place.reviews, 3866);
     assert_eq!(s.place.rating, Some(4.5));
     assert_eq!(s.place.telephone, None);
+    assert_eq!(s.elements.len(), 10);
+    assert_eq!(s.elements[3], "4".to_string());
+    assert_eq!(s.place.creator["name"].clone().into_str().unwrap(), "John Smith".to_string());
 }
 
 #[test]
-fn test_scalar_struct() {
-    let c = make();
+fn test_error_parse() {
+    let mut c = Config::default();
+    let res = c.merge(File::new("tests/Settings-invalid", FileFormat::Json));
 
-    // Deserialize a scalar struct that has lots of different
-    // data types
-    let p: Place = c.get("place").unwrap();
-
-    assert_eq!(p.name, "Torre di Pisa");
-    assert!(p.longitude.approx_eq_ulps(&43.7224985, 2));
-    assert!(p.latitude.approx_eq_ulps(&10.3970522, 2));
-    assert_eq!(p.favorite, false);
-    assert_eq!(p.reviews, 3866);
-    assert_eq!(p.rating, Some(4.5));
-    assert_eq!(p.telephone, None);
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().to_string(),
+               "expected `:` at line 4 column 1 in tests/Settings-invalid.json"
+                   .to_string());
 }

@@ -30,6 +30,9 @@ extern crate nom;
 #[cfg(feature = "toml")]
 extern crate toml;
 
+#[cfg(feature = "json")]
+extern crate serde_json;
+
 mod error;
 mod value;
 mod de;

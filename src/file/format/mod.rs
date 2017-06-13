@@ -6,8 +6,8 @@ use std::collections::HashMap;
 #[cfg(feature = "toml")]
 mod toml;
 
-// #[cfg(feature = "json")]
-// mod json;
+#[cfg(feature = "json")]
+mod json;
 
 // #[cfg(feature = "yaml")]
 // mod yaml;
@@ -18,9 +18,9 @@ pub enum FileFormat {
     #[cfg(feature = "toml")]
     Toml,
 
-    // /// JSON (parsed with serde_json)
-    // #[cfg(feature = "json")]
-    // Json,
+    /// JSON (parsed with serde_json)
+    #[cfg(feature = "json")]
+    Json,
 
     // /// YAML (parsed with yaml_rust)
     // #[cfg(feature = "yaml")]
@@ -35,8 +35,8 @@ impl FileFormat {
             #[cfg(feature = "toml")]
             FileFormat::Toml => vec!["toml"],
 
-            // #[cfg(feature = "json")]
-            // FileFormat::Json => vec!["json"],
+            #[cfg(feature = "json")]
+            FileFormat::Json => vec!["json"],
 
             // #[cfg(feature = "yaml")]
             // FileFormat::Yaml => vec!["yaml", "yml"],
@@ -51,8 +51,8 @@ impl FileFormat {
             #[cfg(feature = "toml")]
             FileFormat::Toml => toml::parse(uri, text, namespace),
 
-            // #[cfg(feature = "json")]
-            // FileFormat::Json => json::Content::parse(text, namespace),
+            #[cfg(feature = "json")]
+            FileFormat::Json => json::parse(uri, text, namespace),
 
             // #[cfg(feature = "yaml")]
             // FileFormat::Yaml => yaml::Content::parse(text, namespace),
