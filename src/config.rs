@@ -121,7 +121,7 @@ impl Config {
                 ref mut defaults,
                 ..
             } => {
-                defaults.insert(key.parse()?, value.into());
+                defaults.insert(key.to_lowercase().parse()?, value.into());
             }
 
             ConfigKind::Frozen => {
@@ -140,7 +140,7 @@ impl Config {
                 ref mut overrides,
                 ..
             } => {
-                overrides.insert(key.parse()?, value.into());
+                overrides.insert(key.to_lowercase().parse()?, value.into());
             }
 
             ConfigKind::Frozen => {

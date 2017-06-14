@@ -38,3 +38,19 @@ fn test_set_scalar_path() {
     assert_eq!(c.get("place.favorite").ok(), Some(false));
     assert_eq!(c.get("place.blocked").ok(), Some(true));
 }
+
+#[test]
+fn test_set_capital() {
+    let mut c = Config::default();
+
+    c.set_default("tHiS", false).unwrap();
+    c.set("THAT", true).unwrap();
+    c.merge(File::from_str("{\"loGleVel\": 5}", FileFormat::Json)).unwrap();
+
+    assert_eq!(c.get("this").ok(), Some(false));
+    assert_eq!(c.get("ThIs").ok(), Some(false));
+    assert_eq!(c.get("that").ok(), Some(true));
+    assert_eq!(c.get("THAT").ok(), Some(true));
+    assert_eq!(c.get("logLevel").ok(), Some(5));
+    assert_eq!(c.get("loglevel").ok(), Some(5));
+}

@@ -54,7 +54,7 @@ fn from_yaml_value(uri: Option<&String>, value: &yaml::Yaml) -> Value {
             let mut m = HashMap::new();
             for (key, value) in table {
                 if let Some(k) = key.as_str() {
-                    m.insert(k.to_owned(), from_yaml_value(uri, value));
+                    m.insert(k.to_lowercase().to_owned(), from_yaml_value(uri, value));
                 }
                 // TODO: should we do anything for non-string keys?
             }
@@ -69,7 +69,12 @@ fn from_yaml_value(uri: Option<&String>, value: &yaml::Yaml) -> Value {
 
             Value::new(uri, ValueKind::Array(l))
         }
-        // TODO: how should we handle Null and BadValue?
+
+        yaml::Yaml::Null => {
+            Value::new(uri, ValueKind::Nil)
+        }
+
+        // TODO: how should we BadValue?
         _ => {
             unimplemented!();
         }
