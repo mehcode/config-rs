@@ -9,8 +9,8 @@ mod toml;
 #[cfg(feature = "json")]
 mod json;
 
-// #[cfg(feature = "yaml")]
-// mod yaml;
+#[cfg(feature = "yaml")]
+mod yaml;
 
 #[derive(Debug, Clone, Copy)]
 pub enum FileFormat {
@@ -22,9 +22,9 @@ pub enum FileFormat {
     #[cfg(feature = "json")]
     Json,
 
-    // /// YAML (parsed with yaml_rust)
-    // #[cfg(feature = "yaml")]
-    // Yaml,
+    /// YAML (parsed with yaml_rust)
+    #[cfg(feature = "yaml")]
+    Yaml,
 }
 
 impl FileFormat {
@@ -38,8 +38,8 @@ impl FileFormat {
             #[cfg(feature = "json")]
             FileFormat::Json => vec!["json"],
 
-            // #[cfg(feature = "yaml")]
-            // FileFormat::Yaml => vec!["yaml", "yml"],
+            #[cfg(feature = "yaml")]
+            FileFormat::Yaml => vec!["yaml", "yml"],
         }
     }
 
@@ -54,8 +54,8 @@ impl FileFormat {
             #[cfg(feature = "json")]
             FileFormat::Json => json::parse(uri, text, namespace),
 
-            // #[cfg(feature = "yaml")]
-            // FileFormat::Yaml => yaml::Content::parse(text, namespace),
+            #[cfg(feature = "yaml")]
+            FileFormat::Yaml => yaml::parse(uri, text, namespace),
         }
     }
 }
