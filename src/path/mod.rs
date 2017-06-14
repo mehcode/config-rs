@@ -82,8 +82,6 @@ impl Expression {
                                 if let ValueKind::Table(ref mut map) = value.kind {
                                     Some(map.entry(key.clone()).or_insert_with(|| Value::new(None, ValueKind::Nil)))
                                 } else {
-                                    println!("WHAT THE FUCK?");
-
                                     unreachable!();
                                 }
                             }
