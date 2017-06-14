@@ -47,12 +47,12 @@ impl File<source::file::FileSourceFile> {
 }
 
 impl<T: FileSource> File<T> {
-    pub fn required(&mut self, required: bool) -> &mut Self {
+    pub fn required(mut self, required: bool) -> Self {
         self.required = required;
         self
     }
 
-    pub fn namespace(&mut self, namespace: &str) -> &mut Self {
+    pub fn namespace(mut self, namespace: &str) -> Self {
         self.namespace = Some(namespace.into());
         self
     }
@@ -61,16 +61,33 @@ impl<T: FileSource> File<T> {
 impl<T: FileSource> Source for File<T> {
     fn collect(&self) -> Result<HashMap<String, Value>> {
         // Coerce the file contents to a string
-        let (uri, contents) = self.source.resolve(self.format).map_err(|err| {
+        let (uri, contents) = match self.source.resolve(self.format).map_err(|err| {
             ConfigError::Foreign(err)
-        })?;
+        }) {
+            Ok((uri, contents)) => (uri, contents),
+
+            Err(error) => {
+                if !self.required {
+                    return Ok(HashMap::new());
+                }
+
+                return Err(error);
+            }
+        };
 
         // Parse the string using the given format
-        self.format.unwrap().parse(uri.as_ref(), &contents, self.namespace.as_ref()).map_err(|cause| {
+        let result = self.format.unwrap().parse(uri.as_ref(), &contents, self.namespace.as_ref()).map_err(|cause| {
             ConfigError::FileParse {
                 uri: uri,
                 cause: cause
             }
-        })
+        });
+
+        if result.is_err() && !self.required {
+            // Ignore fails and just go with it if its not required
+            Ok(HashMap::new())
+        } else {
+            result
+        }
     }
 }

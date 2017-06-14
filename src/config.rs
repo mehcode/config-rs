@@ -42,6 +42,10 @@ pub struct Config {
 }
 
 impl Config {
+    pub fn new() -> Self {
+        Config::default()
+    }
+
     /// Merge in a configuration property source.
     pub fn merge<T>(&mut self, source: T) -> Result<()>
         where T: 'static,
@@ -104,25 +108,9 @@ impl Config {
         Ok(())
     }
 
+    /// Deserialize the entire configuration.
     pub fn deserialize<'de, T: Deserialize<'de>>(&self) -> Result<T> {
         T::deserialize(self.cache.clone())
-    }
-
-    pub fn get<'de, T: Deserialize<'de>>(&self, key: &'de str) -> Result<T> {
-        // Parse the key into a path expression
-        let expr: path::Expression = key.to_lowercase().parse()?;
-
-        // Traverse the cache using the path to (possibly) retrieve a value
-        let value = expr.get(&self.cache).cloned();
-
-        match value {
-            Some(value) => {
-                // Deserialize the received value into the requested type
-                T::deserialize(ValueWithKey::new(value, key))
-            }
-
-            None => Err(ConfigError::NotFound(key.into())),
-        }
     }
 
     pub fn set_default<T>(&mut self, key: &str, value: T) -> Result<()>
@@ -161,5 +149,46 @@ impl Config {
         };
 
         self.refresh()
+    }
+
+    pub fn get<'de, T: Deserialize<'de>>(&self, key: &'de str) -> Result<T> {
+        // Parse the key into a path expression
+        let expr: path::Expression = key.to_lowercase().parse()?;
+
+        // Traverse the cache using the path to (possibly) retrieve a value
+        let value = expr.get(&self.cache).cloned();
+
+        match value {
+            Some(value) => {
+                // Deserialize the received value into the requested type
+                T::deserialize(ValueWithKey::new(value, key))
+            }
+
+            None => Err(ConfigError::NotFound(key.into())),
+        }
+    }
+
+    pub fn get_str(&self, key: &str) -> Result<String> {
+        self.get(key).and_then(Value::into_str)
+    }
+
+    pub fn get_int(&self, key: &str) -> Result<i64> {
+        self.get(key).and_then(Value::into_int)
+    }
+
+    pub fn get_float(&self, key: &str) -> Result<f64> {
+        self.get(key).and_then(Value::into_float)
+    }
+
+    pub fn get_bool(&self, key: &str) -> Result<bool> {
+        self.get(key).and_then(Value::into_bool)
+    }
+
+    pub fn get_table(&self, key: &str) -> Result<HashMap<String, Value>> {
+        self.get(key).and_then(Value::into_table)
+    }
+
+    pub fn get_array(&self, key: &str) -> Result<Vec<Value>> {
+        self.get(key).and_then(Value::into_array)
     }
 }
