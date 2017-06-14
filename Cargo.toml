@@ -1,6 +1,6 @@
 [package]
 name = "config"
-version = "0.4.1"
+version = "0.5.0-pre"
 description = "Layered configuration system for Rust applications."
 homepage = "https://github.com/mehcode/config-rs"
 repository = "https://github.com/mehcode/config-rs"
@@ -10,13 +10,18 @@ authors = ["Ryan Leckey <leckey.ryan@gmail.com>"]
 license = "MIT/Apache-2.0"
 
 [features]
-default = ["toml"]
+default = ["toml", "json", "yaml"]
 json = ["serde_json"]
 yaml = ["yaml-rust"]
 
 [dependencies]
-nom = "^2.1"
+serde = "^1.0.8"
+nom = "^3.0.0"
 
-toml = { version = "0.2.1", optional = true }
-serde_json = { version = "0.9", optional = true }
-yaml-rust = { version = "0.3.5", optional = true }
+toml = { version = "^0.4.1", optional = true }
+serde_json = { version = "^1.0.2", optional = true }
+yaml-rust = { version = "^0.3.5", optional = true }
+
+[dev-dependencies]
+serde_derive = "^1.0.8"
+float-cmp = "*"

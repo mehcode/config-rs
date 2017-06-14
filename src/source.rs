@@ -1,12 +1,10 @@
-use std::error::Error;
+use error::*;
+use value::Value;
 use std::collections::HashMap;
 
-use value::Value;
-
+/// Describes a generic _source_ of configuration properties.
 pub trait Source {
-    fn collect(&self) -> HashMap<String, Value>;
-}
-
-pub trait SourceBuilder {
-    fn build(&self) -> Result<Box<Source + Send + Sync>, Box<Error>>;
+    /// Collect all configuration properties available from this source and return
+    /// a HashMap.
+    fn collect(&self) -> Result<HashMap<String, Value>>;
 }

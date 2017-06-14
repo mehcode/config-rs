@@ -1,69 +1,30 @@
-//! Configuration is gathered by building a `Source` and then merging that source into the
-//! current state of the configuration.
+//! Config organizes hierarchical or layered configurations for Rust applications.
 //!
-//! ```rust
-//! extern crate config;
+//! Config lets you set a set of default parameters and then extend them via merging in
+//! configuration from a variety of sources:
+//!  - Environment variables
+//!  - Another Config instance
+//!  - Remote configuration: etcd, Consul
+//!  - Files: JSON, YAML, TOML
+//!  - Manual, programmatic override (via a `.set` method on the Config instance)
 //!
-//! use std::env;
-//! use config::{Config, File, FileFormat, Environment};
-//!
-//! fn main() {
-//!     // Create a new local configuration
-//!     let mut c = Config::new();
-//!
-//!     // Add 'Settings.toml'
-//!     c.merge(File::new("Settings", FileFormat::Toml).required(false)).unwrap();
-//!
-//!     // Add 'Settings.$(RUST_ENV).toml`
-//!     let name = format!("Settings.{}", env::var("env").unwrap_or("development".into()));
-//!     c.merge(File::new(&name, FileFormat::Toml).required(false)).unwrap();
-//!
-//!     // Add environment variables that begin with APP_
-//!     c.merge(Environment::new("APP")).unwrap();
-//! }
-//! ```
-//!
-//! Note that in the above example the calls to `config::merge` could have
-//! been re-ordered to influence the priority as each successive merge
-//! is evaluated on top of the previous.
-//!
-//! Configuration values can be retrieved with a call to `config::get` and then
-//! coerced into a type with `as_*`.
-//!
-//! ```rust
-//! # extern crate config;
-//! #
-//! # use std::env;
-//! # use config::{Config, File, FileFormat, Environment};
-//! #
-//! # fn main() {
-//! #    // Create a new local configuration
-//! #    let mut c = Config::new();
-//! #
-//! #    // Add 'Settings.toml'
-//! #    c.merge(File::new("Settings", FileFormat::Toml).required(false)).unwrap();
-//! #
-//! #    // Add 'Settings.$(RUST_ENV).toml`
-//! #    let name = format!("Settings.{}", env::var("env").unwrap_or("development".into()));
-//! #    c.merge(File::new(&name, FileFormat::Toml).required(false)).unwrap();
-//! #
-//! #    // Add environment variables that begin with APP_
-//! #    c.merge(Environment::new("APP")).unwrap();
-//! // Get 'debug' and coerce to a boolean
-//! if let Some(value) = c.get("debug") {
-//!     println!("{:?}", value.into_bool());
-//! }
-//!
-//! // You can use a type suffix
-//! println!("{:?}", c.get_bool("debug"));
-//! println!("{:?}", c.get_str("debug"));
-//! # }
-//! ```
+//! Additionally, Config supports:
+//!  - Live watching and re-reading of configuration files
+//!  - Deep access into the merged configuration via a path syntax
+//!  - Deserialization via `serde` of the configuration or any subset defined via a path
 //!
 //! See the [examples](https://github.com/mehcode/config-rs/tree/master/examples) for
-//! more usage information.
+//! general usage information.
+
+#![allow(dead_code)]
+#![allow(unused_imports)]
+#![allow(unused_variables)]
+#![allow(unknown_lints)]
+// #![warn(missing_docs)]
 
 #[macro_use]
+extern crate serde;
+
 extern crate nom;
 
 #[cfg(feature = "toml")]
@@ -75,15 +36,18 @@ extern crate serde_json;
 #[cfg(feature = "yaml")]
 extern crate yaml_rust;
 
+mod error;
 mod value;
+mod de;
+mod path;
 mod source;
+mod config;
 mod file;
 mod env;
-mod path;
-mod config;
 
-pub use source::{Source, SourceBuilder};
+pub use config::Config;
+pub use error::ConfigError;
+pub use value::Value;
+pub use source::Source;
 pub use file::{File, FileFormat};
 pub use env::Environment;
-pub use value::Value;
-pub use config::Config;

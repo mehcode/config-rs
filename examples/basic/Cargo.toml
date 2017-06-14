@@ -1,6 +1,0 @@
-[package]
-name = "basic"
-version = "0.1.0"
-
-[dependencies]
-config = { path = "../..", default-features = false }

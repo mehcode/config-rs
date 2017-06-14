@@ -1,6 +1,0 @@
-[package]
-name = "file-toml"
-version = "0.1.0"
-
-[dependencies]
-config = { path = "../.." }

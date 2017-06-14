@@ -1,3 +1,14 @@
+sudo: true
 language: rust
+cache: cargo
 rust:
-    - nightly
+  - nightly
+  - beta
+  - stable
+
+matrix:
+    allow_failures:
+        - rust: nightly
+
+script:
+  - cargo test
