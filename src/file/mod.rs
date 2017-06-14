@@ -5,6 +5,7 @@ use source::Source;
 use error::*;
 use value::Value;
 use std::collections::HashMap;
+use std::path::Path;
 
 use self::source::FileSource;
 pub use self::format::FileFormat;
@@ -44,6 +45,17 @@ impl File<source::file::FileSourceFile> {
             source: source::file::FileSourceFile::new(name),
         }
     }
+
+    /// Given the basename of a file, will attempt to locate a file by setting its
+    /// extension to a registered format.
+    pub fn with_name(name: &str) -> Self {
+        File {
+            format: None,
+            required: true,
+            namespace: None,
+            source: source::file::FileSourceFile::new(name),
+        }
+    }
 }
 
 impl<T: FileSource> File<T> {
@@ -61,10 +73,10 @@ impl<T: FileSource> File<T> {
 impl<T: FileSource> Source for File<T> {
     fn collect(&self) -> Result<HashMap<String, Value>> {
         // Coerce the file contents to a string
-        let (uri, contents) = match self.source.resolve(self.format).map_err(|err| {
+        let (uri, contents, format) = match self.source.resolve(self.format).map_err(|err| {
             ConfigError::Foreign(err)
         }) {
-            Ok((uri, contents)) => (uri, contents),
+            Ok((uri, contents, format)) => (uri, contents, format),
 
             Err(error) => {
                 if !self.required {
@@ -76,7 +88,7 @@ impl<T: FileSource> Source for File<T> {
         };
 
         // Parse the string using the given format
-        let result = self.format.unwrap().parse(uri.as_ref(), &contents, self.namespace.as_ref()).map_err(|cause| {
+        let result = format.parse(uri.as_ref(), &contents, self.namespace.as_ref()).map_err(|cause| {
             ConfigError::FileParse {
                 uri: uri,
                 cause: cause

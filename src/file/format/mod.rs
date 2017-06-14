@@ -12,7 +12,7 @@ mod json;
 #[cfg(feature = "yaml")]
 mod yaml;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
 pub enum FileFormat {
     /// TOML (parsed with toml)
     #[cfg(feature = "toml")]
@@ -27,20 +27,29 @@ pub enum FileFormat {
     Yaml,
 }
 
+lazy_static! {
+    #[doc(hidden)]
+    pub static ref ALL_EXTENSIONS: HashMap<FileFormat, Vec<&'static str>> = {
+        let mut formats: HashMap<FileFormat, Vec<_>> = HashMap::new();
+
+        #[cfg(feature = "toml")]
+        formats.insert(FileFormat::Toml, vec!["toml"]);
+
+        #[cfg(feature = "json")]
+        formats.insert(FileFormat::Json, vec!["json"]);
+
+        #[cfg(feature = "yaml")]
+        formats.insert(FileFormat::Yaml, vec!["yaml", "yml"]);
+
+        formats
+    };
+}
+
 impl FileFormat {
     // TODO: pub(crate)
     #[doc(hidden)]
-    pub fn extensions(&self) -> Vec<&'static str> {
-        match *self {
-            #[cfg(feature = "toml")]
-            FileFormat::Toml => vec!["toml"],
-
-            #[cfg(feature = "json")]
-            FileFormat::Json => vec!["json"],
-
-            #[cfg(feature = "yaml")]
-            FileFormat::Yaml => vec!["yaml", "yml"],
-        }
+    pub fn extensions(&self) -> &'static Vec<&'static str> {
+        ALL_EXTENSIONS.get(self).unwrap()
     }
 
     // TODO: pub(crate)

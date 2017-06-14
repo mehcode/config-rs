@@ -8,5 +8,5 @@ use super::FileFormat;
 
 /// Describes where the file is sourced
 pub trait FileSource {
-    fn resolve(&self, format_hint: Option<FileFormat>) -> Result<(Option<String>, String), Box<Error>>;
+    fn resolve(&self, format_hint: Option<FileFormat>) -> Result<(Option<String>, String, FileFormat), Box<Error>>;
 }

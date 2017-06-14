@@ -3,9 +3,11 @@ use std::result;
 use std::error::Error;
 
 use std::path::{PathBuf, Path};
+use ::file::format::ALL_EXTENSIONS;
 use std::io::{self, Read};
 use std::fs;
 use std::env;
+use std::iter::Iterator;
 
 use source::Source;
 use super::{FileFormat, FileSource};
@@ -28,10 +30,9 @@ impl FileSourceFile {
         }
     }
 
-    fn find_file(&self, format_hint: Option<FileFormat>) -> Result<PathBuf, Box<Error>> {
+    fn find_file(&self, format_hint: Option<FileFormat>) -> Result<(PathBuf, FileFormat), Box<Error>> {
         // Build expected configuration file
         let mut basename = PathBuf::new();
-        let extensions = format_hint.unwrap().extensions();
 
         if let Some(ref path) = self.path {
             basename.push(path.clone());
@@ -39,36 +40,59 @@ impl FileSourceFile {
 
         basename.push(self.name.clone());
 
-        // Find configuration file (algorithm similar to .git detection by git)
-        let mut dir = env::current_dir()?;
-        let mut filename = dir.as_path().join(basename.clone());
+        // First check for an _exact_ match
+        let mut filename = env::current_dir()?.as_path().join(basename.clone());
+        if filename.is_file() {
+            return match format_hint {
+                Some(format) => Ok((filename, format)),
+                None => {
+                    for (format, extensions) in ALL_EXTENSIONS.iter() {
+                        if extensions.contains(&filename.extension().unwrap_or_default().to_string_lossy().as_ref()) {
+                            return Ok((filename, *format));
+                        }
+                    }
 
-        loop {
-            for ext in &extensions {
-                filename.set_extension(ext);
+                    Err(Box::new(io::Error::new(io::ErrorKind::NotFound,
+                                                format!("configuration file \"{}\" is not of a registered file format",
+                                                        filename.to_string_lossy()))))
+                }
+            };
+        }
 
-                if filename.is_file() {
-                    // File exists and is a file
-                    return Ok(filename);
+        match format_hint {
+            Some(format) => {
+                for ext in format.extensions() {
+                    filename.set_extension(ext);
+
+                    if filename.is_file() {
+                        return Ok((filename, format));
+                    }
                 }
             }
 
-            // Not found.. travse up via the dir
-            if !dir.pop() {
-                // Failed to find the configuration file
-                return Err(Box::new(io::Error::new(io::ErrorKind::NotFound,
-                                            format!("configuration file \"{}\" not found",
-                                                    basename.to_string_lossy()))
-                ));
+            None => {
+                for (format, extensions) in ALL_EXTENSIONS.iter() {
+                    for ext in format.extensions() {
+                        filename.set_extension(ext);
+
+                        if filename.is_file() {
+                            return Ok((filename, *format));
+                        }
+                    }
+                }
             }
         }
+
+        Err(Box::new(io::Error::new(io::ErrorKind::NotFound,
+                                    format!("configuration file \"{}\" not found",
+                                            basename.to_string_lossy()))))
     }
 }
 
 impl FileSource for FileSourceFile {
-    fn resolve(&self, format_hint: Option<FileFormat>) -> Result<(Option<String>, String), Box<Error>> {
+    fn resolve(&self, format_hint: Option<FileFormat>) -> Result<(Option<String>, String, FileFormat), Box<Error>> {
         // Find file
-        let filename = self.find_file(format_hint)?;
+        let (filename, format) = self.find_file(format_hint)?;
 
         // Attempt to use a relative path for the URI
         let base = env::current_dir()?;
@@ -82,7 +106,7 @@ impl FileSource for FileSourceFile {
         let mut text = String::new();
         file.read_to_string(&mut text)?;
 
-        Ok((Some(uri.to_string_lossy().into_owned()), text))
+        Ok((Some(uri.to_string_lossy().into_owned()), text, format))
     }
 }
 

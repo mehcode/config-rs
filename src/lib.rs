@@ -27,6 +27,9 @@ extern crate serde;
 
 extern crate nom;
 
+#[macro_use]
+extern crate lazy_static;
+
 #[cfg(feature = "toml")]
 extern crate toml;
 

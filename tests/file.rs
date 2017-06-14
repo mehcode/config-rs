@@ -29,3 +29,23 @@ fn test_file_auto() {
     assert_eq!(c.get("debug").ok(), Some(false));
     assert_eq!(c.get("production").ok(), Some(true));
 }
+
+#[test]
+fn test_file_auto_not_found() {
+    let mut c = Config::default();
+    let res = c.merge(File::with_name("tests/NoSettings"));
+
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().to_string(),
+               "configuration file \"tests/NoSettings\" not found"
+                   .to_string());
+}
+
+#[test]
+fn test_file_ext() {
+    let mut c = Config::default();
+    c.merge(File::with_name("tests/Settings.json")).unwrap();
+
+    assert_eq!(c.get("debug").ok(), Some(true));
+    assert_eq!(c.get("production").ok(), Some(false));
+}
