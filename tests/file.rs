@@ -20,3 +20,12 @@ fn test_file_required_not_found() {
                "configuration file \"tests/NoSettings\" not found"
                    .to_string());
 }
+
+#[test]
+fn test_file_auto() {
+    let mut c = Config::default();
+    c.merge(File::with_name("tests/Settings-production")).unwrap();
+
+    assert_eq!(c.get("debug").ok(), Some(false));
+    assert_eq!(c.get("production").ok(), Some(true));
+}
