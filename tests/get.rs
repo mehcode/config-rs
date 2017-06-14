@@ -36,6 +36,17 @@ fn make() -> Config {
 }
 
 #[test]
+fn test_not_found() {
+    let c = make();
+    let res = c.get::<bool>("not_found");
+
+    assert!(res.is_err());
+    assert_eq!(res.unwrap_err().to_string(),
+               "configuration property \"not_found\" not found"
+                   .to_string());
+}
+
+#[test]
 fn test_scalar() {
     let c = make();
 
