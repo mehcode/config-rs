@@ -10,6 +10,9 @@ authors = ["Ryan Leckey <leckey.ryan@gmail.com>"]
 categories = ["config"]
 license = "MIT/Apache-2.0"
 
+[badges]
+travis-ci = { repository = "mehcode/config-rs" }
+
 [features]
 default = ["toml", "json", "yaml"]
 json = ["serde_json"]
