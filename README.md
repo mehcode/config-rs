@@ -23,7 +23,7 @@
 
 ```toml
 [dependencies]
-config = "0.4"
+config = "0.5"
 ```
 
  - `json` - Adds support for reading JSON files
