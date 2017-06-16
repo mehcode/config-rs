@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::str::FromStr;
 use serde::de::Deserialize;
 
 use error::*;
@@ -88,7 +89,13 @@ impl Config {
                 for source in sources {
                     let props = source.collect()?;
                     for (key, val) in &props {
-                        path::Expression::Identifier(key.clone()).set(&mut cache, val.clone());
+                        match path::Expression::from_str(key) {
+                            // Set using the path
+                            Ok(expr) => expr.set(&mut cache, val.clone()),
+
+                            // Set diretly anyway
+                            _ => path::Expression::Identifier(key.clone()).set(&mut cache, val.clone())
+                        }
                     }
                 }
 

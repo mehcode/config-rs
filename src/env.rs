@@ -28,8 +28,8 @@ impl Environment {
         Environment::default()
     }
 
-    pub fn with_prefix(s: String) -> Self {
-        Environment { separator: s, ..Environment::default() }
+    pub fn with_prefix(s: &str) -> Self {
+        Environment { prefix: Some(s.into()), ..Environment::default() }
     }
 
     pub fn prefix(&mut self, s: String) -> &mut Self {
@@ -68,7 +68,7 @@ impl Source for Environment {
 
             // Check for prefix
             if let Some(ref prefix_pattern) = prefix_pattern {
-                if key.starts_with(prefix_pattern) {
+                if key.to_lowercase().starts_with(prefix_pattern) {
                     // Remove this prefix from the key
                     key = key[prefix_pattern.len()..].to_string();
                 } else {
@@ -80,7 +80,7 @@ impl Source for Environment {
             // Replace `separator` with `.`
             key = key.replace(&self.separator, ".");
 
-            m.insert(key, Value::new(Some(&uri), ValueKind::String(value)));
+            m.insert(key.to_lowercase(), Value::new(Some(&uri), ValueKind::String(value)));
         }
 
         Ok(m)
