@@ -40,6 +40,22 @@ fn test_set_scalar_path() {
 }
 
 #[test]
+fn test_set_arr_path() {
+    let mut c = Config::default();
+
+    c.merge(File::new("tests/Settings", FileFormat::Toml))
+        .unwrap();
+
+    c.set("items[0].name", "John").unwrap();
+
+    assert_eq!(c.get("items[0].name").ok(), Some("John".to_string()));
+
+    c.set("items[2]", "George").unwrap();
+
+    assert_eq!(c.get("items[2]").ok(), Some("George".to_string()));
+}
+
+#[test]
 fn test_set_capital() {
     let mut c = Config::default();
 

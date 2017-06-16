@@ -16,7 +16,7 @@ named!(ident_<String>,
     )
 );
 
-named!(integer <i32>,
+named!(integer <isize>,
     map_res!(
         map_res!(
             ws!(digit),

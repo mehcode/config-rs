@@ -10,7 +10,7 @@ mod parser;
 pub enum Expression {
     Identifier(String),
     Child(Box<Expression>, String),
-    Subscript(Box<Expression>, i32),
+    Subscript(Box<Expression>, isize),
 }
 
 impl FromStr for Expression {
@@ -18,6 +18,14 @@ impl FromStr for Expression {
 
     fn from_str(s: &str) -> Result<Expression> {
         parser::from_str(s).map_err(ConfigError::PathParse)
+    }
+}
+
+fn sindex_to_uindex(index: isize, len: usize) -> usize {
+    if index >= 0 {
+        index as usize
+    } else {
+        len - (index.abs() as usize)
     }
 }
 
@@ -50,8 +58,26 @@ impl Expression {
                 }
             }
 
-            _ => {
-                unimplemented!();
+            Expression::Subscript(expr, index) => {
+                match expr.get(root) {
+                    Some(value) => {
+                        match value.kind {
+                            ValueKind::Array(ref array) => {
+                                let index = sindex_to_uindex(index, array.len());
+
+                                if index >= array.len() {
+                                    None
+                                } else {
+                                    Some(&array[index])
+                                }
+                            }
+
+                            _ => None,
+                        }
+                    }
+
+                    _ => None,
+                }
             }
         }
     }
@@ -92,8 +118,26 @@ impl Expression {
                 }
             }
 
-            _ => {
-                unimplemented!();
+            Expression::Subscript(ref expr, index) => {
+                match expr.get_mut(root) {
+                    Some(value) => {
+                        match value.kind {
+                            ValueKind::Array(ref mut array) => {
+                                let index = sindex_to_uindex(index, array.len());
+
+                                if index >= array.len() {
+                                    array.resize((index + 1) as usize, Value::new(None, ValueKind::Nil));
+                                }
+
+                                Some(&mut array[index])
+                            }
+
+                            _ => None,
+                        }
+                    }
+
+                    _ => None,
+                }
             }
         }
     }
@@ -151,8 +195,28 @@ impl Expression {
                 }
             }
 
-            _ => {
-                unimplemented!();
+            Expression::Subscript(ref expr, index) => {
+                if let Some(parent) = expr.get_mut(root) {
+                    match parent.kind {
+                        ValueKind::Array(ref mut array) => {
+                            let uindex = sindex_to_uindex(index, array.len());
+
+                            if uindex >= array.len() {
+                                array.resize((uindex + 1) as usize, Value::new(None, ValueKind::Nil));
+                            }
+
+                            array[uindex] = value.clone();
+                        }
+
+                        _ => {
+                            // Didn't find an array ...
+                            // Add an array and do this again
+                            *parent = Vec::<Value>::new().into();
+
+                            Expression::Subscript(expr.clone(), index).set(parent, value);
+                        }
+                    }
+                }
             }
         }
     }

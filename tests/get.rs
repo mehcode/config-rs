@@ -88,6 +88,17 @@ fn test_get_scalar_path() {
 }
 
 #[test]
+fn test_get_scalar_path_subscript() {
+    let c = make();
+
+    assert_eq!(c.get("arr[2]").ok(), Some(3));
+    assert_eq!(c.get("items[0].name").ok(), Some("1".to_string()));
+    assert_eq!(c.get("items[1].name").ok(), Some("2".to_string()));
+    assert_eq!(c.get("items[-1].name").ok(), Some("2".to_string()));
+    assert_eq!(c.get("items[-2].name").ok(), Some("1".to_string()));
+}
+
+#[test]
 fn test_map() {
     let c = make();
     let m: HashMap<String, Value> = c.get("place").unwrap();
