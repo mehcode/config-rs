@@ -95,11 +95,6 @@ impl<T: FileSource> Source for File<T> {
             }
         });
 
-        if result.is_err() && !self.required {
-            // Ignore fails and just go with it if its not required
-            Ok(HashMap::new())
-        } else {
-            result
-        }
+        result
     }
 }
