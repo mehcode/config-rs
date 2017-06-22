@@ -57,18 +57,17 @@ impl FileFormat {
     #[allow(unused_variables)]
     pub fn parse(&self,
                  uri: Option<&String>,
-                 text: &str,
-                 namespace: Option<&String>)
+                 text: &str)
                  -> Result<HashMap<String, Value>, Box<Error>> {
         match *self {
             #[cfg(feature = "toml")]
-            FileFormat::Toml => toml::parse(uri, text, namespace),
+            FileFormat::Toml => toml::parse(uri, text),
 
             #[cfg(feature = "json")]
-            FileFormat::Json => json::parse(uri, text, namespace),
+            FileFormat::Json => json::parse(uri, text),
 
             #[cfg(feature = "yaml")]
-            FileFormat::Yaml => yaml::parse(uri, text, namespace),
+            FileFormat::Yaml => yaml::parse(uri, text),
         }
     }
 }

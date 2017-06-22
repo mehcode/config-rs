@@ -16,9 +16,6 @@ pub struct File<T>
 {
     source: T,
 
-    /// Namespace to restrict configuration from the file
-    namespace: Option<String>,
-
     /// Format of file (which dictates what driver to use).
     format: Option<FileFormat>,
 
@@ -31,7 +28,6 @@ impl File<source::string::FileSourceString> {
         File {
             format: Some(format),
             required: true,
-            namespace: None,
             source: s.into(),
         }
     }
@@ -42,7 +38,6 @@ impl File<source::file::FileSourceFile> {
         File {
             format: Some(format),
             required: true,
-            namespace: None,
             source: source::file::FileSourceFile::new(name),
         }
     }
@@ -53,7 +48,6 @@ impl File<source::file::FileSourceFile> {
         File {
             format: None,
             required: true,
-            namespace: None,
             source: source::file::FileSourceFile::new(name),
         }
     }
@@ -62,11 +56,6 @@ impl File<source::file::FileSourceFile> {
 impl<T: FileSource> File<T> {
     pub fn required(mut self, required: bool) -> Self {
         self.required = required;
-        self
-    }
-
-    pub fn namespace(mut self, namespace: &str) -> Self {
-        self.namespace = Some(namespace.into());
         self
     }
 }
@@ -96,13 +85,11 @@ impl<T: FileSource> Source for File<T>
         };
 
         // Parse the string using the given format
-        format
-            .parse(uri.as_ref(), &contents, self.namespace.as_ref())
-            .map_err(|cause| {
-                         ConfigError::FileParse {
-                             uri: uri,
-                             cause: cause,
-                         }
-                     })
+        format.parse(uri.as_ref(), &contents).map_err(|cause| {
+                                                          ConfigError::FileParse {
+                                                              uri: uri,
+                                                              cause: cause,
+                                                          }
+                                                      })
     }
 }

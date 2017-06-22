@@ -6,35 +6,15 @@ use std::collections::{BTreeMap, HashMap};
 use std::mem;
 use value::{Value, ValueKind};
 
-pub fn parse(uri: Option<&String>,
-             text: &str,
-             namespace: Option<&String>)
-             -> Result<HashMap<String, Value>, Box<Error>> {
+pub fn parse(uri: Option<&String>, text: &str) -> Result<HashMap<String, Value>, Box<Error>> {
+    // Parse a YAML object from file
     let mut docs = yaml::YamlLoader::load_from_str(text)?;
-
-    // Designate root
-    let mut root = match docs.len() {
+    let root = match docs.len() {
         0 => yaml::Yaml::Hash(BTreeMap::new()),
         1 => mem::replace(&mut docs[0], yaml::Yaml::Null),
         n => {
             return Err(Box::new(MultipleDocumentsError(n)));
         }
-    };
-
-    // Limit to namespace
-    if let Some(namespace) = namespace {
-        root = yaml::Yaml::Hash(match root {
-                                    yaml::Yaml::Hash(ref mut table) => {
-                                        if let Some(yaml::Yaml::Hash(table)) =
-            table.remove(&yaml::Yaml::String(namespace.clone())) {
-                                            table
-                                        } else {
-                                            BTreeMap::new()
-                                        }
-                                    }
-
-                                    _ => BTreeMap::new(),
-                                });
     };
 
     // TODO: Have a proper error fire if the root of a file is ever not a Table
