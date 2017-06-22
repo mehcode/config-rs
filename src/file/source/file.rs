@@ -3,7 +3,7 @@ use std::result;
 use std::error::Error;
 
 use std::path::{PathBuf, Path};
-use ::file::format::ALL_EXTENSIONS;
+use file::format::ALL_EXTENSIONS;
 use std::io::{self, Read};
 use std::fs;
 use std::env;
@@ -13,6 +13,7 @@ use source::Source;
 use super::{FileFormat, FileSource};
 
 /// Describes a file sourced from a file
+#[derive(Clone, Debug)]
 pub struct FileSourceFile {
     /// Basename of configuration file
     name: String,
@@ -30,7 +31,9 @@ impl FileSourceFile {
         }
     }
 
-    fn find_file(&self, format_hint: Option<FileFormat>) -> Result<(PathBuf, FileFormat), Box<Error>> {
+    fn find_file(&self,
+                 format_hint: Option<FileFormat>)
+                 -> Result<(PathBuf, FileFormat), Box<Error>> {
         // Build expected configuration file
         let mut basename = PathBuf::new();
 
@@ -47,7 +50,11 @@ impl FileSourceFile {
                 Some(format) => Ok((filename, format)),
                 None => {
                     for (format, extensions) in ALL_EXTENSIONS.iter() {
-                        if extensions.contains(&filename.extension().unwrap_or_default().to_string_lossy().as_ref()) {
+                        if extensions.contains(&filename
+                                                   .extension()
+                                                   .unwrap_or_default()
+                                                   .to_string_lossy()
+                                                   .as_ref()) {
                             return Ok((filename, *format));
                         }
                     }
@@ -90,7 +97,9 @@ impl FileSourceFile {
 }
 
 impl FileSource for FileSourceFile {
-    fn resolve(&self, format_hint: Option<FileFormat>) -> Result<(Option<String>, String, FileFormat), Box<Error>> {
+    fn resolve(&self,
+               format_hint: Option<FileFormat>)
+               -> Result<(Option<String>, String, FileFormat), Box<Error>> {
         // Find file
         let (filename, format) = self.find_file(format_hint)?;
 

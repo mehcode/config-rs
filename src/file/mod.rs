@@ -10,6 +10,7 @@ use std::path::Path;
 use self::source::FileSource;
 pub use self::format::FileFormat;
 
+#[derive(Clone, Debug)]
 pub struct File<T>
     where T: FileSource
 {
@@ -70,12 +71,19 @@ impl<T: FileSource> File<T> {
     }
 }
 
-impl<T: FileSource> Source for File<T> {
+impl<T: FileSource> Source for File<T>
+    where T: 'static,
+          T: Sync + Send
+{
+    fn clone_into_box(&self) -> Box<Source + Send + Sync> {
+        Box::new((*self).clone())
+    }
+
     fn collect(&self) -> Result<HashMap<String, Value>> {
         // Coerce the file contents to a string
-        let (uri, contents, format) = match self.source.resolve(self.format).map_err(|err| {
-            ConfigError::Foreign(err)
-        }) {
+        let (uri, contents, format) = match self.source
+                  .resolve(self.format)
+                  .map_err(|err| ConfigError::Foreign(err)) {
             Ok((uri, contents, format)) => (uri, contents, format),
 
             Err(error) => {
@@ -88,13 +96,13 @@ impl<T: FileSource> Source for File<T> {
         };
 
         // Parse the string using the given format
-        let result = format.parse(uri.as_ref(), &contents, self.namespace.as_ref()).map_err(|cause| {
-            ConfigError::FileParse {
-                uri: uri,
-                cause: cause
-            }
-        });
-
-        result
+        format
+            .parse(uri.as_ref(), &contents, self.namespace.as_ref())
+            .map_err(|cause| {
+                         ConfigError::FileParse {
+                             uri: uri,
+                             cause: cause,
+                         }
+                     })
     }
 }

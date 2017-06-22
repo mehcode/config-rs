@@ -4,25 +4,27 @@ use std::collections::HashMap;
 use std::error::Error;
 use value::{Value, ValueKind};
 
-pub fn parse(uri: Option<&String>, text: &str, namespace: Option<&String>) -> Result<HashMap<String, Value>, Box<Error>> {
+pub fn parse(uri: Option<&String>,
+             text: &str,
+             namespace: Option<&String>)
+             -> Result<HashMap<String, Value>, Box<Error>> {
     // Parse a JSON object value from the text
     let mut root: serde_json::Value = serde_json::from_str(text)?;
 
     // Limit to namespace
     if let Some(namespace) = namespace {
         root = serde_json::Value::Object(match root {
-            serde_json::Value::Object(ref mut table) => {
-                if let Some(serde_json::Value::Object(table)) = table.remove(namespace) {
-                    table
-                } else {
-                    serde_json::Map::new()
-                }
-            }
+                                             serde_json::Value::Object(ref mut table) => {
+                                                 if let Some(serde_json::Value::Object(table)) =
+            table.remove(namespace) {
+                                                     table
+                                                 } else {
+                                                     serde_json::Map::new()
+                                                 }
+                                             }
 
-            _ => {
-                serde_json::Map::new()
-            }
-        });
+                                             _ => serde_json::Map::new(),
+                                         });
     };
 
     // TODO: Have a proper error fire if the root of a file is ever not a Table
@@ -70,8 +72,6 @@ fn from_json_value(uri: Option<&String>, value: &serde_json::Value) -> Value {
             Value::new(uri, ValueKind::Array(l))
         }
 
-        serde_json::Value::Null => {
-            Value::new(uri, ValueKind::Nil)
-        }
+        serde_json::Value::Null => Value::new(uri, ValueKind::Nil),
     }
 }

@@ -6,7 +6,10 @@ use std::collections::{BTreeMap, HashMap};
 use std::mem;
 use value::{Value, ValueKind};
 
-pub fn parse(uri: Option<&String>, text: &str, namespace: Option<&String>) -> Result<HashMap<String, Value>, Box<Error>> {
+pub fn parse(uri: Option<&String>,
+             text: &str,
+             namespace: Option<&String>)
+             -> Result<HashMap<String, Value>, Box<Error>> {
     let mut docs = yaml::YamlLoader::load_from_str(text)?;
 
     // Designate root
@@ -21,18 +24,17 @@ pub fn parse(uri: Option<&String>, text: &str, namespace: Option<&String>) -> Re
     // Limit to namespace
     if let Some(namespace) = namespace {
         root = yaml::Yaml::Hash(match root {
-            yaml::Yaml::Hash(ref mut table) => {
-                if let Some(yaml::Yaml::Hash(table)) = table.remove(&yaml::Yaml::String(namespace.clone())) {
-                    table
-                } else {
-                    BTreeMap::new()
-                }
-            }
+                                    yaml::Yaml::Hash(ref mut table) => {
+                                        if let Some(yaml::Yaml::Hash(table)) =
+            table.remove(&yaml::Yaml::String(namespace.clone())) {
+                                            table
+                                        } else {
+                                            BTreeMap::new()
+                                        }
+                                    }
 
-            _ => {
-                BTreeMap::new()
-            }
-        });
+                                    _ => BTreeMap::new(),
+                                });
     };
 
     // TODO: Have a proper error fire if the root of a file is ever not a Table
@@ -47,7 +49,9 @@ pub fn parse(uri: Option<&String>, text: &str, namespace: Option<&String>) -> Re
 fn from_yaml_value(uri: Option<&String>, value: &yaml::Yaml) -> Value {
     match *value {
         yaml::Yaml::String(ref value) => Value::new(uri, ValueKind::String(value.clone())),
-        yaml::Yaml::Real(ref value) => Value::new(uri, ValueKind::Float(value.parse::<f64>().unwrap())),
+        yaml::Yaml::Real(ref value) => {
+            Value::new(uri, ValueKind::Float(value.parse::<f64>().unwrap()))
+        }
         yaml::Yaml::Integer(value) => Value::new(uri, ValueKind::Integer(value)),
         yaml::Yaml::Boolean(value) => Value::new(uri, ValueKind::Boolean(value)),
         yaml::Yaml::Hash(ref table) => {
@@ -70,9 +74,7 @@ fn from_yaml_value(uri: Option<&String>, value: &yaml::Yaml) -> Value {
             Value::new(uri, ValueKind::Array(l))
         }
 
-        yaml::Yaml::Null => {
-            Value::new(uri, ValueKind::Nil)
-        }
+        yaml::Yaml::Null => Value::new(uri, ValueKind::Nil),
 
         // TODO: how should we BadValue?
         _ => {

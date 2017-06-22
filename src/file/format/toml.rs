@@ -4,25 +4,27 @@ use std::collections::{HashMap, BTreeMap};
 use std::error::Error;
 use value::{Value, ValueKind};
 
-pub fn parse(uri: Option<&String>, text: &str, namespace: Option<&String>) -> Result<HashMap<String, Value>, Box<Error>> {
+pub fn parse(uri: Option<&String>,
+             text: &str,
+             namespace: Option<&String>)
+             -> Result<HashMap<String, Value>, Box<Error>> {
     // Parse a TOML value from the provided text
     let mut root: toml::Value = toml::from_str(text)?;
 
     // Limit to namespace
     if let Some(namespace) = namespace {
         root = toml::Value::Table(match root {
-            toml::Value::Table(ref mut table) => {
-                if let Some(toml::Value::Table(table)) = table.remove(namespace) {
-                    table
-                } else {
-                    BTreeMap::new()
-                }
-            }
+                                      toml::Value::Table(ref mut table) => {
+                                          if let Some(toml::Value::Table(table)) =
+            table.remove(namespace) {
+                                              table
+                                          } else {
+                                              BTreeMap::new()
+                                          }
+                                      }
 
-            _ => {
-                BTreeMap::new()
-            }
-        });
+                                      _ => BTreeMap::new(),
+                                  });
     }
 
     // TODO: Have a proper error fire if the root of a file is ever not a Table

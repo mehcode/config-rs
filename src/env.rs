@@ -4,6 +4,7 @@ use error::*;
 use source::Source;
 use value::{Value, ValueKind};
 
+#[derive(Clone, Debug)]
 pub struct Environment {
     /// Optional prefix that will limit access to the environment to only keys that
     /// begin with the defined prefix.
@@ -29,7 +30,10 @@ impl Environment {
     }
 
     pub fn with_prefix(s: &str) -> Self {
-        Environment { prefix: Some(s.into()), ..Environment::default() }
+        Environment {
+            prefix: Some(s.into()),
+            ..Environment::default()
+        }
     }
 
     pub fn prefix(&mut self, s: String) -> &mut Self {
@@ -53,6 +57,10 @@ impl Default for Environment {
 }
 
 impl Source for Environment {
+    fn clone_into_box(&self) -> Box<Source + Send + Sync> {
+        Box::new((*self).clone())
+    }
+
     fn collect(&self) -> Result<HashMap<String, Value>> {
         let mut m = HashMap::new();
         let uri: String = "the environment".into();
@@ -80,7 +88,8 @@ impl Source for Environment {
             // Replace `separator` with `.`
             key = key.replace(&self.separator, ".");
 
-            m.insert(key.to_lowercase(), Value::new(Some(&uri), ValueKind::String(value)));
+            m.insert(key.to_lowercase(),
+                     Value::new(Some(&uri), ValueKind::String(value)));
         }
 
         Ok(m)
