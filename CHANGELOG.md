@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## 0.6.0 – Upcoming
  - Add builder pattern to condense configuration
 
-   ```
+   ```rust
    Config::new()
        .merge(File::with_name("Settings"))
        .merge(Environment::with_prefix("APP"))
