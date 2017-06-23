@@ -5,15 +5,27 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## 0.6.0 – Upcoming
- - Remove `namespace` option for File
- - Add builder pattern to condense configuration
+  - Implement `Source` for `Vec<T: Source>` and `Vec<Box<Source>>`
 
-   ```rust
-   Config::new()
-       .merge(File::with_name("Settings"))
-       .merge(Environment::with_prefix("APP"))
-       .unwrap()
-   ```
+    ```rust
+    Config::new()
+        .merge(vec![
+            File::with_name("config/default"),
+            File::with_name(&format!("config/{}", run_mode)),
+        ])
+    ```
+
+  - Implement `From<&Path>` and `From<PathBuf>` for `File`
+
+  - Remove `namespace` option for File
+  - Add builder pattern to condense configuration
+
+    ```rust
+    Config::new()
+        .merge(File::with_name("Settings"))
+        .merge(Environment::with_prefix("APP"))
+        .unwrap()
+    ```
 
 ## 0.5.2 – 2017-06-22
  - Parsing errors even for non required files – [@Anthony25] ( [#33] )
