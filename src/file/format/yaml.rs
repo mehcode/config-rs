@@ -54,13 +54,12 @@ fn from_yaml_value(uri: Option<&String>, value: &yaml::Yaml) -> Value {
             Value::new(uri, ValueKind::Array(l))
         }
 
-        yaml::Yaml::Null => Value::new(uri, ValueKind::Nil),
-
-        // TODO: how should we BadValue?
-        _ => {
-            unimplemented!();
-        }
-
+        // 1. Yaml NULL
+        // 2. BadValue – It shouldn't be possible to hit BadValue as this only happens when
+        //               using the index trait badly or on a type error but we send back nil.
+        // 3. Alias – No idea what to do with this and there is a note in the lib that its
+        //            not fully supported yet anyway
+        _ => Value::new(uri, ValueKind::Nil),
     }
 }
 
