@@ -54,6 +54,9 @@ impl FileFormat {
     // TODO: pub(crate)
     #[doc(hidden)]
     pub fn extensions(&self) -> &'static Vec<&'static str> {
+        // It should not be possible for this to fail
+        // A FileFormat would need to be declared without being added to the
+        // ALL_EXTENSIONS map.
         ALL_EXTENSIONS.get(self).unwrap()
     }
 

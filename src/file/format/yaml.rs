@@ -30,6 +30,7 @@ fn from_yaml_value(uri: Option<&String>, value: &yaml::Yaml) -> Value {
     match *value {
         yaml::Yaml::String(ref value) => Value::new(uri, ValueKind::String(value.clone())),
         yaml::Yaml::Real(ref value) => {
+            // TODO: Figure out in what cases this can panic?
             Value::new(uri, ValueKind::Float(value.parse::<f64>().unwrap()))
         }
         yaml::Yaml::Integer(value) => Value::new(uri, ValueKind::Integer(value)),
