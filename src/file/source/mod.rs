@@ -11,5 +11,5 @@ use super::FileFormat;
 pub trait FileSource: Debug + Clone {
     fn resolve(&self,
                format_hint: Option<FileFormat>)
-               -> Result<(Option<String>, String, FileFormat), Box<Error>>;
+               -> Result<(Option<String>, String, FileFormat), Box<Error + Send + Sync>>;
 }

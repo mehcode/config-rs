@@ -50,7 +50,7 @@ pub enum ConfigError {
 
         /// The captured error from attempting to parse the file in its desired format.
         /// This is the actual error object from the library used for the parsing.
-        cause: Box<Error>
+        cause: Box<Error + Send + Sync>
     },
 
     /// Value could not be converted into the requested type.
@@ -75,7 +75,7 @@ pub enum ConfigError {
     Message(String),
 
     /// Unadorned error from a foreign origin.
-    Foreign(Box<Error>),
+    Foreign(Box<Error + Send + Sync>),
 }
 
 impl ConfigError {

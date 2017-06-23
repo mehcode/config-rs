@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use std::error::Error;
 use value::{Value, ValueKind};
 
-pub fn parse(uri: Option<&String>, text: &str) -> Result<HashMap<String, Value>, Box<Error>> {
+pub fn parse(uri: Option<&String>, text: &str) -> Result<HashMap<String, Value>, Box<Error + Send + Sync>> {
     // Parse a JSON object value from the text
     // TODO: Have a proper error fire if the root of a file is ever not a Table
     let value = from_json_value(uri, &serde_json::from_str(text)?);
