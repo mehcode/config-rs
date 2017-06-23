@@ -61,7 +61,7 @@ impl Config {
             }
 
             ConfigKind::Frozen => {
-                return ConfigResult(Err(ConfigError::Frozen));
+                return ConfigResult::Err(ConfigError::Frozen);
             }
         }
 
@@ -90,7 +90,7 @@ impl Config {
 
                 // Add sources
                 if let Err(error) = sources.collect_to(&mut cache) {
-                    return ConfigResult(Err(error));
+                    return ConfigResult::Err(error);
                 }
 
                 // Add overrides
@@ -102,11 +102,11 @@ impl Config {
             }
 
             ConfigKind::Frozen => {
-                return ConfigResult(Err(ConfigError::Frozen));
+                return ConfigResult::Err(ConfigError::Frozen);
             }
         };
 
-        ConfigResult(Ok(self))
+        ConfigResult::Ok(self)
     }
 
     /// Deserialize the entire configuration.
@@ -122,13 +122,13 @@ impl Config {
                 defaults.insert(match key.to_lowercase().parse() {
                                     Ok(expr) => expr,
                                     Err(error) => {
-                                        return ConfigResult(Err(error));
+                                        return ConfigResult::Err(error);
                                     }
                                 },
                                 value.into());
             }
 
-            ConfigKind::Frozen => return ConfigResult(Err(ConfigError::Frozen)),
+            ConfigKind::Frozen => return ConfigResult::Err(ConfigError::Frozen),
         };
 
         self.refresh()
@@ -142,13 +142,13 @@ impl Config {
                 overrides.insert(match key.to_lowercase().parse() {
                                      Ok(expr) => expr,
                                      Err(error) => {
-                                         return ConfigResult(Err(error));
+                                         return ConfigResult::Err(error);
                                      }
                                  },
                                  value.into());
             }
 
-            ConfigKind::Frozen => return ConfigResult(Err(ConfigError::Frozen)),
+            ConfigKind::Frozen => return ConfigResult::Err(ConfigError::Frozen),
         };
 
         self.refresh()
@@ -196,7 +196,12 @@ impl Config {
     }
 }
 
-pub struct ConfigResult<'a>(Result<&'a mut Config>);
+/// Holds the result of configuration alteration functions.
+/// A manual alias of Result to enable a chained API and error forwarding.
+pub enum ConfigResult<'a> {
+    Ok(&'a mut Config),
+    Err(ConfigError),
+}
 
 #[inline]
 fn unwrap_failed<E: Debug>(msg: &str, error: E) -> ! {
@@ -204,51 +209,68 @@ fn unwrap_failed<E: Debug>(msg: &str, error: E) -> ! {
 }
 
 impl<'a> ConfigResult<'a> {
+    /// Forwards `Config::merge`
     pub fn merge<T>(self, source: T) -> ConfigResult<'a>
         where T: 'static,
               T: Source + Send + Sync
     {
-        match self.0 {
+        match self {
             // If OK, Proceed to nested method
-            Ok(instance) => instance.merge(source),
+            ConfigResult::Ok(instance) => instance.merge(source),
 
             // Else, Forward the error
-            error => ConfigResult(error),
+            error => error,
         }
     }
 
+    /// Forwards `Config::set_default`
     pub fn set_default<T>(self, key: &str, value: T) -> ConfigResult<'a>
         where T: Into<Value>,
               T: 'static
     {
-        match self.0 {
+        match self {
             // If OK, Proceed to nested method
-            Ok(instance) => instance.set_default(key, value),
+            ConfigResult::Ok(instance) => instance.set_default(key, value),
 
             // Else, Forward the error
-            error => ConfigResult(error),
+            error => error,
         }
     }
 
+    /// Forwards `Config::set`
     pub fn set<T>(self, key: &str, value: T) -> ConfigResult<'a>
         where T: Into<Value>,
               T: 'static
     {
-        match self.0 {
+        match self {
             // If OK, Proceed to nested method
-            Ok(instance) => instance.set(key, value),
+            ConfigResult::Ok(instance) => instance.set(key, value),
 
             // Else, Forward the error
-            error => ConfigResult(error),
+            error => error,
+        }
+    }
+
+    /// Deserialize the entire configuration.
+    pub fn deserialize<'de, T: Deserialize<'de>>(self) -> Result<T> {
+        self.and_then(|instance| instance.deserialize())
+    }
+
+    /// Creates a `Result` out of this `ConfigResult`
+    #[inline]
+    pub fn to_result(self) -> Result<Config> {
+        match self {
+            ConfigResult::Ok(value) => Ok(value.clone()),
+            ConfigResult::Err(error) => Err(error),
         }
     }
 
     /// Forwards `Result::is_ok`
     #[inline]
     pub fn is_ok(&self) -> bool {
-        match self.0 {
-            Ok(_) => true,
-            Err(_) => false,
+        match *self {
+            ConfigResult::Ok(_) => true,
+            ConfigResult::Err(_) => false,
         }
     }
 
@@ -261,54 +283,122 @@ impl<'a> ConfigResult<'a> {
     /// Forwards `Result::ok`
     #[inline]
     pub fn ok(self) -> Option<Config> {
-        match self.0 {
-            Ok(x) => Some(x.clone()),
-            Err(_) => None,
+        match self {
+            ConfigResult::Ok(x) => Some(x.clone()),
+            ConfigResult::Err(_) => None,
         }
     }
 
     /// Forwards `Result::err`
     #[inline]
     pub fn err(self) -> Option<ConfigError> {
-        match self.0 {
-            Ok(_) => None,
-            Err(x) => Some(x),
+        match self {
+            ConfigResult::Ok(_) => None,
+            ConfigResult::Err(x) => Some(x),
+        }
+    }
+
+    /// Forwards `Result::map`
+    #[inline]
+    pub fn map<U, F>(self, op: F) -> Result<U>
+        where
+            F: FnOnce(Config) -> U,
+    {
+        match self {
+            ConfigResult::Ok(x) => Ok(op(x.clone())),
+            ConfigResult::Err(error) => Err(error),
+        }
+    }
+
+    /// Forwards `Result::map_err`
+    #[inline]
+    pub fn map_err<F, O>(self, op: O) -> ::std::result::Result<Config, F>
+        where
+            O: FnOnce(ConfigError) -> F,
+    {
+        match self {
+            ConfigResult::Err(error) => Err(op(error)),
+            ConfigResult::Ok(value) => Ok(value.clone()),
+        }
+    }
+
+    /// Forwards `Result::and`
+    #[inline]
+    pub fn and<U>(self, res: Result<U>) -> Result<U>
+    {
+        match self {
+            ConfigResult::Ok(_) => res,
+            ConfigResult::Err(error) => Err(error),
+        }
+    }
+
+    /// Forwards `Result::and_then`
+    #[inline]
+    pub fn and_then<U, F>(self, op: F) -> Result<U>
+        where
+            F: FnOnce(Config) -> Result<U>,
+    {
+        match self {
+            ConfigResult::Ok(value) => op(value.clone()),
+            ConfigResult::Err(error) => Err(error),
+        }
+    }
+
+    /// Forwards `Result::or`
+    #[inline]
+    pub fn or<F>(self, res: ::std::result::Result<Config, F>) -> ::std::result::Result<Config, F>
+    {
+        match self {
+            ConfigResult::Ok(value) => Ok(value.clone()),
+            ConfigResult::Err(_) => res,
+        }
+    }
+
+    /// Forwards `Result::or_else`
+    #[inline]
+    pub fn or_else<F, O>(self, op: O) -> ::std::result::Result<Config, F>
+    where
+        O: FnOnce(ConfigError) -> ::std::result::Result<Config, F>,
+    {
+        match self {
+            ConfigResult::Ok(value) => Ok(value.clone()),
+            ConfigResult::Err(error) => op(error),
         }
     }
 
     /// Forwards `Result::unwrap`
     #[inline]
     pub fn unwrap(self) -> Config {
-        match self.0 {
-            Ok(instance) => instance.clone(),
-            Err(error) => unwrap_failed("called `Result::unwrap()` on an `Err` value", error),
+        match self {
+            ConfigResult::Ok(instance) => instance.clone(),
+            ConfigResult::Err(error) => unwrap_failed("called `ConfigResult::unwrap()` on an `Err` value", error),
         }
     }
 
     /// Forwards `Result::expect`
     #[inline]
     pub fn expect(self, msg: &str) -> Config {
-        match self.0 {
-            Ok(instance) => instance.clone(),
-            Err(error) => unwrap_failed(msg, error),
+        match self {
+            ConfigResult::Ok(instance) => instance.clone(),
+            ConfigResult::Err(error) => unwrap_failed(msg, error),
         }
     }
 
     /// Forwards `Result::unwrap_err`
     #[inline]
     pub fn unwrap_err(self) -> ConfigError {
-        match self.0 {
-            Ok(t) => unwrap_failed("called `Result::unwrap_err()` on an `Ok` value", t),
-            Err(e) => e,
+        match self {
+            ConfigResult::Ok(t) => unwrap_failed("called `ConfigResult::unwrap_err()` on an `Ok` value", t),
+            ConfigResult::Err(e) => e,
         }
     }
 
     /// Forwards `Result::expect_err`
     #[inline]
     pub fn expect_err(self, msg: &str) -> ConfigError {
-        match self.0 {
-            Ok(t) => unwrap_failed(msg, t),
-            Err(e) => e,
+        match self {
+            ConfigResult::Ok(t) => unwrap_failed(msg, t),
+            ConfigResult::Err(e) => e,
         }
     }
 }
