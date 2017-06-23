@@ -89,26 +89,8 @@ impl Config {
                 }
 
                 // Add sources
-                for source in sources {
-                    let props = match source.collect() {
-                        Ok(props) => props,
-                        Err(error) => {
-                            return ConfigResult(Err(error));
-                        }
-                    };
-
-                    for (key, val) in &props {
-                        match path::Expression::from_str(key) {
-                            // Set using the path
-                            Ok(expr) => expr.set(&mut cache, val.clone()),
-
-                            // Set diretly anyway
-                            _ => {
-                                path::Expression::Identifier(key.clone())
-                                    .set(&mut cache, val.clone())
-                            }
-                        }
-                    }
+                if let Err(error) = sources.collect_to(&mut cache) {
+                    return ConfigResult(Err(error));
                 }
 
                 // Add overrides

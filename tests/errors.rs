@@ -17,8 +17,7 @@ fn test_error_parse() {
 
     assert!(res.is_err());
     assert_eq!(res.unwrap_err().to_string(),
-               "invalid number at line 2 in tests/Settings-invalid.toml"
-                   .to_string());
+               "invalid number at line 2 in tests/Settings-invalid.toml".to_string());
 }
 
 #[test]
@@ -42,6 +41,5 @@ fn test_error_type_detached() {
 
     assert!(res.is_err());
     assert_eq!(res.unwrap_err().to_string(),
-               "invalid type: string \"fals\", expected a boolean"
-                   .to_string());
+               "invalid type: string \"fals\", expected a boolean".to_string());
 }

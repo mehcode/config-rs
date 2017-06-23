@@ -5,7 +5,7 @@ use source::Source;
 use error::*;
 use value::Value;
 use std::collections::HashMap;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use self::source::FileSource;
 pub use self::format::FileFormat;
@@ -38,7 +38,7 @@ impl File<source::file::FileSourceFile> {
         File {
             format: Some(format),
             required: true,
-            source: source::file::FileSourceFile::new(name),
+            source: source::file::FileSourceFile::new(name.into()),
         }
     }
 
@@ -48,12 +48,37 @@ impl File<source::file::FileSourceFile> {
         File {
             format: None,
             required: true,
-            source: source::file::FileSourceFile::new(name),
+            source: source::file::FileSourceFile::new(name.into()),
+        }
+    }
+}
+
+impl<'a> From<&'a Path> for File<source::file::FileSourceFile> {
+    fn from(path: &'a Path) -> Self {
+        File {
+            format: None,
+            required: true,
+            source: source::file::FileSourceFile::new(path.to_path_buf()),
+        }
+    }
+}
+
+impl From<PathBuf> for File<source::file::FileSourceFile> {
+    fn from(path: PathBuf) -> Self {
+        File {
+            format: None,
+            required: true,
+            source: source::file::FileSourceFile::new(path),
         }
     }
 }
 
 impl<T: FileSource> File<T> {
+    pub fn format(mut self, format: FileFormat) -> Self {
+        self.format = Some(format);
+        self
+    }
+
     pub fn required(mut self, required: bool) -> Self {
         self.required = required;
         self

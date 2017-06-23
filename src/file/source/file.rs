@@ -15,36 +15,20 @@ use super::{FileFormat, FileSource};
 /// Describes a file sourced from a file
 #[derive(Clone, Debug)]
 pub struct FileSourceFile {
-    /// Basename of configuration file
-    name: String,
-
-    /// Directory where configuration file is found
-    /// When not specified, the current working directory (CWD) is considered
-    path: Option<String>,
+    /// Path of configuration file
+    name: PathBuf,
 }
 
 impl FileSourceFile {
-    pub fn new(name: &str) -> FileSourceFile {
-        FileSourceFile {
-            name: name.into(),
-            path: None,
-        }
+    pub fn new(name: PathBuf) -> FileSourceFile {
+        FileSourceFile { name: name }
     }
 
     fn find_file(&self,
                  format_hint: Option<FileFormat>)
                  -> Result<(PathBuf, FileFormat), Box<Error>> {
-        // Build expected configuration file
-        let mut basename = PathBuf::new();
-
-        if let Some(ref path) = self.path {
-            basename.push(path.clone());
-        }
-
-        basename.push(self.name.clone());
-
         // First check for an _exact_ match
-        let mut filename = env::current_dir()?.as_path().join(basename.clone());
+        let mut filename = env::current_dir()?.as_path().join(self.name.clone());
         if filename.is_file() {
             return match format_hint {
                 Some(format) => Ok((filename, format)),
@@ -92,7 +76,7 @@ impl FileSourceFile {
 
         Err(Box::new(io::Error::new(io::ErrorKind::NotFound,
                                     format!("configuration file \"{}\" not found",
-                                            basename.to_string_lossy()))))
+                                            self.name.to_string_lossy()))))
     }
 }
 
