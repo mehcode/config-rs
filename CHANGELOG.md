@@ -27,7 +27,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
         .unwrap()
     ```
 
-## 0.5.2 – 2017-06-22
  - Parsing errors even for non required files – [@Anthony25] ( [#33] )
 
 [@Anthony25]: https://github.com/Anthony25
