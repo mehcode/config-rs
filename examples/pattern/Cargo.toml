@@ -3,4 +3,5 @@ name = "pattern"
 version = "0.1.0"
 
 [dependencies]
-config = { path = "../../", features = ["glob"] }
+config = { path = "../../" }
+glob = "0.2"
