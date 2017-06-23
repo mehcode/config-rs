@@ -94,6 +94,22 @@ impl<T> From<Vec<T>> for ValueKind
     }
 }
 
+impl Display for ValueKind {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            ValueKind::String(ref value) => write!(f, "{}", value),
+            ValueKind::Boolean(value) => write!(f, "{}", value),
+            ValueKind::Integer(value) => write!(f, "{}", value),
+            ValueKind::Float(value) => write!(f, "{}", value),
+            ValueKind::Nil => write!(f, "nil"),
+
+            // TODO: Figure out a nice Display for these
+            ValueKind::Table(ref table) => write!(f, "{:?}", table),
+            ValueKind::Array(ref array) => write!(f, "{:?}", array),
+        }
+    }
+}
+
 /// A configuration value.
 #[derive(Default, Debug, Clone)]
 pub struct Value {
@@ -333,8 +349,7 @@ impl Value {
 impl<'de> Deserialize<'de> for Value {
     #[inline]
     fn deserialize<D>(deserializer: D) -> ::std::result::Result<Value, D::Error>
-    where
-        D: Deserializer<'de>,
+        where D: Deserializer<'de>
     {
         struct ValueVisitor;
 
@@ -398,8 +413,7 @@ impl<'de> Deserialize<'de> for Value {
 
             #[inline]
             fn visit_str<E>(self, value: &str) -> ::std::result::Result<Value, E>
-            where
-                E: ::serde::de::Error,
+                where E: ::serde::de::Error
             {
                 self.visit_string(String::from(value))
             }
@@ -428,8 +442,7 @@ impl<'de> Deserialize<'de> for Value {
 
             #[inline]
             fn visit_seq<V>(self, mut visitor: V) -> ::std::result::Result<Value, V::Error>
-            where
-                V: ::serde::de::SeqAccess<'de>,
+                where V: ::serde::de::SeqAccess<'de>
             {
                 let mut vec = Array::new();
 
@@ -441,8 +454,7 @@ impl<'de> Deserialize<'de> for Value {
             }
 
             fn visit_map<V>(self, mut visitor: V) -> ::std::result::Result<Value, V::Error>
-            where
-                V: ::serde::de::MapAccess<'de>,
+                where V: ::serde::de::MapAccess<'de>
             {
                 let mut values = Table::new();
 
@@ -469,18 +481,23 @@ impl<T> From<T> for Value
     }
 }
 
+impl Display for Value {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.kind)
+    }
+}
+
 pub struct ValueWithKey<'a>(pub Value, &'a str);
 
 impl<'a> ValueWithKey<'a> {
-    pub fn new(value: Value, key: &'a str) -> Self
-    {
+    pub fn new(value: Value, key: &'a str) -> Self {
         ValueWithKey(value, key)
     }
 
     pub fn into_bool(self) -> Result<bool> {
         match self.0.into_bool() {
             Ok(value) => Ok(value),
-            Err(error) => Err(error.extend_with_key(self.1))
+            Err(error) => Err(error.extend_with_key(self.1)),
         }
     }
 
@@ -488,7 +505,7 @@ impl<'a> ValueWithKey<'a> {
     pub fn into_int(self) -> Result<i64> {
         match self.0.into_int() {
             Ok(value) => Ok(value),
-            Err(error) => Err(error.extend_with_key(self.1))
+            Err(error) => Err(error.extend_with_key(self.1)),
         }
     }
 
@@ -496,7 +513,7 @@ impl<'a> ValueWithKey<'a> {
     pub fn into_float(self) -> Result<f64> {
         match self.0.into_float() {
             Ok(value) => Ok(value),
-            Err(error) => Err(error.extend_with_key(self.1))
+            Err(error) => Err(error.extend_with_key(self.1)),
         }
     }
 
@@ -504,7 +521,7 @@ impl<'a> ValueWithKey<'a> {
     pub fn into_str(self) -> Result<String> {
         match self.0.into_str() {
             Ok(value) => Ok(value),
-            Err(error) => Err(error.extend_with_key(self.1))
+            Err(error) => Err(error.extend_with_key(self.1)),
         }
     }
 
@@ -512,7 +529,7 @@ impl<'a> ValueWithKey<'a> {
     pub fn into_array(self) -> Result<Vec<Value>> {
         match self.0.into_array() {
             Ok(value) => Ok(value),
-            Err(error) => Err(error.extend_with_key(self.1))
+            Err(error) => Err(error.extend_with_key(self.1)),
         }
     }
 
@@ -520,7 +537,7 @@ impl<'a> ValueWithKey<'a> {
     pub fn into_table(self) -> Result<HashMap<String, Value>> {
         match self.0.into_table() {
             Ok(value) => Ok(value),
-            Err(error) => Err(error.extend_with_key(self.1))
+            Err(error) => Err(error.extend_with_key(self.1)),
         }
     }
 }
