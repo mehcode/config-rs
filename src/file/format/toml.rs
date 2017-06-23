@@ -42,9 +42,6 @@ fn from_toml_value(uri: Option<&String>, value: &toml::Value) -> Value {
             Value::new(uri, l)
         }
 
-        _ => {
-            // TODO: DateTime
-            unimplemented!();
-        }
+        toml::Value::Datetime(ref datetime) => Value::new(uri, datetime.to_string()),
     }
 }

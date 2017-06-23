@@ -1,3 +1,7 @@
+// If no features are used, there is an "unused mut" warning in `ALL_EXTENSIONS`
+// BUG: ? For some reason this doesn't do anything if I try and function scope this
+#![allow(unused_mut)]
+
 use source::Source;
 use value::Value;
 use std::error::Error;
@@ -29,6 +33,7 @@ pub enum FileFormat {
 
 lazy_static! {
     #[doc(hidden)]
+    // #[allow(unused_mut)] ?
     pub static ref ALL_EXTENSIONS: HashMap<FileFormat, Vec<&'static str>> = {
         let mut formats: HashMap<FileFormat, Vec<_>> = HashMap::new();
 

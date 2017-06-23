@@ -30,3 +30,4 @@ yaml-rust = { version = "^0.3.5", optional = true }
 [dev-dependencies]
 serde_derive = "^1.0.8"
 float-cmp = "0.2.3"
+chrono = { version = "0.4", features = ["serde"] }
