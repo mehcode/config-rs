@@ -18,7 +18,7 @@ impl<'a> From<&'a str> for FileSourceString {
 impl FileSource for FileSourceString {
     fn resolve(&self,
                format_hint: Option<FileFormat>)
-               -> Result<(Option<String>, String, FileFormat), Box<Error>> {
+               -> Result<(Option<String>, String, FileFormat), Box<Error + Send + Sync>> {
         Ok((None, self.0.clone(), format_hint.expect("from_str requires a set file format")))
     }
 }

@@ -26,7 +26,7 @@ impl FileSourceFile {
 
     fn find_file(&self,
                  format_hint: Option<FileFormat>)
-                 -> Result<(PathBuf, FileFormat), Box<Error>> {
+                 -> Result<(PathBuf, FileFormat), Box<Error + Send + Sync>> {
         // First check for an _exact_ match
         let mut filename = env::current_dir()?.as_path().join(self.name.clone());
         if filename.is_file() {
@@ -83,7 +83,7 @@ impl FileSourceFile {
 impl FileSource for FileSourceFile {
     fn resolve(&self,
                format_hint: Option<FileFormat>)
-               -> Result<(Option<String>, String, FileFormat), Box<Error>> {
+               -> Result<(Option<String>, String, FileFormat), Box<Error + Send + Sync>> {
         // Find file
         let (filename, format) = self.find_file(format_hint)?;
 
