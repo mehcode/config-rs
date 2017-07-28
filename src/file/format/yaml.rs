@@ -2,7 +2,7 @@ use yaml_rust as yaml;
 use source::Source;
 use std::error::Error;
 use std::fmt;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::HashMap;
 use std::mem;
 use value::{Value, ValueKind};
 
@@ -10,7 +10,7 @@ pub fn parse(uri: Option<&String>, text: &str) -> Result<HashMap<String, Value>,
     // Parse a YAML object from file
     let mut docs = yaml::YamlLoader::load_from_str(text)?;
     let root = match docs.len() {
-        0 => yaml::Yaml::Hash(BTreeMap::new()),
+        0 => yaml::Yaml::Hash(yaml::yaml::Hash::new()),
         1 => mem::replace(&mut docs[0], yaml::Yaml::Null),
         n => {
             return Err(Box::new(MultipleDocumentsError(n)));
