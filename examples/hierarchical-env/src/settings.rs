@@ -65,6 +65,6 @@ impl Settings {
         println!("database: {:?}", s.get::<String>("database.url"));
 
         // You can deserialize (and thus freeze) the entire configuration as
-        s.deserialize()
+        s.try_into()
     }
 }

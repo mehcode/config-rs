@@ -1,6 +1,7 @@
 use serde::de;
 use value::{Value, ValueKind, ValueWithKey};
 use error::*;
+use config::Config;
 use std::borrow::Cow;
 use std::iter::Peekable;
 use std::collections::HashMap;
@@ -323,5 +324,116 @@ impl<'de> de::MapAccess<'de> for MapAccess {
         V: de::DeserializeSeed<'de>,
     {
         de::DeserializeSeed::deserialize(seed, self.elements.remove(0).1)
+    }
+}
+
+impl<'de> de::Deserializer<'de> for Config {
+    type Error = ConfigError;
+
+    #[inline]
+    fn deserialize_any<V>(self, visitor: V) -> Result<V::Value>
+    where
+        V: de::Visitor<'de>,
+    {
+        // Deserialize based on the underlying type
+        match self.cache.kind {
+            ValueKind::Nil => visitor.visit_unit(),
+            ValueKind::Integer(i) => visitor.visit_i64(i),
+            ValueKind::Boolean(b) => visitor.visit_bool(b),
+            ValueKind::Float(f) => visitor.visit_f64(f),
+            ValueKind::String(s) => visitor.visit_string(s),
+            ValueKind::Array(values) => visitor.visit_seq(SeqAccess::new(values)),
+            ValueKind::Table(map) => visitor.visit_map(MapAccess::new(map)),
+        }
+    }
+
+    #[inline]
+    fn deserialize_bool<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
+        visitor.visit_bool(self.cache.into_bool()?)
+    }
+
+    #[inline]
+    fn deserialize_i8<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
+        // FIXME: This should *fail* if the value does not fit in the requets integer type
+        visitor.visit_i8(self.cache.into_int()? as i8)
+    }
+
+    #[inline]
+    fn deserialize_i16<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
+        // FIXME: This should *fail* if the value does not fit in the requets integer type
+        visitor.visit_i16(self.cache.into_int()? as i16)
+    }
+
+    #[inline]
+    fn deserialize_i32<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
+        // FIXME: This should *fail* if the value does not fit in the requets integer type
+        visitor.visit_i32(self.cache.into_int()? as i32)
+    }
+
+    #[inline]
+    fn deserialize_i64<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
+        visitor.visit_i64(self.cache.into_int()?)
+    }
+
+    #[inline]
+    fn deserialize_u8<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
+        // FIXME: This should *fail* if the value does not fit in the requets integer type
+        visitor.visit_u8(self.cache.into_int()? as u8)
+    }
+
+    #[inline]
+    fn deserialize_u16<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
+        // FIXME: This should *fail* if the value does not fit in the requets integer type
+        visitor.visit_u16(self.cache.into_int()? as u16)
+    }
+
+    #[inline]
+    fn deserialize_u32<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
+        // FIXME: This should *fail* if the value does not fit in the requets integer type
+        visitor.visit_u32(self.cache.into_int()? as u32)
+    }
+
+    #[inline]
+    fn deserialize_u64<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
+        // FIXME: This should *fail* if the value does not fit in the requets integer type
+        visitor.visit_u64(self.cache.into_int()? as u64)
+    }
+
+    #[inline]
+    fn deserialize_f32<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
+        visitor.visit_f32(self.cache.into_float()? as f32)
+    }
+
+    #[inline]
+    fn deserialize_f64<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
+        visitor.visit_f64(self.cache.into_float()?)
+    }
+
+    #[inline]
+    fn deserialize_str<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
+        visitor.visit_string(self.cache.into_str()?)
+    }
+
+    #[inline]
+    fn deserialize_string<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
+        visitor.visit_string(self.cache.into_str()?)
+    }
+
+    #[inline]
+    fn deserialize_option<V>(self, visitor: V) -> Result<V::Value>
+    where
+        V: de::Visitor<'de>,
+    {
+        // Match an explicit nil as None and everything else as Some
+        match self.cache.kind {
+            ValueKind::Nil => visitor.visit_none(),
+            _ => visitor.visit_some(self),
+        }
+    }
+
+    forward_to_deserialize_any! {
+        char seq
+        bytes byte_buf map struct unit enum newtype_struct
+        identifier ignored_any unit_struct tuple_struct tuple
     }
 }

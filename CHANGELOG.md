@@ -4,6 +4,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.7.0
+ - Fix conflict with `serde_yaml`. [#39]
+
+[#39]: https://github.com/mehcode/config-rs/issues/39
+
+ - Implement `Source` for `Config`.
+ - Implement `serde::de::Deserializer` for `Config`. `my_config.deserialize` may now be called as either `Deserialize::deserialize(my_config)` or `my_config.try_into()`.
+ - Remove `ConfigResult`. The builder pattern requires either `.try_into` as the final step _or_ the initial `Config::new()` to be bound to a slot. Errors must also be handled on each call instead of at the end of the chain.
+
+
+    ```rust
+    let mut c = Config::new();
+    c
+        .merge(File::with_name("Settings")).unwrap()
+        .merge(Environment::with_prefix("APP")).unwrap();
+    ```
+
+    ```rust
+    let c = Config::new()
+        .merge(File::with_name("Settings")).unwrap()
+        .merge(Environment::with_prefix("APP")).unwrap()
+        // LLVM should be smart enough to remove the actual clone operation
+        // as you are cloning a temporary that is dropped at the same time
+        .clone();
+    ```
+
+    ```rust
+    let mut s: Settings = Config::new()
+        .merge(File::with_name("Settings")).unwrap()
+        .merge(Environment::with_prefix("APP")).unwrap()
+        .try_into();
+    ```
+
 ## 0.6.0 – 2017-06-22
   - Implement `Source` for `Vec<T: Source>` and `Vec<Box<Source>>`
 

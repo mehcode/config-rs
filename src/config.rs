@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::ops::Deref;
 use std::str::FromStr;
 use std::fmt::Debug;
-use serde::de::Deserialize;
+use serde::de::{Deserialize, Deserializer};
 
 use error::*;
 use source::Source;
@@ -110,11 +110,6 @@ impl Config {
         Ok(self)
     }
 
-    /// Deserialize the entire configuration.
-    pub fn deserialize<'de, T: Deserialize<'de>>(&self) -> Result<T> {
-        T::deserialize(self.cache.clone())
-    }
-
     pub fn set_default<T>(&mut self, key: &str, value: T) -> Result<&mut Config>
     where
         T: Into<Value>,
@@ -188,6 +183,11 @@ impl Config {
 
     pub fn get_array(&self, key: &str) -> Result<Vec<Value>> {
         self.get(key).and_then(Value::into_array)
+    }
+
+    /// Attempt to deserialize the entire configuration into the requested type.
+    pub fn try_into<'de, T: Deserialize<'de>>(self) -> Result<T> {
+        T::deserialize(self)
     }
 }
 
