@@ -1,5 +1,5 @@
 use serde::de;
-use value::{Value, ValueWithKey, ValueKind};
+use value::{Value, ValueKind, ValueWithKey};
 use error::*;
 use std::borrow::Cow;
 use std::iter::Peekable;
@@ -13,7 +13,8 @@ impl<'de> de::Deserializer<'de> for ValueWithKey<'de> {
 
     #[inline]
     fn deserialize_any<V>(self, visitor: V) -> Result<V::Value>
-        where V: de::Visitor<'de>
+    where
+        V: de::Visitor<'de>,
     {
         // Deserialize based on the underlying type
         match self.0.kind {
@@ -101,7 +102,8 @@ impl<'de> de::Deserializer<'de> for ValueWithKey<'de> {
 
     #[inline]
     fn deserialize_option<V>(self, visitor: V) -> Result<V::Value>
-        where V: de::Visitor<'de>
+    where
+        V: de::Visitor<'de>,
     {
         // Match an explicit nil as None and everything else as Some
         match self.0.kind {
@@ -122,7 +124,8 @@ impl<'de> de::Deserializer<'de> for Value {
 
     #[inline]
     fn deserialize_any<V>(self, visitor: V) -> Result<V::Value>
-        where V: de::Visitor<'de>
+    where
+        V: de::Visitor<'de>,
     {
         // Deserialize based on the underlying type
         match self.kind {
@@ -210,7 +213,8 @@ impl<'de> de::Deserializer<'de> for Value {
 
     #[inline]
     fn deserialize_option<V>(self, visitor: V) -> Result<V::Value>
-        where V: de::Visitor<'de>
+    where
+        V: de::Visitor<'de>,
     {
         // Match an explicit nil as None and everything else as Some
         match self.kind {
@@ -265,7 +269,8 @@ impl<'de> de::SeqAccess<'de> for SeqAccess {
     type Error = ConfigError;
 
     fn next_element_seed<T>(&mut self, seed: T) -> Result<Option<T::Value>>
-        where T: de::DeserializeSeed<'de>
+    where
+        T: de::DeserializeSeed<'de>,
     {
         match self.elements.next() {
             Some(value) => seed.deserialize(value).map(Some),
@@ -299,7 +304,8 @@ impl<'de> de::MapAccess<'de> for MapAccess {
     type Error = ConfigError;
 
     fn next_key_seed<K>(&mut self, seed: K) -> Result<Option<K::Value>>
-        where K: de::DeserializeSeed<'de>
+    where
+        K: de::DeserializeSeed<'de>,
     {
         if self.index >= self.elements.len() {
             return Ok(None);
@@ -313,7 +319,8 @@ impl<'de> de::MapAccess<'de> for MapAccess {
     }
 
     fn next_value_seed<V>(&mut self, seed: V) -> Result<V::Value>
-        where V: de::DeserializeSeed<'de>
+    where
+        V: de::DeserializeSeed<'de>,
     {
         de::DeserializeSeed::deserialize(seed, self.elements.remove(0).1)
     }

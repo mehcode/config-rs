@@ -2,7 +2,7 @@ extern crate config;
 extern crate chrono;
 
 use config::*;
-use chrono::{DateTime, Utc, TimeZone};
+use chrono::{DateTime, TimeZone, Utc};
 
 fn make() -> Config {
     Config::default()
@@ -14,12 +14,14 @@ fn make() -> Config {
             "#,
             FileFormat::Json,
         ))
+        .unwrap()
         .merge(File::from_str(
             r#"
             yaml_datetime: 2017-06-12T10:58:30Z
             "#,
             FileFormat::Yaml,
         ))
+        .unwrap()
         .merge(File::from_str(
             r#"
             toml_datetime = 2017-05-11T14:55:15Z
@@ -27,6 +29,7 @@ fn make() -> Config {
             FileFormat::Toml,
         ))
         .unwrap()
+        .clone()
 }
 
 #[test]

@@ -10,12 +10,12 @@ fn main() {
     // Option 1
     // --------
     // Gather all conf files from conf/ manually
-    let settings = Config::default()
+    let mut settings = Config::default();
+    settings
         // File::with_name(..) is shorthand for File::from(Path::new(..))
-        .merge(File::with_name("conf/00-default.toml"))
-        .merge(File::from(Path::new("conf/05-some.yml")))
-        .merge(File::from(Path::new("conf/99-extra.json")))
-        .unwrap();
+        .merge(File::with_name("conf/00-default.toml")).unwrap()
+        .merge(File::from(Path::new("conf/05-some.yml"))).unwrap()
+        .merge(File::from(Path::new("conf/99-extra.json"))).unwrap();
 
     // Print out our settings (as a HashMap)
     println!("\n{:?} \n\n-----------",
@@ -24,7 +24,8 @@ fn main() {
     // Option 2
     // --------
     // Gather all conf files from conf/ manually, but put in 1 merge call.
-    let settings = Config::default()
+    let mut settings = Config::default();
+    settings
         .merge(vec![File::with_name("conf/00-default.toml"),
                     File::from(Path::new("conf/05-some.yml")),
                     File::from(Path::new("conf/99-extra.json"))])
@@ -37,7 +38,8 @@ fn main() {
     // Option 3
     // --------
     // Gather all conf files from conf/ using glob and put in 1 merge call.
-    let settings = Config::default()
+    let mut settings = Config::default();
+    settings
         .merge(glob("conf/*")
                    .unwrap()
                    .map(|path| File::from(path.unwrap()))

@@ -2,7 +2,7 @@ use std::str::FromStr;
 use std::result;
 use std::error::Error;
 
-use std::path::{PathBuf, Path};
+use std::path::{Path, PathBuf};
 use file::format::ALL_EXTENSIONS;
 use std::io::{self, Read};
 use std::fs;
@@ -24,9 +24,10 @@ impl FileSourceFile {
         FileSourceFile { name: name }
     }
 
-    fn find_file(&self,
-                 format_hint: Option<FileFormat>)
-                 -> Result<(PathBuf, FileFormat), Box<Error + Send + Sync>> {
+    fn find_file(
+        &self,
+        format_hint: Option<FileFormat>,
+    ) -> Result<(PathBuf, FileFormat), Box<Error + Send + Sync>> {
         // First check for an _exact_ match
         let mut filename = env::current_dir()?.as_path().join(self.name.clone());
         if filename.is_file() {
@@ -35,55 +36,61 @@ impl FileSourceFile {
                 None => {
                     for (format, extensions) in ALL_EXTENSIONS.iter() {
                         if extensions.contains(&filename
-                                                   .extension()
-                                                   .unwrap_or_default()
-                                                   .to_string_lossy()
-                                                   .as_ref()) {
+                            .extension()
+                            .unwrap_or_default()
+                            .to_string_lossy()
+                            .as_ref())
+                        {
                             return Ok((filename, *format));
                         }
                     }
 
-                    Err(Box::new(io::Error::new(io::ErrorKind::NotFound,
-                                                format!("configuration file \"{}\" is not of a registered file format",
-                                                        filename.to_string_lossy()))))
+                    Err(Box::new(io::Error::new(
+                        io::ErrorKind::NotFound,
+                        format!(
+                            "configuration file \"{}\" is not of a registered file format",
+                            filename.to_string_lossy()
+                        ),
+                    )))
                 }
             };
         }
 
         match format_hint {
-            Some(format) => {
+            Some(format) => for ext in format.extensions() {
+                filename.set_extension(ext);
+
+                if filename.is_file() {
+                    return Ok((filename, format));
+                }
+            },
+
+            None => for (format, extensions) in ALL_EXTENSIONS.iter() {
                 for ext in format.extensions() {
                     filename.set_extension(ext);
 
                     if filename.is_file() {
-                        return Ok((filename, format));
+                        return Ok((filename, *format));
                     }
                 }
-            }
-
-            None => {
-                for (format, extensions) in ALL_EXTENSIONS.iter() {
-                    for ext in format.extensions() {
-                        filename.set_extension(ext);
-
-                        if filename.is_file() {
-                            return Ok((filename, *format));
-                        }
-                    }
-                }
-            }
+            },
         }
 
-        Err(Box::new(io::Error::new(io::ErrorKind::NotFound,
-                                    format!("configuration file \"{}\" not found",
-                                            self.name.to_string_lossy()))))
+        Err(Box::new(io::Error::new(
+            io::ErrorKind::NotFound,
+            format!(
+                "configuration file \"{}\" not found",
+                self.name.to_string_lossy()
+            ),
+        )))
     }
 }
 
 impl FileSource for FileSourceFile {
-    fn resolve(&self,
-               format_hint: Option<FileFormat>)
-               -> Result<(Option<String>, String, FileFormat), Box<Error + Send + Sync>> {
+    fn resolve(
+        &self,
+        format_hint: Option<FileFormat>,
+    ) -> Result<(Option<String>, String, FileFormat), Box<Error + Send + Sync>> {
         // Find file
         let (filename, format) = self.find_file(format_hint)?;
 

@@ -12,10 +12,12 @@ use std::sync::mpsc::channel;
 use std::time::Duration;
 
 lazy_static! {
-    static ref SETTINGS: RwLock<Config> = RwLock::new(Config::default()
-        .merge(File::with_name("Settings.toml"))
-        .unwrap()
-    );
+    static ref SETTINGS: RwLock<Config> = RwLock::new({
+        let mut settings = Config::default();
+        settings.merge(File::with_name("Settings.toml")).unwrap();
+
+        settings
+    });
 }
 
 fn show() {

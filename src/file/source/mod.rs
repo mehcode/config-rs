@@ -9,7 +9,8 @@ use super::FileFormat;
 
 /// Describes where the file is sourced
 pub trait FileSource: Debug + Clone {
-    fn resolve(&self,
-               format_hint: Option<FileFormat>)
-               -> Result<(Option<String>, String, FileFormat), Box<Error + Send + Sync>>;
+    fn resolve(
+        &self,
+        format_hint: Option<FileFormat>,
+    ) -> Result<(Option<String>, String, FileFormat), Box<Error + Send + Sync>>;
 }

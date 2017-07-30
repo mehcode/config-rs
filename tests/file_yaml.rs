@@ -56,7 +56,10 @@ fn test_file() {
     assert_eq!(s.place.telephone, None);
     assert_eq!(s.elements.len(), 10);
     assert_eq!(s.elements[3], "4".to_string());
-    assert_eq!(s.place.creator["name"].clone().into_str().unwrap(), "John Smith".to_string());
+    assert_eq!(
+        s.place.creator["name"].clone().into_str().unwrap(),
+        "John Smith".to_string()
+    );
 }
 
 #[test]
@@ -65,7 +68,10 @@ fn test_error_parse() {
     let res = c.merge(File::new("tests/Settings-invalid", FileFormat::Yaml));
 
     assert!(res.is_err());
-    assert_eq!(res.unwrap_err().to_string(),
-               "while parsing a block mapping, did not find expected key at line 2 column 1 in tests/Settings-invalid.yaml"
-                   .to_string());
+    assert_eq!(
+        res.unwrap_err().to_string(),
+        "while parsing a block mapping, did not find expected key at \
+         line 2 column 1 in tests/Settings-invalid.yaml"
+            .to_string()
+    );
 }

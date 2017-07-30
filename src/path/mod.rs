@@ -58,87 +58,78 @@ impl Expression {
                 }
             }
 
-            Expression::Subscript(expr, index) => {
-                match expr.get(root) {
-                    Some(value) => {
-                        match value.kind {
-                            ValueKind::Array(ref array) => {
-                                let index = sindex_to_uindex(index, array.len());
+            Expression::Subscript(expr, index) => match expr.get(root) {
+                Some(value) => match value.kind {
+                    ValueKind::Array(ref array) => {
+                        let index = sindex_to_uindex(index, array.len());
 
-                                if index >= array.len() {
-                                    None
-                                } else {
-                                    Some(&array[index])
-                                }
-                            }
-
-                            _ => None,
+                        if index >= array.len() {
+                            None
+                        } else {
+                            Some(&array[index])
                         }
                     }
 
                     _ => None,
-                }
-            }
+                },
+
+                _ => None,
+            },
         }
     }
 
     pub fn get_mut<'a>(&self, root: &'a mut Value) -> Option<&'a mut Value> {
         match *self {
-            Expression::Identifier(ref id) => {
-                match root.kind {
-                    ValueKind::Table(ref mut map) => {
-                        Some(map.entry(id.clone()).or_insert_with(|| Value::new(None, ValueKind::Nil)))
-                    }
+            Expression::Identifier(ref id) => match root.kind {
+                ValueKind::Table(ref mut map) => Some(
+                    map.entry(id.clone())
+                        .or_insert_with(|| Value::new(None, ValueKind::Nil)),
+                ),
 
-                    _ => None,
-                }
-            }
+                _ => None,
+            },
 
-            Expression::Child(ref expr, ref key) => {
-                match expr.get_mut(root) {
-                    Some(value) => {
-                        match value.kind {
-                            ValueKind::Table(ref mut map) => {
-                                Some(map.entry(key.clone()).or_insert_with(|| Value::new(None, ValueKind::Nil)))
-                            }
+            Expression::Child(ref expr, ref key) => match expr.get_mut(root) {
+                Some(value) => match value.kind {
+                    ValueKind::Table(ref mut map) => Some(
+                        map.entry(key.clone())
+                            .or_insert_with(|| Value::new(None, ValueKind::Nil)),
+                    ),
 
-                            _ => {
-                                *value = HashMap::<String, Value>::new().into();
+                    _ => {
+                        *value = HashMap::<String, Value>::new().into();
 
-                                if let ValueKind::Table(ref mut map) = value.kind {
-                                    Some(map.entry(key.clone()).or_insert_with(|| Value::new(None, ValueKind::Nil)))
-                                } else {
-                                    unreachable!();
-                                }
-                            }
+                        if let ValueKind::Table(ref mut map) = value.kind {
+                            Some(
+                                map.entry(key.clone())
+                                    .or_insert_with(|| Value::new(None, ValueKind::Nil)),
+                            )
+                        } else {
+                            unreachable!();
                         }
                     }
+                },
 
-                    _ => None,
-                }
-            }
+                _ => None,
+            },
 
-            Expression::Subscript(ref expr, index) => {
-                match expr.get_mut(root) {
-                    Some(value) => {
-                        match value.kind {
-                            ValueKind::Array(ref mut array) => {
-                                let index = sindex_to_uindex(index, array.len());
+            Expression::Subscript(ref expr, index) => match expr.get_mut(root) {
+                Some(value) => match value.kind {
+                    ValueKind::Array(ref mut array) => {
+                        let index = sindex_to_uindex(index, array.len());
 
-                                if index >= array.len() {
-                                    array.resize((index + 1) as usize, Value::new(None, ValueKind::Nil));
-                                }
-
-                                Some(&mut array[index])
-                            }
-
-                            _ => None,
+                        if index >= array.len() {
+                            array.resize((index + 1) as usize, Value::new(None, ValueKind::Nil));
                         }
+
+                        Some(&mut array[index])
                     }
 
                     _ => None,
-                }
-            }
+                },
+
+                _ => None,
+            },
         }
     }
 
@@ -147,7 +138,7 @@ impl Expression {
             Expression::Identifier(ref id) => {
                 // Ensure that root is a table
                 match root.kind {
-                    ValueKind::Table(_) => { }
+                    ValueKind::Table(_) => {}
 
                     _ => {
                         *root = HashMap::<String, Value>::new().into();
@@ -158,7 +149,8 @@ impl Expression {
                     ValueKind::Table(ref incoming_map) => {
                         // Pull out another table
                         let mut target = if let ValueKind::Table(ref mut map) = root.kind {
-                            map.entry(id.clone()).or_insert_with(|| HashMap::<String, Value>::new().into())
+                            map.entry(id.clone())
+                                .or_insert_with(|| HashMap::<String, Value>::new().into())
                         } else {
                             unreachable!();
                         };
@@ -202,7 +194,10 @@ impl Expression {
                             let uindex = sindex_to_uindex(index, array.len());
 
                             if uindex >= array.len() {
-                                array.resize((uindex + 1) as usize, Value::new(None, ValueKind::Nil));
+                                array.resize(
+                                    (uindex + 1) as usize,
+                                    Value::new(None, ValueKind::Nil),
+                                );
                             }
 
                             array[uindex] = value.clone();

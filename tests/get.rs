@@ -41,9 +41,10 @@ fn test_not_found() {
     let res = c.get::<bool>("not_found");
 
     assert!(res.is_err());
-    assert_eq!(res.unwrap_err().to_string(),
-               "configuration property \"not_found\" not found"
-                   .to_string());
+    assert_eq!(
+        res.unwrap_err().to_string(),
+        "configuration property \"not_found\" not found".to_string()
+    );
 }
 
 #[test]
@@ -84,7 +85,10 @@ fn test_get_scalar_path() {
     let c = make();
 
     assert_eq!(c.get("place.favorite").ok(), Some(false));
-    assert_eq!(c.get("place.creator.name").ok(), Some("John Smith".to_string()));
+    assert_eq!(
+        c.get("place.creator.name").ok(),
+        Some("John Smith".to_string())
+    );
 }
 
 #[test]
@@ -104,7 +108,10 @@ fn test_map() {
     let m: HashMap<String, Value> = c.get("place").unwrap();
 
     assert_eq!(m.len(), 7);
-    assert_eq!(m["name"].clone().into_str().unwrap(), "Torre di Pisa".to_string());
+    assert_eq!(
+        m["name"].clone().into_str().unwrap(),
+        "Torre di Pisa".to_string()
+    );
     assert_eq!(m["reviews"].clone().into_int().unwrap(), 3866);
 }
 
@@ -128,7 +135,10 @@ fn test_map_struct() {
     let s: Settings = c.deserialize().unwrap();
 
     assert_eq!(s.place.len(), 7);
-    assert_eq!(s.place["name"].clone().into_str().unwrap(), "Torre di Pisa".to_string());
+    assert_eq!(
+        s.place["name"].clone().into_str().unwrap(),
+        "Torre di Pisa".to_string()
+    );
     assert_eq!(s.place["reviews"].clone().into_int().unwrap(), 3866);
 }
 

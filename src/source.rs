@@ -62,9 +62,10 @@ impl Source for Vec<Box<Source + Send + Sync>> {
 }
 
 impl<T> Source for Vec<T>
-    where T: Source + Sync + Send,
-          T: Clone,
-          T: 'static
+where
+    T: Source + Sync + Send,
+    T: Clone,
+    T: 'static,
 {
     fn clone_into_box(&self) -> Box<Source + Send + Sync> {
         Box::new((*self).clone())

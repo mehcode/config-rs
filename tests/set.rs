@@ -61,7 +61,8 @@ fn test_set_capital() {
 
     c.set_default("tHiS", false).unwrap();
     c.set("THAT", true).unwrap();
-    c.merge(File::from_str("{\"loGleVel\": 5}", FileFormat::Json)).unwrap();
+    c.merge(File::from_str("{\"loGleVel\": 5}", FileFormat::Json))
+        .unwrap();
 
     assert_eq!(c.get("this").ok(), Some(false));
     assert_eq!(c.get("ThIs").ok(), Some(false));

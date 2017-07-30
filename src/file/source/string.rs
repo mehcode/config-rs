@@ -3,7 +3,7 @@ use std::result;
 use std::error::Error;
 
 use source::Source;
-use super::{FileSource, FileFormat};
+use super::{FileFormat, FileSource};
 
 /// Describes a file sourced from a string
 #[derive(Clone, Debug)]
@@ -16,9 +16,14 @@ impl<'a> From<&'a str> for FileSourceString {
 }
 
 impl FileSource for FileSourceString {
-    fn resolve(&self,
-               format_hint: Option<FileFormat>)
-               -> Result<(Option<String>, String, FileFormat), Box<Error + Send + Sync>> {
-        Ok((None, self.0.clone(), format_hint.expect("from_str requires a set file format")))
+    fn resolve(
+        &self,
+        format_hint: Option<FileFormat>,
+    ) -> Result<(Option<String>, String, FileFormat), Box<Error + Send + Sync>> {
+        Ok((
+            None,
+            self.0.clone(),
+            format_hint.expect("from_str requires a set file format"),
+        ))
     }
 }

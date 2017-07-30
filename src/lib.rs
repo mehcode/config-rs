@@ -15,7 +15,6 @@
 //!
 //! See the [examples](https://github.com/mehcode/config-rs/tree/master/examples) for
 //! general usage information.
-
 #![allow(dead_code)]
 #![allow(unused_imports)]
 #![allow(unused_variables)]
