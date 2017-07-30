@@ -190,3 +190,13 @@ impl Config {
         self.get(key).and_then(Value::into_array)
     }
 }
+
+impl Source for Config {
+    fn clone_into_box(&self) -> Box<Source + Send + Sync> {
+        Box::new((*self).clone())
+    }
+
+    fn collect(&self) -> Result<HashMap<String, Value>> {
+        self.cache.clone().into_table()
+    }
+}
