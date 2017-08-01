@@ -26,6 +26,8 @@ extern crate serde;
 
 extern crate nom;
 
+extern crate thread_local;
+
 #[macro_use]
 extern crate lazy_static;
 
@@ -38,6 +40,21 @@ extern crate serde_json;
 #[cfg(feature = "yaml")]
 extern crate yaml_rust;
 
+#[cfg(any(feature = "remote-etcd", feature = "remote-etcd-tls"))]
+extern crate etcd;
+
+#[cfg(any(feature = "remote-etcd", feature = "remote-etcd-tls"))]
+extern crate tokio_core;
+
+#[cfg(any(feature = "remote-etcd", feature = "remote-etcd-tls"))]
+extern crate hyper;
+
+#[cfg(feature = "remote-etcd-tls")]
+extern crate hyper_tls;
+
+#[cfg(feature = "remote-consul")]
+extern crate consul;
+
 mod error;
 mod value;
 mod de;
@@ -46,6 +63,7 @@ mod source;
 mod config;
 mod file;
 mod env;
+pub mod remote;
 
 pub use config::Config;
 pub use error::ConfigError;

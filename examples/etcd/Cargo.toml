@@ -1,0 +1,6 @@
+[package]
+name = "etcd"
+version = "0.1.0"
+
+[dependencies]
+config = { path = "../../", features = ["remote-etcd"] }

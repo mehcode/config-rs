@@ -17,15 +17,24 @@ travis-ci = { repository = "mehcode/config-rs" }
 default = ["toml", "json", "yaml"]
 json = ["serde_json"]
 yaml = ["yaml-rust"]
+remote-etcd = ["etcd", "hyper", "tokio-core"]
+remote-etcd-tls = ["etcd/tls", "hyper", "hyper-tls", "tokio-core"]
+remote-consul = ["consul"]
 
 [dependencies]
 lazy_static = "0.2"
 serde = "^1.0.8"
 nom = "^3.0.0"
+thread_local = "0.3"
 
 toml = { version = "^0.4.1", optional = true }
 serde_json = { version = "^1.0.2", optional = true }
 yaml-rust = { version = "^0.3.5", optional = true }
+etcd = { version = "0.7.0", default-features = false, optional = true }
+consul = { version = "0.2.0", optional = true }
+hyper = { version = "0.11.2", optional = true }
+hyper-tls = { version = "0.1.2", optional = true }
+tokio-core = { version = "0.1.9", optional = true }
 
 [dev-dependencies]
 serde_derive = "^1.0.8"

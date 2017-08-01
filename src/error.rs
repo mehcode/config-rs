@@ -76,6 +76,13 @@ pub enum ConfigError {
 
     /// Unadorned error from a foreign origin.
     Foreign(Box<Error + Send + Sync>),
+
+    /// Error from `std::io`
+    Io(::std::io::Error),
+
+    /// Error from `etcd`
+    #[cfg(any(feature = "remote-etcd", feature = "remote-etcd-tls"))]
+    Etcd(::etcd::Error),
 }
 
 impl ConfigError {
@@ -166,6 +173,12 @@ impl fmt::Display for ConfigError {
 
                 Ok(())
             }
+
+
+            ConfigError::Io(ref err) => write!(f, "{}", err),
+
+            #[cfg(any(feature = "remote-etcd", feature = "remote-etcd-tls"))]
+            ConfigError::Etcd(ref err) => write!(f, "{}", err),
         }
     }
 }
@@ -181,6 +194,11 @@ impl Error for ConfigError {
             }
             ConfigError::PathParse(ref kind) => kind.description(),
 
+            ConfigError::Io(ref err) => err.description(),
+
+            #[cfg(any(feature = "remote-etcd", feature = "remote-etcd-tls"))]
+            ConfigError::Etcd(ref err) => err.description(),
+
             _ => "configuration error",
         }
     }
@@ -191,6 +209,11 @@ impl Error for ConfigError {
                 Some(cause.as_ref())
             }
 
+            ConfigError::Io(ref err) => Some(err),
+
+            #[cfg(any(feature = "remote-etcd", feature = "remote-etcd-tls"))]
+            ConfigError::Etcd(ref err) => Some(err),
+
             _ => None,
         }
     }
@@ -199,5 +222,18 @@ impl Error for ConfigError {
 impl de::Error for ConfigError {
     fn custom<T: fmt::Display>(msg: T) -> Self {
         ConfigError::Message(msg.to_string())
+    }
+}
+
+impl From<::std::io::Error> for ConfigError {
+    fn from(err: ::std::io::Error) -> Self {
+        ConfigError::Io(err)
+    }
+}
+
+#[cfg(any(feature = "remote-etcd", feature = "remote-etcd-tls"))]
+impl From<::etcd::Error> for ConfigError {
+    fn from(err: ::etcd::Error) -> Self {
+        ConfigError::Etcd(err)
     }
 }
