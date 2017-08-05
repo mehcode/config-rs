@@ -6,6 +6,7 @@ use error::*;
 use value::Value;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
+use remote::Remote;
 
 use self::source::FileSource;
 pub use self::format::FileFormat;
@@ -30,6 +31,19 @@ impl File<source::string::FileSourceString> {
             format: Some(format),
             required: true,
             source: s.into(),
+        }
+    }
+}
+
+impl File<source::remote::FileSourceRemote> {
+    pub fn from_remote<R: Remote + Sync + Send>(remote: R, path: &str, format: FileFormat) -> Self
+    where
+        R: 'static,
+    {
+        File {
+            format: Some(format),
+            required: true,
+            source: source::remote::FileSourceRemote::new(remote, path),
         }
     }
 }

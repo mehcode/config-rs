@@ -41,6 +41,9 @@ extern crate serde_json;
 extern crate yaml_rust;
 
 #[cfg(any(feature = "remote-etcd", feature = "remote-etcd-tls"))]
+extern crate futures;
+
+#[cfg(any(feature = "remote-etcd", feature = "remote-etcd-tls"))]
 extern crate etcd;
 
 #[cfg(any(feature = "remote-etcd", feature = "remote-etcd-tls"))]
@@ -67,7 +70,8 @@ pub mod remote;
 
 pub use config::Config;
 pub use error::ConfigError;
-pub use value::Value;
+pub use value::{Array, Table, Value};
 pub use source::Source;
 pub use file::{File, FileFormat};
 pub use env::Environment;
+pub use remote::Remote;

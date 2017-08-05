@@ -50,6 +50,27 @@ impl Config {
         Config::default()
     }
 
+    /// Clears the configuration, removing all properties.
+    pub fn clear(&mut self) -> Result<()> {
+        match self.kind {
+            ConfigKind::Mutable {
+                ref mut sources,
+                ref mut overrides,
+                ref mut defaults,
+            } => {
+                sources.clear();
+                defaults.clear();
+                overrides.clear();
+            }
+
+            ConfigKind::Frozen => {
+                return Err(ConfigError::Frozen);
+            }
+        }
+
+        return Ok(());
+    }
+
     /// Merge in a configuration property source.
     pub fn merge<T>(&mut self, source: T) -> Result<&mut Config>
     where

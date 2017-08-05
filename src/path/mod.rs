@@ -141,7 +141,7 @@ impl Expression {
                     ValueKind::Table(_) => {}
 
                     _ => {
-                        *root = HashMap::<String, Value>::new().into();
+                        *root = Value::new(value.origin.as_ref(), HashMap::<String, Value>::new());
                     }
                 }
 
@@ -196,7 +196,7 @@ impl Expression {
                             if uindex >= array.len() {
                                 array.resize(
                                     (uindex + 1) as usize,
-                                    Value::new(None, ValueKind::Nil),
+                                    Value::new(value.origin.as_ref(), ValueKind::Nil),
                                 );
                             }
 

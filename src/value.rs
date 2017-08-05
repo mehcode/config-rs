@@ -132,7 +132,7 @@ pub struct Value {
     /// ```
     /// etcd+http://127.0.0.1:2379
     /// ```
-    origin: Option<String>,
+    pub origin: Option<String>,
 
     /// Underlying kind of the configuration value.
     pub kind: ValueKind,

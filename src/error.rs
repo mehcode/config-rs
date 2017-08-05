@@ -83,6 +83,10 @@ pub enum ConfigError {
     /// Error from `etcd`
     #[cfg(any(feature = "remote-etcd", feature = "remote-etcd-tls"))]
     Etcd(::etcd::Error),
+
+    /// List of errors from `etcd`
+    #[cfg(any(feature = "remote-etcd", feature = "remote-etcd-tls"))]
+    EtcdVec(Vec<::etcd::Error>),
 }
 
 impl ConfigError {
@@ -174,11 +178,22 @@ impl fmt::Display for ConfigError {
                 Ok(())
             }
 
-
             ConfigError::Io(ref err) => write!(f, "{}", err),
 
             #[cfg(any(feature = "remote-etcd", feature = "remote-etcd-tls"))]
             ConfigError::Etcd(ref err) => write!(f, "{}", err),
+
+            #[cfg(any(feature = "remote-etcd", feature = "remote-etcd-tls"))]
+            ConfigError::EtcdVec(ref errs) => {
+                for (i, err) in errs.iter().enumerate() {
+                    if i != 0 {
+                        write!(f, "\n")?;
+                    }
+                    write!(f, "{}", err)?;
+                }
+
+                Ok(())
+            }
         }
     }
 }
@@ -198,6 +213,9 @@ impl Error for ConfigError {
 
             #[cfg(any(feature = "remote-etcd", feature = "remote-etcd-tls"))]
             ConfigError::Etcd(ref err) => err.description(),
+
+            #[cfg(any(feature = "remote-etcd", feature = "remote-etcd-tls"))]
+            ConfigError::EtcdVec(_) => "etcd errors",
 
             _ => "configuration error",
         }
@@ -235,5 +253,12 @@ impl From<::std::io::Error> for ConfigError {
 impl From<::etcd::Error> for ConfigError {
     fn from(err: ::etcd::Error) -> Self {
         ConfigError::Etcd(err)
+    }
+}
+
+#[cfg(any(feature = "remote-etcd", feature = "remote-etcd-tls"))]
+impl From<Vec<::etcd::Error>> for ConfigError {
+    fn from(err: Vec<::etcd::Error>) -> Self {
+        ConfigError::EtcdVec(err)
     }
 }

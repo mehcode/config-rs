@@ -1,52 +1,57 @@
-// extern crate etcd;
-// extern crate futures;
-// extern crate tokio_core;
 extern crate config;
 
-use config::{Config, File, remote};
+use config::{remote, Config, File, FileFormat, Table};
 
-// use etcd::Client;
-// use etcd::kv::{self, Action};
-// use futures::Future;
-// use tokio_core::reactor::Core;
+// NOTE: This example expects an etcd note at localhost:2379
+//  - etcdctl set /config/key/value 26
+//  - etcdctl set /config/debug false
+//  - etcdctl set /config/name "Remote"
+//  - etcdctl set /jsonfile '{"debug": false, "name": "Remote"}'
 
 fn main() {
-    // let mut core = Core::new().unwrap();
-    // let handle = core.handle();
+    let mut config = Config::default();
 
-    // let client = Client::new(&handle, &["http://localhost:2379"], None).unwrap();
+    // Read etcd configuration from remote; starting at the /config path
+    config
+        .merge(
+            remote::Etcd::new(&["http://localhost:2379"]).with_prefix("/config"),
+        )
+        .unwrap();
 
-    // // Set the key "/foo" to the value "bar" with no expiration.
-    // let work = kv::set(&client, "/foo", "bar", None).and_then(|_| {
-    //     // Once the key has been set, ask for details about it.
-    //     let get_request = kv::get(&client, "/", kv::GetOptions {
-    //         strong_consistency: false,
-    //         sort: false,
-    //         recursive: true,
-    //     });
+    println!("{:?}", config.clone().try_into::<Table>().unwrap());
 
-    //     get_request.and_then(|response| {
-    //         println!("{:?}", response.data);
-    //         // The information returned tells you what kind of operation was performed.
-    //         // assert_eq!(response.data.action, Action::Get);
+    assert_eq!(config.get("key.value").ok(), Some(26));
+    assert_eq!(config.get("debug").ok(), Some(false));
+    assert_eq!(config.get("name").ok(), Some("Remote".to_string()));
 
-    //         // // The value of the key is what we set it to previously.
-    //         // assert_eq!(response.data.node.value, Some("bar".to_string()));
+    // Read etcd configuration from remote; but, only the /key/value and /name paths
+    config.clear().unwrap();
+    config
+        .merge(
+            remote::Etcd::new(&["http://localhost:2379"])
+                .with_prefix("/config")
+                .with_paths(&["/key/value", "/name"]),
+        )
+        .unwrap();
 
-    //         // // Each API call also returns information about the etcd cluster extracted from
-    //         // // HTTP response headers.
-    //         // assert!(response.cluster_info.etcd_index.is_some());
+    println!("{:?}", config.clone().try_into::<Table>().unwrap());
 
-    //         Ok(())
-    //     })
-    // });
+    assert_eq!(config.get("key.value").ok(), Some(26));
+    assert_eq!(config.get::<bool>("debug").ok(), None);
+    assert_eq!(config.get("name").ok(), Some("Remote".to_string()));
 
-    // core.run(work).unwrap();
+    // Read etcd configuration from remote but parse as a JSON file
+    config.clear().unwrap();
+    config
+        .merge(File::from_remote(
+            remote::Etcd::new(&["http://localhost:2379"]),
+            "/jsonfile",
+            FileFormat::Json,
+        ))
+        .unwrap();
 
-    // Create a simple config store that is driven by our local
-    // Settings.json file and overridden by etcd (within the /config path)
-    let config = Config::default()
-        .merge(File::with_name("Settings")).unwrap()
-        .merge(remote::Etcd::new(&["http://localhost:2379"], None).with_path("/config")).unwrap()
-        .clone();
+    println!("{:?}", config.clone().try_into::<Table>().unwrap());
+
+    assert_eq!(config.get("debug").ok(), Some(false));
+    assert_eq!(config.get("name").ok(), Some("Remote".to_string()));
 }

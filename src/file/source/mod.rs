@@ -1,5 +1,6 @@
 pub mod file;
 pub mod string;
+pub mod remote;
 
 use std::fmt::Debug;
 use std::error::Error;
