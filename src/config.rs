@@ -189,6 +189,11 @@ impl Config {
     pub fn try_into<'de, T: Deserialize<'de>>(self) -> Result<T> {
         T::deserialize(self)
     }
+
+    #[deprecated(since="0.7.0", note="please use 'try_into' instead")]
+    pub fn deserialize<'de, T: Deserialize<'de>>(self) -> Result<T> {
+        self.try_into()
+    }
 }
 
 impl Source for Config {

@@ -132,7 +132,7 @@ fn test_map_struct() {
     }
 
     let c = make();
-    let s: Settings = c.deserialize().unwrap();
+    let s: Settings = c.try_into().unwrap();
 
     assert_eq!(s.place.len(), 7);
     assert_eq!(
@@ -147,7 +147,7 @@ fn test_file_struct() {
     let c = make();
 
     // Deserialize the entire file as single struct
-    let s: Settings = c.deserialize().unwrap();
+    let s: Settings = c.try_into().unwrap();
 
     assert!(s.debug.approx_eq_ulps(&1.0, 2));
     assert_eq!(s.production, Some("false".to_string()));
@@ -195,7 +195,7 @@ fn test_struct_array() {
     }
 
     let c = make();
-    let s: Settings = c.deserialize().unwrap();
+    let s: Settings = c.try_into().unwrap();
 
     assert_eq!(s.elements.len(), 10);
     assert_eq!(s.elements[3], "4".to_string());
