@@ -16,6 +16,9 @@ mod json;
 #[cfg(feature = "yaml")]
 mod yaml;
 
+#[cfg(feature = "hjson")]
+mod hjson;
+
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
 pub enum FileFormat {
     /// TOML (parsed with toml)
@@ -29,6 +32,10 @@ pub enum FileFormat {
     /// YAML (parsed with yaml_rust)
     #[cfg(feature = "yaml")]
     Yaml,
+
+    /// HJSON (parsed with serde_hjson)
+    #[cfg(feature = "hjson")]
+    Hjson,
 }
 
 lazy_static! {
@@ -45,6 +52,9 @@ lazy_static! {
 
         #[cfg(feature = "yaml")]
         formats.insert(FileFormat::Yaml, vec!["yaml", "yml"]);
+
+        #[cfg(feature = "hjson")]
+        formats.insert(FileFormat::Hjson, vec!["hjson"]);
 
         formats
     };
@@ -77,6 +87,9 @@ impl FileFormat {
 
             #[cfg(feature = "yaml")]
             FileFormat::Yaml => yaml::parse(uri, text),
+
+            #[cfg(feature = "hjson")]
+            FileFormat::Hjson => hjson::parse(uri, text),
         }
     }
 }
