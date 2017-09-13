@@ -29,6 +29,15 @@ fn make() -> Config {
             FileFormat::Toml,
         ))
         .unwrap()
+        .merge(File::from_str(
+            r#"
+            {
+                "hjson_datetime": "2017-05-10T02:14:53Z"
+            }
+            "#,
+            FileFormat::Hjson,
+        ))
+        .unwrap()
         .clone()
 }
 
@@ -50,6 +59,11 @@ fn test_datetime_string() {
     let date: String = s.get("yaml_datetime").unwrap();
 
     assert_eq!(&date, "2017-06-12T10:58:30Z");
+
+    // HJSON
+    let date: String = s.get("hjson_datetime").unwrap();
+
+    assert_eq!(&date, "2017-05-10T02:14:53Z");
 }
 
 #[test]
@@ -70,4 +84,9 @@ fn test_datetime() {
     let date: DateTime<Utc> = s.get("yaml_datetime").unwrap();
 
     assert_eq!(date, Utc.ymd(2017, 6, 12).and_hms(10, 58, 30));
+
+    // HJSON
+    let date: DateTime<Utc> = s.get("hjson_datetime").unwrap();
+
+    assert_eq!(date, Utc.ymd(2017, 5, 10).and_hms(2, 14, 53));
 }
