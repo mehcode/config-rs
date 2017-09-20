@@ -65,7 +65,7 @@ pub fn from_str(input: &str) -> Result<Expression, ErrorKind> {
 
                     // Forward Incomplete and Error
                     result => {
-                        return result.to_result();
+                        return result.to_result().map_err(|e| e.into_error_kind());
                     }
                 }
             }
@@ -74,7 +74,7 @@ pub fn from_str(input: &str) -> Result<Expression, ErrorKind> {
         }
 
         // Forward Incomplete and Error
-        result => result.to_result(),
+        result => result.to_result().map_err(|e| e.into_error_kind()),
     }
 }
 
