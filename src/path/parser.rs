@@ -63,9 +63,9 @@ pub fn from_str(input: &str) -> Result<Expression, ErrorKind> {
                         expr = expr_;
                     }
 
-                    // Forward Incomplete and Error
+                    // Forward Error, panic on incomplete
                     result => {
-                        return result.to_result();
+                        return result.to_result().map_err(Err::into_error_kind);
                     }
                 }
             }
@@ -73,8 +73,8 @@ pub fn from_str(input: &str) -> Result<Expression, ErrorKind> {
             Ok(expr)
         }
 
-        // Forward Incomplete and Error
-        result => result.to_result(),
+        // Forward Error, panic on incomplete
+        result => result.to_result().map_err(Err::into_error_kind),
     }
 }
 
