@@ -22,7 +22,7 @@ hjson = ["serde-hjson"]
 [dependencies]
 lazy_static = "0.2"
 serde = "^1.0.8"
-nom = "^3.0.0"
+nom = "^3.2.1"
 
 toml = { version = "^0.4.1", optional = true }
 serde_json = { version = "^1.0.2", optional = true }
