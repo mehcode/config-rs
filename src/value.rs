@@ -5,7 +5,7 @@ use error::*;
 use serde::de::{Deserialize, Deserializer, Visitor};
 
 /// Underlying kind of the configuration value.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum ValueKind {
     Nil,
     Boolean(bool),
@@ -114,7 +114,7 @@ impl Display for ValueKind {
 }
 
 /// A configuration value.
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, PartialEq)]
 pub struct Value {
     /// A description of the original location of the value.
     ///
