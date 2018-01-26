@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.8.0 - 2018-01-26
+ - Update lazy_static and yaml_rust
+
+## 0.7.1 - 2018-01-26
+ - Be compatible with nom's verbose_errors feature (#50)[https://github.com/mehcode/config-rs/pull/50]
+ - Add `derive(PartialEq)` for Value (#54)[https://github.com/mehcode/config-rs/pull/54]
+
 ## 0.7.0 - 2017-08-05
  - Fix conflict with `serde_yaml`. [#39]
 
