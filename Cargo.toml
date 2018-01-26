@@ -20,13 +20,13 @@ yaml = ["yaml-rust"]
 hjson = ["serde-hjson"]
 
 [dependencies]
-lazy_static = "0.2"
+lazy_static = "1.0"
 serde = "^1.0.8"
 nom = "^3.2.1"
 
 toml = { version = "^0.4.1", optional = true }
 serde_json = { version = "^1.0.2", optional = true }
-yaml-rust = { version = "^0.3.5", optional = true }
+yaml-rust = { version = "^0.4", optional = true }
 serde-hjson = { version = "^0.8.1", optional = true }
 
 [dev-dependencies]
