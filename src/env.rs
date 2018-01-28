@@ -85,6 +85,9 @@ impl Source for Environment {
                 }
             }
 
+            // Replace `separator` with `.`
+            key = key.replace(&self.separator, ".");
+
             m.insert(
                 key.to_lowercase(),
                 Value::new(Some(&uri), ValueKind::String(value)),
