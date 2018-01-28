@@ -53,9 +53,9 @@ impl Settings {
         // This file shouldn't be checked in to git
         s.merge(File::with_name("config/local").required(false))?;
 
-        // Add in settings from the environment (with a prefix of APP)
+        // Add in settings from the environment (with a prefix of APP_)
         // Eg.. `APP_DEBUG=1 ./target/app` would set the `debug` key
-        s.merge(Environment::with_prefix("app"))?;
+        s.merge(Environment::with_prefix("app_"))?;
 
         // You may also programmatically change settings
         s.set("database.url", "postgres://")?;
