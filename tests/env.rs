@@ -18,7 +18,7 @@ fn test_default() {
 fn test_prefix_is_removed_from_key() {
     env::set_var("B_A_C", "abc");
 
-    let environment = Environment::with_prefix("B_");
+    let environment = Environment::with_prefix("B");
 
     assert!(environment.collect().unwrap().contains_key("a_c"));
 

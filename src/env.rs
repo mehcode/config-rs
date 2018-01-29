@@ -9,10 +9,10 @@ pub struct Environment {
     /// Optional prefix that will limit access to the environment to only keys that
     /// begin with the defined prefix.
     ///
-    /// A prefix is tested to be present on each key before its considered
+    /// A prefix with a separator of `_` is tested to be present on each key before its considered
     /// to be part of the source environment.
     ///
-    /// For example, the key `CONFIG_DEBUG` would become `DEBUG` with a prefix of `config_`.
+    /// For example, the key `CONFIG_DEBUG` would become `DEBUG` with a prefix of `config`.
     prefix: Option<String>,
 
     /// Optional character sequence that separates each key segment in an environment key pattern.
@@ -69,7 +69,7 @@ impl Source for Environment {
 
         // Define a prefix pattern to test and exclude from keys
         let prefix_pattern = match self.prefix {
-            Some(ref prefix) => Some(prefix.clone() + &separator),
+            Some(ref prefix) => Some(prefix.clone() + "_"),
             _ => None,
         };
 

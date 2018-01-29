@@ -55,7 +55,7 @@ impl Settings {
 
         // Add in settings from the environment (with a prefix of APP_)
         // Eg.. `APP_DEBUG=1 ./target/app` would set the `debug` key
-        s.merge(Environment::with_prefix("app_"))?;
+        s.merge(Environment::with_prefix("app"))?;
 
         // You may also programmatically change settings
         s.set("database.url", "postgres://")?;
