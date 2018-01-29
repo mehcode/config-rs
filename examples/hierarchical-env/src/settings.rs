@@ -53,7 +53,7 @@ impl Settings {
         // This file shouldn't be checked in to git
         s.merge(File::with_name("config/local").required(false))?;
 
-        // Add in settings from the environment (with a prefix of APP_)
+        // Add in settings from the environment (with a prefix of APP)
         // Eg.. `APP_DEBUG=1 ./target/app` would set the `debug` key
         s.merge(Environment::with_prefix("app"))?;
 
