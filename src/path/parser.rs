@@ -55,17 +55,17 @@ fn postfix(expr: Expression) -> Box<Fn(&[u8]) -> IResult<&[u8], Expression>> {
 
 pub fn from_str(input: &str) -> Result<Expression, ErrorKind> {
     match ident(input.as_bytes()) {
-        IResult::Done(mut rem, mut expr) => {
+        Ok((mut rem, mut expr)) => {
             while !rem.is_empty() {
                 match postfix(expr)(rem) {
-                    IResult::Done(rem_, expr_) => {
+                    Ok((rem_, expr_)) => {
                         rem = rem_;
                         expr = expr_;
                     }
 
                     // Forward Incomplete and Error
                     result => {
-                        return result.to_result().map_err(|e| e.into_error_kind());
+                        return result.map(|(_,o)| o).map_err(|e| e.into_error_kind());
                     }
                 }
             }
@@ -74,7 +74,7 @@ pub fn from_str(input: &str) -> Result<Expression, ErrorKind> {
         }
 
         // Forward Incomplete and Error
-        result => result.to_result().map_err(|e| e.into_error_kind()),
+        result => result.map(|(_,o)| o).map_err(|e| e.into_error_kind()),
     }
 }
 
