@@ -3,6 +3,7 @@ use std::borrow::Cow;
 use std::result;
 use std::fmt;
 use serde::de;
+use serde::ser;
 use nom;
 
 #[derive(Debug)]
@@ -197,6 +198,12 @@ impl Error for ConfigError {
 }
 
 impl de::Error for ConfigError {
+    fn custom<T: fmt::Display>(msg: T) -> Self {
+        ConfigError::Message(msg.to_string())
+    }
+}
+
+impl ser::Error for ConfigError {
     fn custom<T: fmt::Display>(msg: T) -> Self {
         ConfigError::Message(msg.to_string())
     }

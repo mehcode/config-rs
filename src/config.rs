@@ -3,11 +3,13 @@ use std::ops::Deref;
 use std::str::FromStr;
 use std::fmt::Debug;
 use serde::de::{Deserialize, Deserializer};
+use serde::ser::{Serialize, Serializer};
 
 use error::*;
 use source::Source;
+use ser::ConfigSerializer;
 
-use value::{Value, ValueWithKey};
+use value::{Value, ValueKind, ValueWithKey};
 use path;
 
 #[derive(Clone, Debug)]
@@ -188,6 +190,13 @@ impl Config {
     /// Attempt to deserialize the entire configuration into the requested type.
     pub fn try_into<'de, T: Deserialize<'de>>(self) -> Result<T> {
         T::deserialize(self)
+    }
+
+    /// Attempt to deserialize the entire configuration into the requested type.
+    pub fn try_from<T: Serialize>(from: &T) -> Result<Self> {
+        let mut serializer = ConfigSerializer::default();
+        from.serialize(&mut serializer)?;
+        Ok(serializer.output)
     }
 
     #[deprecated(since="0.7.0", note="please use 'try_into' instead")]

@@ -46,6 +46,7 @@ extern crate serde_hjson;
 mod error;
 mod value;
 mod de;
+mod ser;
 mod path;
 mod source;
 mod config;
