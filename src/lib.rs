@@ -26,6 +26,10 @@
 #[macro_use]
 extern crate serde;
 
+#[cfg(test)]
+#[macro_use]
+extern crate serde_derive;
+
 extern crate nom;
 
 #[macro_use]
@@ -46,6 +50,7 @@ extern crate serde_hjson;
 mod error;
 mod value;
 mod de;
+mod ser;
 mod path;
 mod source;
 mod config;
