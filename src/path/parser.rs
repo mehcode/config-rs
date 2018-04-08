@@ -101,6 +101,15 @@ mod test {
         let expected = Child(Box::new(Identifier("abcd".into())), "efgh".into());
 
         assert_eq!(parsed, expected);
+
+        let parsed: Expression = from_str("abcd.efgh.ijkl").unwrap();
+        let expected = Child(Box::new(
+            Child(Box::new(
+                Identifier("abcd".into())
+            ), "efgh".into())
+        ), "ijkl".into());
+
+        assert_eq!(parsed, expected);
     }
 
     #[test]
