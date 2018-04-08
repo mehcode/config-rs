@@ -609,3 +609,24 @@ impl ser::SerializeStructVariant for StringKeySerializer {
         unreachable!()
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use serde::Serialize;
+
+    #[test]
+    fn test_struct() {
+        #[derive(Debug, Serialize, Deserialize, PartialEq)]
+        struct Test {
+            int: u32,
+            seq: Vec<String>,
+        }
+
+        let test = Test { int: 1, seq: vec!["a".to_string(), "b".to_string()] };
+        let config = Config::try_from(&test).unwrap();
+
+        let actual: Test = config.try_into().unwrap();
+        assert_eq!(test, actual);
+    }
+}
