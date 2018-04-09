@@ -11,6 +11,7 @@ use config::*;
 
 #[derive(Debug, Deserialize)]
 struct Place {
+    number: PlaceNumber,
     name: String,
     longitude: f64,
     latitude: f64,
@@ -21,10 +22,17 @@ struct Place {
     rating: Option<f32>,
 }
 
+#[derive(Debug, Deserialize, PartialEq)]
+struct PlaceNumber(u8);
+
+#[derive(Debug, Deserialize, PartialEq)]
+struct AsciiCode(i8);
+
 #[derive(Debug, Deserialize)]
 struct Settings {
     debug: f64,
     production: Option<String>,
+    code: AsciiCode,
     place: Place,
     #[serde(rename = "arr")]
     elements: Vec<String>,
@@ -47,6 +55,8 @@ fn test_file() {
 
     assert!(s.debug.approx_eq_ulps(&1.0, 2));
     assert_eq!(s.production, Some("false".to_string()));
+    assert_eq!(s.code, AsciiCode(53));
+    assert_eq!(s.place.number, PlaceNumber(1));
     assert_eq!(s.place.name, "Torre di Pisa");
     assert!(s.place.longitude.approx_eq_ulps(&43.7224985, 2));
     assert!(s.place.latitude.approx_eq_ulps(&10.3970522, 2));

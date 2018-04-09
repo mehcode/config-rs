@@ -107,7 +107,7 @@ fn test_map() {
     let c = make();
     let m: HashMap<String, Value> = c.get("place").unwrap();
 
-    assert_eq!(m.len(), 7);
+    assert_eq!(m.len(), 8);
     assert_eq!(
         m["name"].clone().into_str().unwrap(),
         "Torre di Pisa".to_string()
@@ -134,7 +134,7 @@ fn test_map_struct() {
     let c = make();
     let s: Settings = c.try_into().unwrap();
 
-    assert_eq!(s.place.len(), 7);
+    assert_eq!(s.place.len(), 8);
     assert_eq!(
         s.place["name"].clone().into_str().unwrap(),
         "Torre di Pisa".to_string()
