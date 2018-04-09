@@ -51,7 +51,7 @@ fn test_file() {
     let c = make();
 
     // Deserialize the entire file as single struct
-    let s: Settings = c.deserialize().unwrap();
+    let s: Settings = c.try_into().unwrap();
 
     assert!(s.debug.approx_eq_ulps(&1.0, 2));
     assert_eq!(s.production, Some("false".to_string()));
