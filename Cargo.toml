@@ -14,10 +14,12 @@ license = "MIT/Apache-2.0"
 travis-ci = { repository = "mehcode/config-rs" }
 
 [features]
-default = ["toml", "json", "yaml", "hjson"]
+default = ["toml", "json", "yaml", "hjson","ini"]
 json = ["serde_json"]
 yaml = ["yaml-rust"]
 hjson = ["serde-hjson"]
+ini = []
+
 
 [dependencies]
 lazy_static = "1.0"
@@ -28,6 +30,7 @@ toml = { version = "^0.4.1", optional = true }
 serde_json = { version = "^1.0.2", optional = true }
 yaml-rust = { version = "^0.4", optional = true }
 serde-hjson = { version = "^0.8.1", optional = true }
+rust-ini = "0.12.1"
 
 [dev-dependencies]
 serde_derive = "^1.0.8"
