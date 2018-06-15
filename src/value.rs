@@ -119,19 +119,17 @@ pub struct Value {
     /// A description of the original location of the value.
     ///
     /// A Value originating from a File might contain:
-    /// ```
+    ///
     /// Settings.toml
-    /// ```
     ///
     /// A Value originating from the environment would contain:
-    /// ```
+    ///
     /// the envrionment
-    /// ```
     ///
     /// A Value originating from a remote source might contain:
-    /// ```
+    ///
     /// etcd+http://127.0.0.1:2379
-    /// ```
+    ///
     origin: Option<String>,
 
     /// Underlying kind of the configuration value.
