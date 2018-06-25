@@ -39,7 +39,7 @@ pub enum FileFormat {
     /// HJSON (parsed with serde_hjson)
     #[cfg(feature = "hjson")]
     Hjson,
-    /// INI (parsed with serde_hjson)
+    /// INI (parsed with rust_ini)
     #[cfg(feature = "ini")]
     Ini,
 
