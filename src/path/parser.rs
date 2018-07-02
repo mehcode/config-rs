@@ -1,40 +1,37 @@
-use nom::*;
+use nom::{ErrorKind, digit, IResult};
+use nom::types::CompleteStr;
 use std::str::{FromStr, from_utf8};
 use super::Expression;
 
-named!(ident_<String>,
-    map!(
-        map_res!(is_a!(
-            "abcdefghijklmnopqrstuvwxyz \
-             ABCDEFGHIJKLMNOPQRSTUVWXYZ \
-             0123456789 \
-             _-"
-        ), from_utf8),
-        |s: &str| {
-            s.to_string()
+named!(raw_ident<CompleteStr, String>,
+    map!(is_a!(
+        "abcdefghijklmnopqrstuvwxyz \
+         ABCDEFGHIJKLMNOPQRSTUVWXYZ \
+         0123456789 \
+         _-"
+    ), |s: CompleteStr| {
+        s.to_string()
+    })
+);
+
+named!(integer<CompleteStr, isize>,
+    map_res!(
+        ws!(digit),
+        |s: CompleteStr| {
+            s.parse()
         }
     )
 );
 
-named!(integer <isize>,
-    map_res!(
-        map_res!(
-            ws!(digit),
-            from_utf8
-        ),
-        FromStr::from_str
-    )
-);
-
-named!(ident<Expression>, map!(ident_, Expression::Identifier));
+named!(ident<CompleteStr, Expression>, map!(raw_ident, Expression::Identifier));
 
 #[allow(cyclomatic_complexity)]
-fn postfix(expr: Expression) -> Box<Fn(&[u8]) -> IResult<&[u8], Expression>> {
-    Box::new(move |i: &[u8]| {
+fn postfix(expr: Expression) -> Box<Fn(CompleteStr) -> IResult<CompleteStr, Expression>> {
+    Box::new(move |i: CompleteStr| {
         alt!(i,
             do_parse!(
                 tag!(".") >>
-                id: ident_ >>
+                id: raw_ident >>
                 (Expression::Child(Box::new(expr.clone()), id))
             ) |
             delimited!(
@@ -54,7 +51,7 @@ fn postfix(expr: Expression) -> Box<Fn(&[u8]) -> IResult<&[u8], Expression>> {
 }
 
 pub fn from_str(input: &str) -> Result<Expression, ErrorKind> {
-    match ident(input.as_bytes()) {
+    match ident(CompleteStr(input)) {
         Ok((mut rem, mut expr)) => {
             while !rem.is_empty() {
                 match postfix(expr)(rem) {
