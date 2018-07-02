@@ -224,9 +224,16 @@ impl<'de> de::Deserializer<'de> for Value {
         }
     }
 
+    fn deserialize_newtype_struct<V>(self, _name: &'static str, visitor: V) -> Result<V::Value>
+    where
+        V: de::Visitor<'de>
+    {
+        visitor.visit_newtype_struct(self)
+    }
+
     forward_to_deserialize_any! {
         char seq
-        bytes byte_buf map struct unit enum newtype_struct
+        bytes byte_buf map struct unit enum
         identifier ignored_any unit_struct tuple_struct tuple
     }
 }

@@ -3,6 +3,8 @@ debug_s = "true"
 production = false
 production_s = "false"
 
+code = 53
+
 # errors
 boolean_s_parse = "fals"
 
@@ -15,6 +17,7 @@ name = "1"
 name = "2"
 
 [place]
+number = 1
 name = "Torre di Pisa"
 longitude = 43.7224985
 latitude = 10.3970522
