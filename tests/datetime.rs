@@ -38,6 +38,13 @@ fn make() -> Config {
             FileFormat::Hjson,
         ))
         .unwrap()
+        .merge(File::from_str(
+            r#"
+                ini_datetime = 2017-05-10T02:14:53Z
+            "#,
+            FileFormat::Ini,
+        ))
+        .unwrap()
         .clone()
 }
 
@@ -64,6 +71,11 @@ fn test_datetime_string() {
     let date: String = s.get("hjson_datetime").unwrap();
 
     assert_eq!(&date, "2017-05-10T02:14:53Z");
+
+    // INI
+    let date: String = s.get("ini_datetime").unwrap();
+
+    assert_eq!(&date, "2017-05-10T02:14:53Z");
 }
 
 #[test]
@@ -87,6 +99,11 @@ fn test_datetime() {
 
     // HJSON
     let date: DateTime<Utc> = s.get("hjson_datetime").unwrap();
+
+    assert_eq!(date, Utc.ymd(2017, 5, 10).and_hms(2, 14, 53));
+
+    // INI
+    let date: DateTime<Utc> = s.get("ini_datetime").unwrap();
 
     assert_eq!(date, Utc.ymd(2017, 5, 10).and_hms(2, 14, 53));
 }

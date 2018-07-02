@@ -19,6 +19,9 @@ mod yaml;
 #[cfg(feature = "hjson")]
 mod hjson;
 
+#[cfg(feature = "ini")]
+mod ini;
+
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
 pub enum FileFormat {
     /// TOML (parsed with toml)
@@ -36,6 +39,10 @@ pub enum FileFormat {
     /// HJSON (parsed with serde_hjson)
     #[cfg(feature = "hjson")]
     Hjson,
+    /// INI (parsed with rust_ini)
+    #[cfg(feature = "ini")]
+    Ini,
+
 }
 
 lazy_static! {
@@ -55,6 +62,9 @@ lazy_static! {
 
         #[cfg(feature = "hjson")]
         formats.insert(FileFormat::Hjson, vec!["hjson"]);
+
+        #[cfg(feature = "ini")]
+        formats.insert(FileFormat::Ini, vec!["ini"]);
 
         formats
     };
@@ -90,6 +100,9 @@ impl FileFormat {
 
             #[cfg(feature = "hjson")]
             FileFormat::Hjson => hjson::parse(uri, text),
+
+            #[cfg(feature = "ini")]
+            FileFormat::Ini => ini::parse(uri, text),
         }
     }
 }

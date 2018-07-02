@@ -48,6 +48,9 @@ extern crate yaml_rust;
 #[cfg(feature = "hjson")]
 extern crate serde_hjson;
 
+#[cfg(feature = "ini")]
+extern crate ini;
+
 mod error;
 mod value;
 mod de;
