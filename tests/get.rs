@@ -1,13 +1,13 @@
 extern crate config;
-extern crate serde;
 extern crate float_cmp;
+extern crate serde;
 
 #[macro_use]
 extern crate serde_derive;
 
-use std::collections::HashMap;
-use float_cmp::ApproxEqUlps;
 use config::*;
+use float_cmp::ApproxEqUlps;
+use std::collections::HashMap;
 
 #[derive(Debug, Deserialize)]
 struct Place {

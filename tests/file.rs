@@ -5,9 +5,7 @@ use config::*;
 #[test]
 fn test_file_not_required() {
     let mut c = Config::default();
-    let res = c.merge(
-        File::new("tests/NoSettings", FileFormat::Yaml).required(false),
-    );
+    let res = c.merge(File::new("tests/NoSettings", FileFormat::Yaml).required(false));
 
     assert!(res.is_ok());
 }

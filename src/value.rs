@@ -1,8 +1,8 @@
-use std::collections::HashMap;
-use std::fmt::Display;
-use std::fmt;
 use error::*;
 use serde::de::{Deserialize, Deserializer, Visitor};
+use std::collections::HashMap;
+use std::fmt;
+use std::fmt::Display;
 
 /// Underlying kind of the configuration value.
 #[derive(Debug, Clone, PartialEq)]

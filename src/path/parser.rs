@@ -1,7 +1,7 @@
-use nom::{ErrorKind, digit, IResult};
-use nom::types::CompleteStr;
-use std::str::{FromStr, from_utf8};
 use super::Expression;
+use nom::types::CompleteStr;
+use nom::{digit, ErrorKind, IResult};
+use std::str::{from_utf8, FromStr};
 
 named!(raw_ident<CompleteStr, String>,
     map!(is_a!(
@@ -28,24 +28,20 @@ named!(ident<CompleteStr, Expression>, map!(raw_ident, Expression::Identifier));
 #[allow(cyclomatic_complexity)]
 fn postfix(expr: Expression) -> Box<Fn(CompleteStr) -> IResult<CompleteStr, Expression>> {
     Box::new(move |i: CompleteStr| {
-        alt!(i,
-            do_parse!(
-                tag!(".") >>
-                id: raw_ident >>
-                (Expression::Child(Box::new(expr.clone()), id))
-            ) |
-            delimited!(
-                char!('['),
-                do_parse!(
-                    negative: opt!(tag!("-")) >>
-                    num: integer >>
-                    (Expression::Subscript(
-                        Box::new(expr.clone()),
-                        num * (if negative.is_none() { 1 } else { -1 })
-                    ))
-                ),
-                char!(']')
-            )
+        alt!(
+            i,
+            do_parse!(tag!(".") >> id: raw_ident >> (Expression::Child(Box::new(expr.clone()), id)))
+                | delimited!(
+                    char!('['),
+                    do_parse!(
+                        negative: opt!(tag!("-")) >> num: integer
+                            >> (Expression::Subscript(
+                                Box::new(expr.clone()),
+                                num * (if negative.is_none() { 1 } else { -1 }),
+                            ))
+                    ),
+                    char!(']')
+                )
         )
     })
 }
@@ -62,7 +58,7 @@ pub fn from_str(input: &str) -> Result<Expression, ErrorKind> {
 
                     // Forward Incomplete and Error
                     result => {
-                        return result.map(|(_,o)| o).map_err(|e| e.into_error_kind());
+                        return result.map(|(_, o)| o).map_err(|e| e.into_error_kind());
                     }
                 }
             }
@@ -71,14 +67,14 @@ pub fn from_str(input: &str) -> Result<Expression, ErrorKind> {
         }
 
         // Forward Incomplete and Error
-        result => result.map(|(_,o)| o).map_err(|e| e.into_error_kind()),
+        result => result.map(|(_, o)| o).map_err(|e| e.into_error_kind()),
     }
 }
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use super::Expression::*;
+    use super::*;
 
     #[test]
     fn test_id() {
@@ -100,11 +96,10 @@ mod test {
         assert_eq!(parsed, expected);
 
         let parsed: Expression = from_str("abcd.efgh.ijkl").unwrap();
-        let expected = Child(Box::new(
-            Child(Box::new(
-                Identifier("abcd".into())
-            ), "efgh".into())
-        ), "ijkl".into());
+        let expected = Child(
+            Box::new(Child(Box::new(Identifier("abcd".into())), "efgh".into())),
+            "ijkl".into(),
+        );
 
         assert_eq!(parsed, expected);
     }

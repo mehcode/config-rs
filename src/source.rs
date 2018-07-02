@@ -1,9 +1,9 @@
 use error::*;
+use path;
+use std::collections::HashMap;
 use std::fmt::Debug;
 use std::str::FromStr;
 use value::{Value, ValueKind};
-use std::collections::HashMap;
-use path;
 
 /// Describes a generic _source_ of configuration properties.
 pub trait Source: Debug {

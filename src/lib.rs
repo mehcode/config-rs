@@ -51,19 +51,19 @@ extern crate serde_hjson;
 #[cfg(feature = "ini")]
 extern crate ini;
 
-mod error;
-mod value;
-mod de;
-mod ser;
-mod path;
-mod source;
 mod config;
-mod file;
+mod de;
 mod env;
+mod error;
+mod file;
+mod path;
+mod ser;
+mod source;
+mod value;
 
 pub use config::Config;
-pub use error::ConfigError;
-pub use value::Value;
-pub use source::Source;
-pub use file::{File, FileFormat};
 pub use env::Environment;
+pub use error::ConfigError;
+pub use file::{File, FileFormat};
+pub use source::Source;
+pub use value::Value;

@@ -3,9 +3,9 @@
 #![allow(unused_mut)]
 
 use source::Source;
-use value::Value;
-use std::error::Error;
 use std::collections::HashMap;
+use std::error::Error;
+use value::Value;
 
 #[cfg(feature = "toml")]
 mod toml;
@@ -42,7 +42,6 @@ pub enum FileFormat {
     /// INI (parsed with rust_ini)
     #[cfg(feature = "ini")]
     Ini,
-
 }
 
 lazy_static! {

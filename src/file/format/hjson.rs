@@ -27,7 +27,7 @@ fn from_hjson_value(uri: Option<&String>, value: &serde_hjson::Value) -> Value {
         serde_hjson::Value::U64(value) => Value::new(uri, ValueKind::Integer(value as i64)),
 
         serde_hjson::Value::F64(value) => Value::new(uri, ValueKind::Float(value)),
-        
+
         serde_hjson::Value::Bool(value) => Value::new(uri, ValueKind::Boolean(value)),
 
         serde_hjson::Value::Object(ref table) => {

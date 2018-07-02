@@ -1,16 +1,16 @@
-use std::collections::HashMap;
-use std::ops::Deref;
-use std::str::FromStr;
-use std::fmt::Debug;
 use serde::de::{Deserialize, Deserializer};
 use serde::ser::{Serialize, Serializer};
+use std::collections::HashMap;
+use std::fmt::Debug;
+use std::ops::Deref;
+use std::str::FromStr;
 
 use error::*;
-use source::Source;
 use ser::ConfigSerializer;
+use source::Source;
 
-use value::{Value, ValueKind, ValueWithKey};
 use path;
+use value::{Value, ValueKind, ValueWithKey};
 
 #[derive(Clone, Debug)]
 enum ConfigKind {
@@ -199,7 +199,7 @@ impl Config {
         Ok(serializer.output)
     }
 
-    #[deprecated(since="0.7.0", note="please use 'try_into' instead")]
+    #[deprecated(since = "0.7.0", note = "please use 'try_into' instead")]
     pub fn deserialize<'de, T: Deserialize<'de>>(self) -> Result<T> {
         self.try_into()
     }

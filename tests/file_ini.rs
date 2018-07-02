@@ -1,6 +1,6 @@
 extern crate config;
-extern crate serde;
 extern crate float_cmp;
+extern crate serde;
 
 #[macro_use]
 extern crate serde_derive;
@@ -34,17 +34,20 @@ fn make() -> Config {
 fn test_file() {
     let c = make();
     let s: Settings = c.try_into().unwrap();
-    assert_eq!(s, Settings {
-        debug: 1.0,
-        place: Place {
-            name: String::from("Torre di Pisa"),
-            longitude: 43.7224985,
-            latitude: 10.3970522,
-            favorite: false,
-            reviews: 3866,
-            rating: Some(4.5),
-        },
-    });
+    assert_eq!(
+        s,
+        Settings {
+            debug: 1.0,
+            place: Place {
+                name: String::from("Torre di Pisa"),
+                longitude: 43.7224985,
+                latitude: 10.3970522,
+                favorite: false,
+                reviews: 3866,
+                rating: Some(4.5),
+            },
+        }
+    );
 }
 
 #[test]

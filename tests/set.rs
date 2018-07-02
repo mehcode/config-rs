@@ -55,7 +55,10 @@ fn test_set_arr_path() {
     c.set("data[0].things[1].value", 42).unwrap();
     c.set("data[1]", 0).unwrap();
 
-    assert_eq!(c.get("data[0].things[1].name").ok(), Some("foo".to_string()));
+    assert_eq!(
+        c.get("data[0].things[1].name").ok(),
+        Some("foo".to_string())
+    );
     assert_eq!(c.get("data[0].things[1].value").ok(), Some(42));
     assert_eq!(c.get("data[1]").ok(), Some(0));
 

@@ -1,11 +1,11 @@
-use serde::de;
-use value::{Value, ValueKind, ValueWithKey};
-use error::*;
 use config::Config;
+use error::*;
+use serde::de;
 use std::borrow::Cow;
-use std::iter::Peekable;
-use std::collections::HashMap;
 use std::collections::hash_map::Drain;
+use std::collections::HashMap;
+use std::iter::Peekable;
+use value::{Value, ValueKind, ValueWithKey};
 
 // TODO: Use a macro or some other magic to reduce the code duplication here
 
@@ -226,7 +226,7 @@ impl<'de> de::Deserializer<'de> for Value {
 
     fn deserialize_newtype_struct<V>(self, _name: &'static str, visitor: V) -> Result<V::Value>
     where
-        V: de::Visitor<'de>
+        V: de::Visitor<'de>,
     {
         visitor.visit_newtype_struct(self)
     }

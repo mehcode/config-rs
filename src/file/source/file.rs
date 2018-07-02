@@ -1,16 +1,16 @@
-use std::str::FromStr;
-use std::result;
 use std::error::Error;
+use std::result;
+use std::str::FromStr;
 
-use std::path::{Path, PathBuf};
 use file::format::ALL_EXTENSIONS;
-use std::io::{self, Read};
-use std::fs;
 use std::env;
+use std::fs;
+use std::io::{self, Read};
 use std::iter::Iterator;
+use std::path::{Path, PathBuf};
 
-use source::Source;
 use super::{FileFormat, FileSource};
+use source::Source;
 
 /// Describes a file sourced from a file
 #[derive(Clone, Debug)]
@@ -35,12 +35,13 @@ impl FileSourceFile {
                 Some(format) => Ok((filename, format)),
                 None => {
                     for (format, extensions) in ALL_EXTENSIONS.iter() {
-                        if extensions.contains(&filename
-                            .extension()
-                            .unwrap_or_default()
-                            .to_string_lossy()
-                            .as_ref())
-                        {
+                        if extensions.contains(
+                            &filename
+                                .extension()
+                                .unwrap_or_default()
+                                .to_string_lossy()
+                                .as_ref(),
+                        ) {
                             return Ok((filename, *format));
                         }
                     }

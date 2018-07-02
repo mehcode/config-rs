@@ -1,14 +1,14 @@
 mod format;
 pub mod source;
 
-use source::Source;
 use error::*;
-use value::Value;
+use source::Source;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
+use value::Value;
 
-use self::source::FileSource;
 pub use self::format::FileFormat;
+use self::source::FileSource;
 
 #[derive(Clone, Debug)]
 pub struct File<T>
@@ -97,7 +97,8 @@ where
 
     fn collect(&self) -> Result<HashMap<String, Value>> {
         // Coerce the file contents to a string
-        let (uri, contents, format) = match self.source
+        let (uri, contents, format) = match self
+            .source
             .resolve(self.format)
             .map_err(|err| ConfigError::Foreign(err))
         {
@@ -113,11 +114,11 @@ where
         };
 
         // Parse the string using the given format
-        format.parse(uri.as_ref(), &contents).map_err(|cause| {
-            ConfigError::FileParse {
+        format
+            .parse(uri.as_ref(), &contents)
+            .map_err(|cause| ConfigError::FileParse {
                 uri: uri,
                 cause: cause,
-            }
-        })
+            })
     }
 }

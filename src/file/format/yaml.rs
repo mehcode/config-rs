@@ -1,10 +1,10 @@
-use yaml_rust as yaml;
 use source::Source;
+use std::collections::HashMap;
 use std::error::Error;
 use std::fmt;
-use std::collections::HashMap;
 use std::mem;
 use value::{Value, ValueKind};
+use yaml_rust as yaml;
 
 pub fn parse(
     uri: Option<&String>,

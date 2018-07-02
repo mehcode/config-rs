@@ -1,7 +1,7 @@
-use std::env;
-use std::collections::HashMap;
 use error::*;
 use source::Source;
+use std::collections::HashMap;
+use std::env;
 use value::{Value, ValueKind};
 
 #[derive(Clone, Debug)]
@@ -64,7 +64,7 @@ impl Source for Environment {
 
         let separator = match self.separator {
             Some(ref separator) => separator,
-            _ => ""
+            _ => "",
         };
 
         // Define a prefix pattern to test and exclude from keys
@@ -78,7 +78,10 @@ impl Source for Environment {
 
             // Check for prefix
             if let Some(ref prefix_pattern) = prefix_pattern {
-                if key.to_lowercase().starts_with(&prefix_pattern.to_lowercase()) {
+                if key
+                    .to_lowercase()
+                    .starts_with(&prefix_pattern.to_lowercase())
+                {
                     // Remove this prefix from the key
                     key = key[prefix_pattern.len()..].to_string();
                 } else {

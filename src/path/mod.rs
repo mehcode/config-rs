@@ -1,7 +1,7 @@
-use std::str::FromStr;
-use std::collections::HashMap;
-use nom::ErrorKind;
 use error::*;
+use nom::ErrorKind;
+use std::collections::HashMap;
+use std::str::FromStr;
 use value::{Value, ValueKind};
 
 mod parser;
@@ -58,111 +58,97 @@ impl Expression {
                 }
             }
 
-            Expression::Subscript(expr, index) => {
-                match expr.get(root) {
-                    Some(value) => match value.kind {
-                        ValueKind::Array(ref array) => {
-                            let index = sindex_to_uindex(index, array.len());
+            Expression::Subscript(expr, index) => match expr.get(root) {
+                Some(value) => match value.kind {
+                    ValueKind::Array(ref array) => {
+                        let index = sindex_to_uindex(index, array.len());
 
-                            if index >= array.len() {
-                                None
-                            } else {
-                                Some(&array[index])
-                            }
+                        if index >= array.len() {
+                            None
+                        } else {
+                            Some(&array[index])
                         }
-
-                        _ => None,
-                    },
+                    }
 
                     _ => None,
-                }
+                },
+
+                _ => None,
             },
         }
     }
 
     pub fn get_mut<'a>(&self, root: &'a mut Value) -> Option<&'a mut Value> {
         match *self {
-            Expression::Identifier(ref id) => {
-                match root.kind {
-                    ValueKind::Table(ref mut map) => map.get_mut(id),
+            Expression::Identifier(ref id) => match root.kind {
+                ValueKind::Table(ref mut map) => map.get_mut(id),
 
-                    _ => None,
-                }
+                _ => None,
             },
 
-            Expression::Child(ref expr, ref key) => {
-                match expr.get_mut(root) {
-                    Some(value) => {
-                        match value.kind {
-                            ValueKind::Table(ref mut map) => map.get_mut(key),
-
-                            _ => None
-                        }
-                    },
+            Expression::Child(ref expr, ref key) => match expr.get_mut(root) {
+                Some(value) => match value.kind {
+                    ValueKind::Table(ref mut map) => map.get_mut(key),
 
                     _ => None,
-                }
+                },
+
+                _ => None,
             },
 
-            Expression::Subscript(ref expr, index) => {
-                match expr.get_mut(root) {
-                    Some(value) => match value.kind {
-                        ValueKind::Array(ref mut array) => {
-                            let index = sindex_to_uindex(index, array.len());
+            Expression::Subscript(ref expr, index) => match expr.get_mut(root) {
+                Some(value) => match value.kind {
+                    ValueKind::Array(ref mut array) => {
+                        let index = sindex_to_uindex(index, array.len());
 
-                            if index >= array.len() {
-                                None
-                            } else {
-                                Some(&mut array[index])
-                            }
+                        if index >= array.len() {
+                            None
+                        } else {
+                            Some(&mut array[index])
                         }
-
-                        _ => None,
-                    },
+                    }
 
                     _ => None,
-                }
+                },
+
+                _ => None,
             },
         }
     }
 
     pub fn get_mut_forcibly<'a>(&self, root: &'a mut Value) -> Option<&'a mut Value> {
         match *self {
-            Expression::Identifier(ref id) => {
-                match root.kind {
+            Expression::Identifier(ref id) => match root.kind {
+                ValueKind::Table(ref mut map) => Some(
+                    map.entry(id.clone())
+                        .or_insert_with(|| Value::new(None, ValueKind::Nil)),
+                ),
+
+                _ => None,
+            },
+
+            Expression::Child(ref expr, ref key) => match expr.get_mut_forcibly(root) {
+                Some(value) => match value.kind {
                     ValueKind::Table(ref mut map) => Some(
-                        map.entry(id.clone())
+                        map.entry(key.clone())
                             .or_insert_with(|| Value::new(None, ValueKind::Nil)),
                     ),
 
-                    _ => None,
-                }
-            },
+                    _ => {
+                        *value = HashMap::<String, Value>::new().into();
 
-            Expression::Child(ref expr, ref key) => {
-                match expr.get_mut_forcibly(root) {
-                    Some(value) => match value.kind {
-                        ValueKind::Table(ref mut map) => Some(
-                            map.entry(key.clone())
-                                .or_insert_with(|| Value::new(None, ValueKind::Nil)),
-                        ),
-
-                        _ => {
-                            *value = HashMap::<String, Value>::new().into();
-
-                            if let ValueKind::Table(ref mut map) = value.kind {
-                                Some(
-                                    map.entry(key.clone())
-                                        .or_insert_with(|| Value::new(None, ValueKind::Nil)),
-                                )
-                            } else {
-                                unreachable!();
-                            }
+                        if let ValueKind::Table(ref mut map) = value.kind {
+                            Some(
+                                map.entry(key.clone())
+                                    .or_insert_with(|| Value::new(None, ValueKind::Nil)),
+                            )
+                        } else {
+                            unreachable!();
                         }
-                    },
+                    }
+                },
 
-                    _ => None,
-                }
+                _ => None,
             },
 
             Expression::Subscript(ref expr, index) => {
@@ -171,7 +157,7 @@ impl Expression {
                     Some(value) => {
                         match value.kind {
                             ValueKind::Array(_) => (),
-                            _ => *value = Vec::<Value>::new().into()
+                            _ => *value = Vec::<Value>::new().into(),
                         }
 
                         match value.kind {
@@ -179,18 +165,21 @@ impl Expression {
                                 let index = sindex_to_uindex(index, array.len());
 
                                 if index >= array.len() {
-                                    array.resize((index + 1) as usize, Value::new(None, ValueKind::Nil));
+                                    array.resize(
+                                        (index + 1) as usize,
+                                        Value::new(None, ValueKind::Nil),
+                                    );
                                 }
 
                                 Some(&mut array[index])
                             }
 
-                            _ => None
+                            _ => None,
                         }
-                    },
-                    _ => None
+                    }
+                    _ => None,
                 }
-            },
+            }
         }
     }
 
@@ -252,7 +241,7 @@ impl Expression {
                 if let Some(parent) = expr.get_mut_forcibly(root) {
                     match parent.kind {
                         ValueKind::Array(_) => (),
-                        _ => *parent = Vec::<Value>::new().into()
+                        _ => *parent = Vec::<Value>::new().into(),
                     }
 
                     match parent.kind {
@@ -268,7 +257,7 @@ impl Expression {
                             array[uindex] = value.clone();
                         }
 
-                        _ => ()
+                        _ => (),
                     }
                 }
             }

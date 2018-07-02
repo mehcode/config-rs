@@ -1,8 +1,8 @@
+use ini::Ini;
 use source::Source;
 use std::collections::HashMap;
 use std::error::Error;
 use value::{Value, ValueKind};
-use ini::Ini;
 
 pub fn parse(
     uri: Option<&String>,
@@ -15,15 +15,22 @@ pub fn parse(
             Some(ref sec) => {
                 let mut sec_map: HashMap<String, Value> = HashMap::new();
                 for (k, v) in prop.iter() {
-                    sec_map.insert(k.to_lowercase().clone(),
-                                   Value::new(uri, ValueKind::String(v.clone())));
+                    sec_map.insert(
+                        k.to_lowercase().clone(),
+                        Value::new(uri, ValueKind::String(v.clone())),
+                    );
                 }
-                map.insert(sec.to_lowercase().clone(), Value::new(uri, ValueKind::Table(sec_map)));
+                map.insert(
+                    sec.to_lowercase().clone(),
+                    Value::new(uri, ValueKind::Table(sec_map)),
+                );
             }
             None => {
                 for (k, v) in prop.iter() {
-                    map.insert(k.to_lowercase().clone(),
-                               Value::new(uri, ValueKind::String(v.clone())));
+                    map.insert(
+                        k.to_lowercase().clone(),
+                        Value::new(uri, ValueKind::String(v.clone())),
+                    );
                 }
             }
         }

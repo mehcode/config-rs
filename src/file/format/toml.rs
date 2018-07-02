@@ -1,7 +1,7 @@
-use toml;
 use source::Source;
 use std::collections::{BTreeMap, HashMap};
 use std::error::Error;
+use toml;
 use value::{Value, ValueKind};
 
 pub fn parse(
