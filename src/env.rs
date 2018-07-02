@@ -33,12 +33,12 @@ impl Environment {
         }
     }
 
-    pub fn prefix(&mut self, s: &str) -> &mut Self {
+    pub fn prefix(mut self, s: &str) -> Self {
         self.prefix = Some(s.into());
         self
     }
 
-    pub fn separator(&mut self, s: &str) -> &mut Self {
+    pub fn separator(mut self, s: &str) -> Self {
         self.separator = Some(s.into());
         self
     }

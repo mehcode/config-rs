@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.9.0 - 2018-07-02
+ - **Breaking Change:** Environment does not declare a separator by default.
+    ```rust
+    // 0.8.0
+    Environment::with_prefix("APP")
+
+    // 0.9.0
+    Environment::with_prefix("APP").separator("_")
+    ```
+
+ - Add support for INI. [#72]
+ - Add support for newtype structs. [#71]
+ - Fix bug with array set by path. [#69]
+ - Update to nom 4. [#63]
+
+[#72]: https://github.com/mehcode/config-rs/pull/72
+[#71]: https://github.com/mehcode/config-rs/pull/71
+[#69]: https://github.com/mehcode/config-rs/pull/69
+[#63]: https://github.com/mehcode/config-rs/pull/63
+
 ## 0.8.0 - 2018-01-26
  - Update lazy_static and yaml_rust
 

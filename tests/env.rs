@@ -54,8 +54,7 @@ fn test_prefix_with_variant_forms_of_spelling() {
 fn test_separator_behavior() {
     env::set_var("C_B_A", "abc");
 
-    let mut environment = Environment::with_prefix("C");
-    environment.separator("_");
+    let mut environment = Environment::with_prefix("C").separator("_");
 
     assert!(environment.collect().unwrap().contains_key("b.a"));
 
