@@ -1,3 +1,11 @@
+#![cfg(all(
+    feature = "toml",
+    feature = "json",
+    feature = "hjson",
+    feature = "yaml",
+    feature = "ini",
+))]
+
 extern crate chrono;
 extern crate config;
 

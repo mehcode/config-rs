@@ -1,3 +1,5 @@
+#![cfg(feature = "json")]
+
 extern crate config;
 extern crate float_cmp;
 extern crate serde;

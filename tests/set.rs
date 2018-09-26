@@ -11,6 +11,7 @@ fn test_set_scalar() {
     assert_eq!(c.get("value").ok(), Some(true));
 }
 
+#[cfg(feature = "toml")]
 #[test]
 fn test_set_scalar_default() {
     let mut c = Config::default();
@@ -25,6 +26,7 @@ fn test_set_scalar_default() {
     assert_eq!(c.get("staging").ok(), Some(false));
 }
 
+#[cfg(feature = "toml")]
 #[test]
 fn test_set_scalar_path() {
     let mut c = Config::default();
@@ -43,6 +45,7 @@ fn test_set_scalar_path() {
     assert_eq!(c.get("place.blocked").ok(), Some(true));
 }
 
+#[cfg(feature = "toml")]
 #[test]
 fn test_set_arr_path() {
     let mut c = Config::default();
@@ -74,6 +77,7 @@ fn test_set_arr_path() {
     assert_eq!(c.get("items[2]").ok(), Some("George".to_string()));
 }
 
+#[cfg(feature = "toml")]
 #[test]
 fn test_set_capital() {
     let mut c = Config::default();

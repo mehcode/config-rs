@@ -1,3 +1,5 @@
+#![cfg(feature = "toml")]
+
 extern crate config;
 extern crate float_cmp;
 extern crate serde;
