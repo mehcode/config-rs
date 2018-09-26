@@ -60,3 +60,15 @@ fn test_separator_behavior() {
 
     env::remove_var("C_B_A");
 }
+
+#[test]
+#[cfg(feature = "ignore-empty-env-vars")]
+fn test_empty_value_is_ignored() {
+    env::set_var("C_A_B", "");
+
+    let environment = Environment::new();
+
+    assert!(!environment.collect().unwrap().contains_key("c_a_b"));
+
+    env::remove_var("C_A_B");
+}

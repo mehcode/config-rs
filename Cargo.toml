@@ -19,6 +19,7 @@ json = ["serde_json"]
 yaml = ["yaml-rust"]
 hjson = ["serde-hjson"]
 ini = ["rust-ini"]
+ignore-empty-env-vars = []
 
 [dependencies]
 lazy_static = "1.0"

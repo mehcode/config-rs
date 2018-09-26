@@ -74,6 +74,11 @@ impl Source for Environment {
         };
 
         for (key, value) in env::vars() {
+            // Treat empty environment variables as unset
+            if cfg!(feature = "ignore-empty-env-vars") && value == "" {
+                continue;
+            }
+
             let mut key = key.to_string();
 
             // Check for prefix
