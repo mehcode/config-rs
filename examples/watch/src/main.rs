@@ -25,7 +25,8 @@ fn show() {
              SETTINGS
                  .read()
                  .unwrap()
-                 .deserialize::<HashMap<String, String>>()
+                 .clone()
+                 .try_into::<HashMap<String, String>>()
                  .unwrap());
 }
 
