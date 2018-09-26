@@ -54,7 +54,7 @@ fn test_prefix_with_variant_forms_of_spelling() {
 fn test_separator_behavior() {
     env::set_var("C_B_A", "abc");
 
-    let mut environment = Environment::with_prefix("C").separator("_");
+    let environment = Environment::with_prefix("C").separator("_");
 
     assert!(environment.collect().unwrap().contains_key("b.a"));
 
@@ -62,11 +62,10 @@ fn test_separator_behavior() {
 }
 
 #[test]
-#[cfg(feature = "ignore-empty-env-vars")]
 fn test_empty_value_is_ignored() {
     env::set_var("C_A_B", "");
 
-    let environment = Environment::new();
+    let environment = Environment::new().ignore_empty(true);
 
     assert!(!environment.collect().unwrap().contains_key("c_a_b"));
 

@@ -19,6 +19,9 @@ pub struct Environment {
     /// Consider a nested configuration such as `redis.password`, a separator of `_` would allow
     /// an environment key of `REDIS_PASSWORD` to match.
     separator: Option<String>,
+
+    /// Ignore empty env values (treat as unset).
+    ignore_empty: bool,
 }
 
 impl Environment {
@@ -42,6 +45,11 @@ impl Environment {
         self.separator = Some(s.into());
         self
     }
+
+    pub fn ignore_empty(mut self, ignore: bool) -> Self {
+        self.ignore_empty = ignore;
+        self
+    }
 }
 
 impl Default for Environment {
@@ -49,6 +57,7 @@ impl Default for Environment {
         Environment {
             prefix: None,
             separator: None,
+            ignore_empty: false,
         }
     }
 }
@@ -75,7 +84,7 @@ impl Source for Environment {
 
         for (key, value) in env::vars() {
             // Treat empty environment variables as unset
-            if cfg!(feature = "ignore-empty-env-vars") && value == "" {
+            if self.ignore_empty && value == "" {
                 continue;
             }
 
