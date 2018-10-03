@@ -32,7 +32,7 @@ config = "0.9"
  - `json` - Adds support for reading JSON files
  - `hjson` - Adds support for reading HJSON files
  - `yaml` - Adds support for reading YAML files
- - `toml` - Adds support for reading TOML files (included by default)
+ - `toml` - Adds support for reading TOML files
 
 See the [documentation](https://docs.rs/config) or [examples](https://github.com/mehcode/config-rs/tree/master/examples) for
 more usage information.
