@@ -29,7 +29,7 @@ toml = { version = "0.4.1", optional = true }
 serde_json = { version = "1.0.2", optional = true }
 yaml-rust = { version = "0.4", optional = true }
 serde-hjson = { version = "0.8.1", optional = true }
-rust-ini = { version = "0.12", optional = true }
+rust-ini = { version = "0.13", optional = true }
 
 [dev-dependencies]
 serde_derive = "1.0.8"
