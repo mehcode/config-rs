@@ -2,6 +2,9 @@
 
 extern crate config;
 
+#[macro_use]
+extern crate serde_derive;
+
 use config::*;
 
 fn make() -> Config {
@@ -52,3 +55,40 @@ fn test_error_type_detached() {
         "invalid type: string \"fals\", expected a boolean".to_string()
     );
 }
+
+#[test]
+fn test_error_enum_de() {
+    #[derive(Debug, Deserialize, PartialEq)]
+    enum Diode {
+        Off,
+        Brightness(i32),
+        Blinking(i32, i32),
+        Pattern { name: String, inifinite: bool },
+    }
+
+    let on_v: Value = "on".into();
+    let on_d = on_v.try_into::<Diode>();
+    assert_eq!(
+        on_d.unwrap_err().to_string(),
+        "enum Diode does not have variant constructor on".to_string()
+    );
+
+    let array_v: Value = vec![100, 100].into();
+    let array_d = array_v.try_into::<Diode>();
+    assert_eq!(
+        array_d.unwrap_err().to_string(),
+        "value of enum Diode should be represented by either string or table with exactly one key"
+    );
+
+
+    let confused_v: Value =
+    [("Brightness".to_string(), 100.into()),
+     ("Blinking".to_string(), vec![300, 700].into())]
+    .iter().cloned().collect::<std::collections::HashMap<String, Value>>().into();
+    let confused_d = confused_v.try_into::<Diode>();
+    assert_eq!(
+        confused_d.unwrap_err().to_string(),
+        "value of enum Diode should be represented by either string or table with exactly one key"
+    );
+}
+
