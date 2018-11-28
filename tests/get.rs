@@ -202,3 +202,26 @@ fn test_struct_array() {
     assert_eq!(s.elements.len(), 10);
     assert_eq!(s.elements[3], "4".to_string());
 }
+
+#[test]
+fn test_enum() {
+    #[derive(Debug, Deserialize, PartialEq)]
+    enum Diode {
+        Off,
+        Brightness(i32),
+        Blinking(i32, i32),
+        Pattern { name: String, inifinite: bool },
+    }
+    #[derive(Debug, Deserialize)]
+    struct Settings {
+        diodes: HashMap<String, Diode>,
+    }
+
+    let c = make();
+    let s: Settings = c.try_into().unwrap();
+
+    assert_eq!(s.diodes["green"], Diode::Off);
+    assert_eq!(s.diodes["red"], Diode::Brightness(100));
+    assert_eq!(s.diodes["blue"], Diode::Blinking(300, 700));
+    assert_eq!(s.diodes["white"], Diode::Pattern{name: "christmas".into(), inifinite: true,});
+}
