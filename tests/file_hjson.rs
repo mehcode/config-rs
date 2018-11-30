@@ -72,6 +72,6 @@ fn test_error_parse() {
     assert!(res.is_err());
     assert_eq!(
         res.unwrap_err().to_string(),
-        "Found a punctuator where a key name was expected (check your syntax or use quotes if the key name includes {}[],: or whitespace) at line 1 column 1 in tests/Settings-invalid.hjson".to_string()
+        "Found a punctuator where a key name was expected (check your syntax or use quotes if the key name includes {}[],: or whitespace) at line 4 column 1 in tests/Settings-invalid.hjson".to_string()
     );
 }
