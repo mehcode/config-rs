@@ -114,6 +114,43 @@ impl ConfigError {
             _ => self,
         }
     }
+
+    fn prepend(self, segment: String, add_dot: bool) -> Self {
+        let concat = |key: Option<String>| {
+            let key = key.unwrap_or_else(String::new);
+            let dot = if add_dot && key.as_bytes().get(0).unwrap_or(&b'[') != &b'[' {
+                "."
+            } else {
+                ""
+            };
+            format!("{}{}{}", segment, dot, key)
+        };
+        match self {
+            ConfigError::Type {
+                origin,
+                unexpected,
+                expected,
+                key,
+            } => {
+                ConfigError::Type {
+                    origin,
+                    unexpected,
+                    expected,
+                    key: Some(concat(key)),
+                }
+            }
+            ConfigError::NotFound(key) => ConfigError::NotFound(concat(Some(key))),
+            _ => self,
+        }
+    }
+
+    pub(crate) fn prepend_key(self, key: String) -> Self {
+        self.prepend(key, true)
+    }
+
+    pub(crate) fn prepend_index(self, idx: usize) -> Self {
+        self.prepend(format!("[{}]", idx), false)
+    }
 }
 
 /// Alias for a `Result` with the error type set to `ConfigError`.

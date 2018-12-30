@@ -2,6 +2,7 @@ use config::Config;
 use error::*;
 use serde::de;
 use std::collections::{HashMap, VecDeque};
+use std::iter::Enumerate;
 use value::{Value, ValueKind, ValueWithKey, Table};
 
 // TODO: Use a macro or some other magic to reduce the code duplication here
@@ -284,13 +285,13 @@ impl<'de, 'a> de::Deserializer<'de> for StrDeserializer<'a> {
 }
 
 struct SeqAccess {
-    elements: ::std::vec::IntoIter<Value>,
+    elements: Enumerate<::std::vec::IntoIter<Value>>,
 }
 
 impl SeqAccess {
     fn new(elements: Vec<Value>) -> Self {
         SeqAccess {
-            elements: elements.into_iter(),
+            elements: elements.into_iter().enumerate(),
         }
     }
 }
@@ -303,7 +304,11 @@ impl<'de> de::SeqAccess<'de> for SeqAccess {
         T: de::DeserializeSeed<'de>,
     {
         match self.elements.next() {
-            Some(value) => seed.deserialize(value).map(Some),
+            Some((idx, value)) => {
+                seed.deserialize(value)
+                    .map(Some)
+                    .map_err(|e| e.prepend_index(idx))
+            }
             None => Ok(None),
         }
     }
@@ -349,7 +354,9 @@ impl<'de> de::MapAccess<'de> for MapAccess {
     where
         V: de::DeserializeSeed<'de>,
     {
-        de::DeserializeSeed::deserialize(seed, self.elements.pop_front().unwrap().1)
+        let (key, value) = self.elements.pop_front().unwrap();
+        de::DeserializeSeed::deserialize(seed, value)
+            .map_err(|e| e.prepend_key(key))
     }
 }
 
