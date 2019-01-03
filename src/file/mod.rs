@@ -10,6 +10,9 @@ use value::Value;
 pub use self::format::FileFormat;
 use self::source::FileSource;
 
+pub use self::source::string::FileSourceString;
+pub use self::source::file::FileSourceFile;
+
 #[derive(Clone, Debug)]
 pub struct File<T>
 where
