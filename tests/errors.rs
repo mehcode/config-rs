@@ -92,3 +92,28 @@ fn test_error_enum_de() {
     );
 }
 
+#[test]
+fn error_with_path() {
+    #[derive(Debug, Deserialize)]
+    struct Inner {
+        test: i32,
+    }
+
+    #[derive(Debug, Deserialize)]
+    struct Outer {
+        inner: Inner,
+    }
+    const CFG: &str = r#"
+inner:
+    test: ABC
+"#;
+
+    let mut cfg = Config::new();
+    cfg.merge(File::from_str(CFG, FileFormat::Yaml)).unwrap();
+    let e = cfg.try_into::<Outer>().unwrap_err();
+    if let ConfigError::Type { key: Some(path), .. } = e {
+        assert_eq!(path, "inner.test");
+    } else {
+        panic!("Wrong error {:?}", e);
+    }
+}

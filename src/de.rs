@@ -1,10 +1,8 @@
 use config::Config;
 use error::*;
 use serde::de;
-use std::borrow::Cow;
-use std::collections::hash_map::Drain;
-use std::collections::HashMap;
-use std::iter::Peekable;
+use std::collections::{HashMap, VecDeque};
+use std::iter::Enumerate;
 use value::{Value, ValueKind, ValueWithKey, Table};
 
 // TODO: Use a macro or some other magic to reduce the code duplication here
@@ -287,13 +285,13 @@ impl<'de, 'a> de::Deserializer<'de> for StrDeserializer<'a> {
 }
 
 struct SeqAccess {
-    elements: ::std::vec::IntoIter<Value>,
+    elements: Enumerate<::std::vec::IntoIter<Value>>,
 }
 
 impl SeqAccess {
     fn new(elements: Vec<Value>) -> Self {
         SeqAccess {
-            elements: elements.into_iter(),
+            elements: elements.into_iter().enumerate(),
         }
     }
 }
@@ -306,7 +304,11 @@ impl<'de> de::SeqAccess<'de> for SeqAccess {
         T: de::DeserializeSeed<'de>,
     {
         match self.elements.next() {
-            Some(value) => seed.deserialize(value).map(Some),
+            Some((idx, value)) => {
+                seed.deserialize(value)
+                    .map(Some)
+                    .map_err(|e| e.prepend_index(idx))
+            }
             None => Ok(None),
         }
     }
@@ -320,15 +322,13 @@ impl<'de> de::SeqAccess<'de> for SeqAccess {
 }
 
 struct MapAccess {
-    elements: Vec<(String, Value)>,
-    index: usize,
+    elements: VecDeque<(String, Value)>,
 }
 
 impl MapAccess {
-    fn new(mut table: HashMap<String, Value>) -> Self {
+    fn new(table: HashMap<String, Value>) -> Self {
         MapAccess {
-            elements: table.drain().collect(),
-            index: 0,
+            elements: table.into_iter().collect(),
         }
     }
 }
@@ -340,22 +340,23 @@ impl<'de> de::MapAccess<'de> for MapAccess {
     where
         K: de::DeserializeSeed<'de>,
     {
-        if self.index >= self.elements.len() {
-            return Ok(None);
+        if let Some(&(ref key_s, _)) = self.elements.front() {
+            let key_de = StrDeserializer(key_s);
+            let key = de::DeserializeSeed::deserialize(seed, key_de)?;
+
+            Ok(Some(key))
+        } else {
+            Ok(None)
         }
-
-        let key_s = &(self.elements[0].0);
-        let key_de = StrDeserializer(key_s);
-        let key = de::DeserializeSeed::deserialize(seed, key_de)?;
-
-        Ok(Some(key))
     }
 
     fn next_value_seed<V>(&mut self, seed: V) -> Result<V::Value>
     where
         V: de::DeserializeSeed<'de>,
     {
-        de::DeserializeSeed::deserialize(seed, self.elements.remove(0).1)
+        let (key, value) = self.elements.pop_front().unwrap();
+        de::DeserializeSeed::deserialize(seed, value)
+            .map_err(|e| e.prepend_key(key))
     }
 }
 
