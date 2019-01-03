@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## 0.9.2 - 2019-01-03
  - Support reading `enum`s from configuration. [#85]
  - Improvements to error path (attempting to propagate path). [#89]
+ - Fix UB in monomorphic expansion. We weren't re-exporting dependent types. [#91]
 
 [#85]: https://github.com/mehcode/config-rs/pull/85
 [#89]: https://github.com/mehcode/config-rs/pull/89
+[#91]: https://github.com/mehcode/config-rs/issues/91
 
 ## 0.9.1 - 2018-09-25
  - Allow Environment variable collection to ignore empty values. [#78]
