@@ -4,13 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.9.2 - 2019-01-03
+ - Support reading `enum`s from configuration. [#85]
+ - Improvements to error path (attempting to propagate path). [#89]
+
+[#85]: https://github.com/mehcode/config-rs/pull/85
+[#89]: https://github.com/mehcode/config-rs/pull/89
+
 ## 0.9.1 - 2018-09-25
  - Allow Environment variable collection to ignore empty values. [#78]
    ```rust
    // Empty env variables will not be collected
    Environment::with_prefix("APP").ignore_empty(true)
    ```
- 
+
 [#78]: https://github.com/mehcode/config-rs/pull/78
 
 ## 0.9.0 - 2018-07-02
