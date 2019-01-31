@@ -11,6 +11,7 @@ use source::Source;
 
 use path;
 use value::{Value, ValueKind, ValueWithKey};
+use file::{File, FileFormat};
 
 #[derive(Clone, Debug)]
 enum ConfigKind {
@@ -49,7 +50,10 @@ pub struct Config {
 
 impl Config {
     pub fn new() -> Self {
-        Config::default()
+        let mut c = Config::default();
+        c.merge(File::from_str("", FileFormat::Toml));
+
+        c
     }
 
     /// Merge in a configuration property source.
@@ -125,6 +129,25 @@ impl Config {
 
             ConfigKind::Frozen => return Err(ConfigError::Frozen),
         };
+
+        self.refresh()
+    }
+
+    pub fn set_defaults<T: Serialize + Default>(&mut self, value: T) -> Result<&mut Config>
+    {
+        match self.kind{
+            ConfigKind::Mutable {
+                ref mut defaults, ..
+            } => {
+                let mut serializer = ConfigSerializer::default();
+                value.serialize(&mut serializer)?;
+                for (key, val) in serializer.output.collect()?{
+                    defaults.insert(key.parse()?, val);
+                }
+            }
+
+            ConfigKind::Frozen => return Err(ConfigError::Frozen),
+        }
 
         self.refresh()
     }
