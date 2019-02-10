@@ -88,14 +88,11 @@ impl Source for Environment {
                 continue;
             }
 
-            let mut key = key.to_string();
+            let mut key = key.to_lowercase();
 
             // Check for prefix
             if let Some(ref prefix_pattern) = prefix_pattern {
-                if key
-                    .to_lowercase()
-                    .starts_with(prefix_pattern)
-                {
+                if key.starts_with(prefix_pattern) {
                     // Remove this prefix from the key
                     key = key[prefix_pattern.len()..].to_string();
                 } else {
@@ -110,7 +107,7 @@ impl Source for Environment {
             }
 
             m.insert(
-                key.to_lowercase(),
+                key,
                 Value::new(Some(&uri), ValueKind::String(value)),
             );
         }
