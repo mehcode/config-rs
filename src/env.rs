@@ -78,7 +78,7 @@ impl Source for Environment {
 
         // Define a prefix pattern to test and exclude from keys
         let prefix_pattern = match self.prefix {
-            Some(ref prefix) => Some(prefix.clone() + "_"),
+            Some(ref prefix) => Some((prefix.clone() + "_").to_lowercase()),
             _ => None,
         };
 
@@ -94,7 +94,7 @@ impl Source for Environment {
             if let Some(ref prefix_pattern) = prefix_pattern {
                 if key
                     .to_lowercase()
-                    .starts_with(&prefix_pattern.to_lowercase())
+                    .starts_with(prefix_pattern)
                 {
                     // Remove this prefix from the key
                     key = key[prefix_pattern.len()..].to_string();
