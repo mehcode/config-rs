@@ -71,11 +71,6 @@ impl Source for Environment {
         let mut m = HashMap::new();
         let uri: String = "the environment".into();
 
-        let separator = match self.separator {
-            Some(ref separator) => separator,
-            _ => "",
-        };
-
         // Define a prefix pattern to test and exclude from keys
         let prefix_pattern = match self.prefix {
             Some(ref prefix) => Some((prefix.clone() + "_").to_lowercase()),
@@ -101,8 +96,7 @@ impl Source for Environment {
                 }
             }
 
-            // If separator is given replace with `.`
-            if !separator.is_empty() {
+            if let Some(ref separator) = self.separator {
                 key = key.replace(separator, ".");
             }
 
