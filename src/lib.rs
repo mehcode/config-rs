@@ -51,6 +51,9 @@ extern crate serde_hjson;
 #[cfg(feature = "ini")]
 extern crate ini;
 
+#[cfg(feature = "hocon")]
+extern crate hocon;
+
 mod config;
 mod de;
 mod env;

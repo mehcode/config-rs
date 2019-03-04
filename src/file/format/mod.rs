@@ -22,6 +22,9 @@ mod hjson;
 #[cfg(feature = "ini")]
 mod ini;
 
+#[cfg(feature = "hocon")]
+mod hocon;
+
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
 pub enum FileFormat {
     /// TOML (parsed with toml)
@@ -42,6 +45,9 @@ pub enum FileFormat {
     /// INI (parsed with rust_ini)
     #[cfg(feature = "ini")]
     Ini,
+    /// HOCON (parsed with rust_ini)
+    #[cfg(feature = "hocon")]
+    Hocon,
 }
 
 lazy_static! {
@@ -64,6 +70,9 @@ lazy_static! {
 
         #[cfg(feature = "ini")]
         formats.insert(FileFormat::Ini, vec!["ini"]);
+
+        #[cfg(feature = "hocon")]
+        formats.insert(FileFormat::Hocon, vec!["conf"]);
 
         formats
     };
@@ -102,6 +111,9 @@ impl FileFormat {
 
             #[cfg(feature = "ini")]
             FileFormat::Ini => ini::parse(uri, text),
+
+            #[cfg(feature = "hocon")]
+            FileFormat::Hocon => hocon::parse(uri, text),
         }
     }
 }
