@@ -134,6 +134,7 @@ impl Config {
         self.refresh()
     }
 
+    /// Set the configuration defaults by serializing them from given value.
     pub fn set_defaults<T>(&mut self, value: &T) -> Result<&mut Config>
     where
         T: Serialize,
