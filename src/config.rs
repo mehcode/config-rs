@@ -10,7 +10,7 @@ use ser::ConfigSerializer;
 use source::Source;
 
 use path;
-use value::{Value, ValueKind, ValueWithKey};
+use value::{Table, Value, ValueKind, ValueWithKey};
 
 #[derive(Clone, Debug)]
 enum ConfigKind {
@@ -49,7 +49,12 @@ pub struct Config {
 
 impl Config {
     pub fn new() -> Self {
-        Config::default()
+        Self {
+            kind: ConfigKind::default(),
+            // Config root should be instantiated as an empty table
+            // to avoid deserialization errors.
+            cache: Value::new(None, Table::new()),
+        }
     }
 
     /// Merge in a configuration property source.
