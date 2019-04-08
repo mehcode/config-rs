@@ -129,6 +129,25 @@ impl Config {
         self.refresh()
     }
 
+    pub fn set_defaults<T>(&mut self, value: &T) -> Result<&mut Config>
+    where
+        T: Serialize,
+    {
+        match self.kind {
+            ConfigKind::Mutable {
+                ref mut defaults, ..
+            } => {
+                for (key, val) in Self::try_from(&value)?.collect()? {
+                    defaults.insert(key.parse()?, val);
+                }
+            }
+
+            ConfigKind::Frozen => return Err(ConfigError::Frozen),
+        }
+
+        self.refresh()
+    }
+
     pub fn set<T>(&mut self, key: &str, value: T) -> Result<&mut Config>
     where
         T: Into<Value>,
@@ -192,11 +211,19 @@ impl Config {
         T::deserialize(self)
     }
 
-    /// Attempt to deserialize the entire configuration into the requested type.
+    /// Attempt to serialize the entire configuration from the given type.
     pub fn try_from<T: Serialize>(from: &T) -> Result<Self> {
         let mut serializer = ConfigSerializer::default();
         from.serialize(&mut serializer)?;
         Ok(serializer.output)
+    }
+
+    /// Attempt to serialize the entire configuration from the given type
+    /// as default values.
+    pub fn try_defaults_from<T: Serialize>(from: &T) -> Result<Self> {
+        let mut c = Self::new();
+        c.set_defaults(from)?;
+        Ok(c)
     }
 
     #[deprecated(since = "0.7.0", note = "please use 'try_into' instead")]
