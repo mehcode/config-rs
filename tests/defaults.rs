@@ -6,6 +6,7 @@ extern crate serde_derive;
 use config::*;
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(default)]
 pub struct Settings {
     pub db_host: String,
 }
@@ -20,9 +21,7 @@ impl Default for Settings {
 
 #[test]
 fn set_defaults() {
-    let mut c = Config::new();
-    c.set_defaults(&Settings::default())
-        .expect("Setting defaults failed");
+    let c = Config::new();
     let s: Settings = c.try_into().expect("Deserialization failed");
 
     assert_eq!(s.db_host, "default");
