@@ -23,7 +23,7 @@ fn test_error_parse() {
     assert!(res.is_err());
     assert_eq!(
         res.unwrap_err().to_string(),
-        "invalid number at line 2 in tests/Settings-invalid.toml".to_string()
+        "failed to parse datetime for key `error` in tests/Settings-invalid.toml".to_string()
     );
 }
 
