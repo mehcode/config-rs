@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.9.3 - 2019-05-09
+ - Support deserializing to a struct with `#[serde(default)]` [#106]
+ 
+[#106]: https://github.com/mehcode/config-rs/pull/106
+
 ## 0.9.2 - 2019-01-03
  - Support reading `enum`s from configuration. [#85]
  - Improvements to error path (attempting to propagate path). [#89]
