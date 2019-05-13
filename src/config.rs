@@ -10,7 +10,7 @@ use ser::ConfigSerializer;
 use source::Source;
 
 use path;
-use value::{Table, Value, ValueKind, ValueWithKey};
+use value::{Table, Value, ValueKind};
 
 #[derive(Clone, Debug)]
 enum ConfigKind {
@@ -151,7 +151,7 @@ impl Config {
         self.refresh()
     }
 
-    pub fn get<'de, T: Deserialize<'de>>(&self, key: &'de str) -> Result<T> {
+    pub fn get<'de, T: Deserialize<'de>>(&self, key: &str) -> Result<T> {
         // Parse the key into a path expression
         let expr: path::Expression = key.to_lowercase().parse()?;
 
@@ -161,7 +161,8 @@ impl Config {
         match value {
             Some(value) => {
                 // Deserialize the received value into the requested type
-                T::deserialize(ValueWithKey::new(value, key))
+                T::deserialize(value)
+                    .map_err(|e| e.extend_with_key(key))
             }
 
             None => Err(ConfigError::NotFound(key.into())),

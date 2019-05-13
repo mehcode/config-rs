@@ -3,7 +3,7 @@ use std::fmt::Display;
 use std::mem;
 
 use error::*;
-use value::{Value, ValueKind, ValueWithKey};
+use value::{Value, ValueKind};
 use Config;
 
 #[derive(Default, Debug)]
