@@ -41,7 +41,7 @@ pub enum ConfigError {
     NotFound(String),
 
     /// Configuration path could not be parsed.
-    PathParse(nom::ErrorKind),
+    PathParse(nom::error::ErrorKind),
 
     /// Configuration could not be parsed from file.
     FileParse {
