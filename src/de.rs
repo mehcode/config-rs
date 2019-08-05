@@ -151,9 +151,23 @@ impl<'de, 'a> de::Deserializer<'de> for StrDeserializer<'a> {
         visitor.visit_str(self.0)
     }
 
+    fn deserialize_enum<V: de::Visitor<'de>>(
+        self,
+        name: &'static str,
+        variants: &'static [&'static str],
+        visitor: V
+    ) -> Result<V::Value> {
+        // FIXME: Is this a too much of an abuse of StrDeserializer? But it seems to work...
+        visitor.visit_enum(EnumAccess{
+            value: Value::new(None, self.0),
+            name: name,
+            variants: variants,
+        })
+    }
+
     forward_to_deserialize_any! {
         bool u8 u16 u32 u64 i8 i16 i32 i64 f32 f64 char str string seq
-        bytes byte_buf map struct unit enum newtype_struct
+        bytes byte_buf map struct unit newtype_struct
         identifier ignored_any unit_struct tuple_struct tuple option
     }
 }
