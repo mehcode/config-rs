@@ -9,7 +9,7 @@ extern crate serde_derive;
 
 use config::*;
 use float_cmp::ApproxEqUlps;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 #[derive(Debug, Deserialize)]
 struct Place {
@@ -224,4 +224,43 @@ fn test_enum() {
     assert_eq!(s.diodes["red"], Diode::Brightness(100));
     assert_eq!(s.diodes["blue"], Diode::Blinking(300, 700));
     assert_eq!(s.diodes["white"], Diode::Pattern{name: "christmas".into(), inifinite: true,});
+}
+
+#[test]
+fn test_enum_key() {
+    #[derive(Debug, Deserialize, PartialEq, Eq, Hash)]
+    enum Quark {
+        Up,
+        Down,
+        Strange,
+        Charm,
+        Bottom,
+        Top,
+    }
+
+    #[derive(Debug, Deserialize)]
+    struct Settings {
+        proton: HashMap<Quark, usize>,
+        // Just to make sure that set keys work too.
+        quarks: HashSet<Quark>,
+    }
+
+    let c = make();
+    let s: Settings = c.try_into().unwrap();
+
+    assert_eq!(s.proton[&Quark::Up], 2);
+    assert_eq!(s.quarks.len(), 6);
+}
+
+#[test]
+fn test_int_key() {
+    #[derive(Debug, Deserialize, PartialEq)]
+    struct Settings {
+        divisors: HashMap<u32, u32>,
+    }
+
+    let c = make();
+    let s: Settings = c.try_into().unwrap();
+    assert_eq!(s.divisors[&4], 3);
+    assert_eq!(s.divisors.len(), 4);
 }
