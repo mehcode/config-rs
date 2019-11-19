@@ -15,6 +15,7 @@ travis-ci = { repository = "mehcode/config-rs" }
 
 [features]
 default = ["toml", "json", "yaml", "hjson", "ini"]
+toml = ["toml"]
 json = ["serde_json"]
 yaml = ["yaml-rust"]
 hjson = ["serde-hjson"]
