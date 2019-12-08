@@ -34,7 +34,7 @@ fn from_hjson_value(uri: Option<&String>, value: &serde_hjson::Value) -> Value {
             let mut m = HashMap::new();
 
             for (key, value) in table {
-                m.insert(key.to_lowercase().clone(), from_hjson_value(uri, value));
+                m.insert(key.clone(), from_hjson_value(uri, value));
             }
 
             Value::new(uri, ValueKind::Table(m))

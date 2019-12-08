@@ -244,7 +244,7 @@ impl EnumAccess {
     fn variant_deserializer(&self, name: &String) -> Result<StrDeserializer> {
         self.variants
             .iter()
-            .find(|&s| s.to_lowercase() == name.to_lowercase())
+            .find(|&s| s == name)
             .map(|&s| StrDeserializer(s))
             .ok_or(self.no_constructor_error(name))
     }

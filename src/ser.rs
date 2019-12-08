@@ -186,7 +186,7 @@ impl<'a> ser::Serializer for &'a mut ConfigSerializer {
         _variant_index: u32,
         variant: &'static str,
     ) -> Result<Self::Ok> {
-        self.serialize_str(&variant.to_lowercase())
+        self.serialize_str(&variant)
     }
 
     fn serialize_newtype_struct<T>(self, _name: &'static str, value: &T) -> Result<Self::Ok>
@@ -206,7 +206,7 @@ impl<'a> ser::Serializer for &'a mut ConfigSerializer {
     where
         T: ?Sized + ser::Serialize,
     {
-        self.push_key(&variant.to_lowercase());
+        self.push_key(&variant);
         value.serialize(&mut *self)?;
         self.pop_key();
         Ok(())
@@ -235,7 +235,7 @@ impl<'a> ser::Serializer for &'a mut ConfigSerializer {
         variant: &'static str,
         _len: usize,
     ) -> Result<Self::SerializeTupleVariant> {
-        self.push_key(&variant.to_lowercase());
+        self.push_key(&variant);
         Ok(self)
     }
 
@@ -254,7 +254,7 @@ impl<'a> ser::Serializer for &'a mut ConfigSerializer {
         variant: &'static str,
         len: usize,
     ) -> Result<Self::SerializeStructVariant> {
-        self.push_key(&variant.to_lowercase());
+        self.push_key(&variant);
         Ok(self)
     }
 }
@@ -493,7 +493,7 @@ impl ser::Serializer for StringKeySerializer {
         _variant_index: u32,
         variant: &str,
     ) -> Result<Self::Ok> {
-        Ok(variant.to_lowercase())
+        Ok(variant.to_string())
     }
 
     fn serialize_newtype_struct<T>(self, _name: &str, value: &T) -> Result<Self::Ok>

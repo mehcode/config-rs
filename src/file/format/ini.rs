@@ -16,19 +16,19 @@ pub fn parse(
                 let mut sec_map: HashMap<String, Value> = HashMap::new();
                 for (k, v) in prop.iter() {
                     sec_map.insert(
-                        k.to_lowercase().clone(),
+                        k.clone(),
                         Value::new(uri, ValueKind::String(v.clone())),
                     );
                 }
                 map.insert(
-                    sec.to_lowercase().clone(),
+                    sec.clone(),
                     Value::new(uri, ValueKind::Table(sec_map)),
                 );
             }
             None => {
                 for (k, v) in prop.iter() {
                     map.insert(
-                        k.to_lowercase().clone(),
+                        k.clone(),
                         Value::new(uri, ValueKind::String(v.clone())),
                     );
                 }

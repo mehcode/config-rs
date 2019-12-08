@@ -206,6 +206,7 @@ fn test_struct_array() {
 #[test]
 fn test_enum() {
     #[derive(Debug, Deserialize, PartialEq)]
+    #[serde(rename_all = "lowercase")]
     enum Diode {
         Off,
         Brightness(i32),

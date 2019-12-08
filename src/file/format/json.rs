@@ -36,7 +36,7 @@ fn from_json_value(uri: Option<&String>, value: &serde_json::Value) -> Value {
             let mut m = HashMap::new();
 
             for (key, value) in table {
-                m.insert(key.to_lowercase().clone(), from_json_value(uri, value));
+                m.insert(key.clone(), from_json_value(uri, value));
             }
 
             Value::new(uri, ValueKind::Table(m))
