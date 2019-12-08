@@ -4,9 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.10.0 - 2019-12-07
+ - Remove lowercasing of keys (unless the key is coming from an environment variable).
+ - Update nom to 5.x
+
 ## 0.9.3 - 2019-05-09
  - Support deserializing to a struct with `#[serde(default)]` [#106]
- 
+
 [#106]: https://github.com/mehcode/config-rs/pull/106
 
 ## 0.9.2 - 2019-01-03
