@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.10.1 - 2019-12-07
+ - Allow enums as configuration keys [#119]
+
+[#119]: https://github.com/mehcode/config-rs/pull/119
+
 ## 0.10.0 - 2019-12-07
  - Remove lowercasing of keys (unless the key is coming from an environment variable).
  - Update nom to 5.x
