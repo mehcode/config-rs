@@ -230,6 +230,7 @@ fn test_enum() {
 #[test]
 fn test_enum_key() {
     #[derive(Debug, Deserialize, PartialEq, Eq, Hash)]
+    #[serde(rename_all = "lowercase")]
     enum Quark {
         Up,
         Down,
