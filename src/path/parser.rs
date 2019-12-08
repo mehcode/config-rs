@@ -1,53 +1,53 @@
 use super::Expression;
-use nom::types::CompleteStr;
-use nom::{digit, ErrorKind, IResult};
+use nom::{
+  IResult, Err,
+  error::ErrorKind,
+  bytes::complete::{is_a, tag},
+  character::complete::{char, digit1, space0},
+  sequence::{delimited, pair, preceded},
+  branch::alt,
+  combinator::{map, map_res, opt, recognize},
+};
 use std::str::{from_utf8, FromStr};
 
-named!(raw_ident<CompleteStr, String>,
-    map!(is_a!(
+fn raw_ident(i: &str) -> IResult<&str, String> {
+  map(is_a(
         "abcdefghijklmnopqrstuvwxyz \
          ABCDEFGHIJKLMNOPQRSTUVWXYZ \
          0123456789 \
          _-"
-    ), |s: CompleteStr| {
-        s.to_string()
-    })
-);
+  ), |s:&str| s.to_string())(i)
+}
 
-named!(integer<CompleteStr, isize>,
-    map_res!(
-        ws!(digit),
-        |s: CompleteStr| {
-            s.parse()
-        }
-    )
-);
+fn integer(i: &str) -> IResult<&str, isize> {
+  map_res(
+    delimited(
+      space0,
+      recognize(pair(opt(tag("-")), digit1)),
+      space0
+    ),
+    FromStr::from_str
+  )(i)
+}
 
-named!(ident<CompleteStr, Expression>, map!(raw_ident, Expression::Identifier));
+fn ident(i: &str) -> IResult<&str, Expression> {
+  map(raw_ident, Expression::Identifier)(i)
+}
 
-#[allow(cyclomatic_complexity)]
-fn postfix(expr: Expression) -> Box<Fn(CompleteStr) -> IResult<CompleteStr, Expression>> {
-    Box::new(move |i: CompleteStr| {
-        alt!(
-            i,
-            do_parse!(tag!(".") >> id: raw_ident >> (Expression::Child(Box::new(expr.clone()), id)))
-                | delimited!(
-                    char!('['),
-                    do_parse!(
-                        negative: opt!(tag!("-")) >> num: integer
-                            >> (Expression::Subscript(
-                                Box::new(expr.clone()),
-                                num * (if negative.is_none() { 1 } else { -1 }),
-                            ))
-                    ),
-                    char!(']')
-                )
-        )
-    })
+fn postfix<'a>(expr: Expression) -> impl Fn(&'a str) -> IResult<&'a str, Expression> {
+  let e2 = expr.clone();
+  let child = map(preceded(tag("."), raw_ident), move |id| Expression::Child(Box::new(expr.clone()), id));
+
+  let subscript = map(delimited(char('['), integer, char(']')), move |num| Expression::Subscript(Box::new(e2.clone()), num));
+
+  alt((
+    child,
+    subscript
+  ))
 }
 
 pub fn from_str(input: &str) -> Result<Expression, ErrorKind> {
-    match ident(CompleteStr(input)) {
+    match ident(input) {
         Ok((mut rem, mut expr)) => {
             while !rem.is_empty() {
                 match postfix(expr)(rem) {
@@ -58,7 +58,7 @@ pub fn from_str(input: &str) -> Result<Expression, ErrorKind> {
 
                     // Forward Incomplete and Error
                     result => {
-                        return result.map(|(_, o)| o).map_err(|e| e.into_error_kind());
+                        return result.map(|(_, o)| o).map_err(to_error_kind);
                     }
                 }
             }
@@ -67,8 +67,15 @@ pub fn from_str(input: &str) -> Result<Expression, ErrorKind> {
         }
 
         // Forward Incomplete and Error
-        result => result.map(|(_, o)| o).map_err(|e| e.into_error_kind()),
+        result => result.map(|(_, o)| o).map_err(to_error_kind),
     }
+}
+
+pub fn to_error_kind(e: Err<(&str, ErrorKind)>) -> ErrorKind {
+  match e {
+    Err::Incomplete(_) => ErrorKind::Complete,
+    Err::Failure((_, e)) | Err::Error((_, e)) => e,
+  }
 }
 
 #[cfg(test)]
