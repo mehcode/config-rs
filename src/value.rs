@@ -39,7 +39,7 @@ where
 
 impl From<String> for ValueKind {
     fn from(value: String) -> Self {
-        ValueKind::String(value.into())
+        ValueKind::String(value)
     }
 }
 
@@ -179,17 +179,17 @@ impl Value {
 
             // Unexpected type
             ValueKind::Nil => Err(ConfigError::invalid_type(
-                self.origin.clone(),
+                self.origin,
                 Unexpected::Unit,
                 "a boolean",
             )),
             ValueKind::Table(_) => Err(ConfigError::invalid_type(
-                self.origin.clone(),
+                self.origin,
                 Unexpected::Map,
                 "a boolean",
             )),
             ValueKind::Array(_) => Err(ConfigError::invalid_type(
-                self.origin.clone(),
+                self.origin,
                 Unexpected::Seq,
                 "a boolean",
             )),
@@ -234,7 +234,7 @@ impl Value {
                 "an integer",
             )),
             ValueKind::Array(_) => Err(ConfigError::invalid_type(
-                self.origin.clone(),
+                self.origin,
                 Unexpected::Seq,
                 "an integer",
             )),
@@ -269,17 +269,17 @@ impl Value {
 
             // Unexpected type
             ValueKind::Nil => Err(ConfigError::invalid_type(
-                self.origin.clone(),
+                self.origin,
                 Unexpected::Unit,
                 "a floating point",
             )),
             ValueKind::Table(_) => Err(ConfigError::invalid_type(
-                self.origin.clone(),
+                self.origin,
                 Unexpected::Map,
                 "a floating point",
             )),
             ValueKind::Array(_) => Err(ConfigError::invalid_type(
-                self.origin.clone(),
+                self.origin,
                 Unexpected::Seq,
                 "a floating point",
             )),
@@ -500,7 +500,7 @@ impl<'de> Deserialize<'de> for Value {
             {
                 let mut vec = Array::new();
 
-                while let Some(elem) = try!(visitor.next_element()) {
+                while let Some(elem) = visitor.next_element()? {
                     vec.push(elem);
                 }
 
@@ -513,7 +513,7 @@ impl<'de> Deserialize<'de> for Value {
             {
                 let mut values = Table::new();
 
-                while let Some((key, value)) = try!(visitor.next_entry()) {
+                while let Some((key, value)) = visitor.next_entry()? {
                     values.insert(key, value);
                 }
 

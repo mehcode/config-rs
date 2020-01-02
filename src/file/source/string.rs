@@ -19,7 +19,7 @@ impl FileSource for FileSourceString {
     fn resolve(
         &self,
         format_hint: Option<FileFormat>,
-    ) -> Result<(Option<String>, String, FileFormat), Box<Error + Send + Sync>> {
+    ) -> Result<(Option<String>, String, FileFormat), Box<dyn Error + Send + Sync>> {
         Ok((
             None,
             self.0.clone(),

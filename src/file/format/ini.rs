@@ -7,7 +7,7 @@ use value::{Value, ValueKind};
 pub fn parse(
     uri: Option<&String>,
     text: &str,
-) -> Result<HashMap<String, Value>, Box<Error + Send + Sync>> {
+) -> Result<HashMap<String, Value>, Box<dyn Error + Send + Sync>> {
     let mut map: HashMap<String, Value> = HashMap::new();
     let i = Ini::load_from_str(text)?;
     for (sec, prop) in i.iter() {
