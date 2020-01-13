@@ -11,6 +11,7 @@ use config::*;
 use float_cmp::ApproxEqUlps;
 use std::collections::HashMap;
 
+
 #[derive(Debug, Deserialize)]
 struct Place {
     name: String,
@@ -76,4 +77,74 @@ fn test_error_parse() {
          line 2 column 1 in tests/Settings-invalid.yaml"
             .to_string()
     );
+}
+
+
+
+#[cfg(feature = "with_env_vars")]
+use std::env;
+
+
+#[test]
+#[cfg(feature = "with_env_vars")]
+fn test_config_with_envs() {
+    env::set_var("famous_tower", "Torre di Pisa");
+    let mut c = Config::default();
+    c.merge(File::with_name("tests/Settings-with-envs"))
+        .unwrap();
+    let c  = c.collect().unwrap();
+    let k = c.get("debug").unwrap().clone();
+    assert_eq!(k.into_bool().ok(), Some(true));
+    let k = c.get("production").unwrap().clone();
+    assert_eq!(k.into_bool().ok(), Some(false));
+    let m: HashMap<String, Value> = c.get("place").unwrap().clone().into_table().unwrap();
+    assert_eq!(
+        m["name"].clone().into_str().unwrap(),
+        "Torre di Pisa".to_string()
+    );
+    env::remove_var("famous_tower");
+}
+
+
+
+
+#[test]
+#[cfg(feature = "with_env_vars")]
+fn test_config_with_invalid_envs() {
+    env::set_var("famous&_tower", "Torre di Pisa");
+    env::set_var("long", "Torre di Pisa");
+    env::set_var("lat++", "Torre di Pisa");
+    env::set_var("bool!echo", "Torre di Pisa");
+
+    let mut c = Config::default();
+    c.merge(File::with_name("tests/Settings-with-invalid-envs"))
+        .unwrap();
+    let c  = c.collect().unwrap();
+    let k = c.get("debug").unwrap().clone();
+    assert_eq!(k.into_bool().ok(), Some(true));
+    let k = c.get("production").unwrap().clone();
+    assert_eq!(k.into_bool().ok(), Some(false));
+    let m: HashMap<String, Value> = c.get("place").unwrap().clone().into_table().unwrap();
+    assert_eq!(
+        m["name"].clone().into_str().unwrap(),
+        "${famous&_tower}".to_string()
+    );
+    assert_eq!(
+        m["longitude"].clone().into_str().unwrap(),
+        "${long==}".to_string()
+    );
+    assert_eq!(
+        m["latitude"].clone().into_str().unwrap(),
+        "${lat++}".to_string()
+    );
+
+    assert_eq!(
+        m["favorite"].clone().into_str().unwrap(),
+        "${bool!echo}".to_string()
+    );
+
+    env::remove_var("famous&_tower");
+    env::remove_var("long");
+    env::remove_var("lat++");
+    env::remove_var("bool!echo");
 }

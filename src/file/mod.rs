@@ -1,11 +1,16 @@
+
+
 mod format;
 pub mod source;
-
 use error::*;
 use source::Source;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use value::Value;
+use std::env;
+
+
+
 
 pub use self::format::FileFormat;
 use self::source::FileSource;
@@ -116,12 +121,33 @@ where
             }
         };
 
-        // Parse the string using the given format
-        format
-            .parse(uri.as_ref(), &contents)
+        let mut updated_contents:String = String::from(contents.clone());
+
+        // replace env variables
+        #[cfg(feature = "with_env_vars")]
+        {
+            // find all occurrences of ${string} and replace them with appropriate environment variables
+            // string can consist of valid unicode letters and numbers, and "-", and "_"
+
+            let regex_string = r"(\$\{[[\p{L}\p{N}][-_]]+})";
+            let re = regex::Regex::new(regex_string).unwrap();
+            for caps in re.captures_iter(&contents) {
+                let v = caps.get(0).unwrap().as_str();
+                let key=&v[2..v.len()-1];
+                if let Ok(value)= env::var(key){
+                    updated_contents = updated_contents.replace(v,&value);
+                }
+            }
+        }
+
+        return format
+            .parse(uri.as_ref(), &updated_contents)
             .map_err(|cause| ConfigError::FileParse {
                 uri: uri,
                 cause: cause,
             })
+
+        // Parse the string using the given format
+
     }
 }

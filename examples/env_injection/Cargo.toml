@@ -1,0 +1,6 @@
+[package]
+name = "env_injection"
+version = "0.1.0"
+
+[dependencies]
+config = { path = "../../", features = ["with_env_vars"] }

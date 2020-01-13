@@ -37,6 +37,16 @@ config = "0.9"
 See the [documentation](https://docs.rs/config) or [examples](https://github.com/mehcode/config-rs/tree/master/examples) for
 more usage information.
 
+
+### Environment Variables Injection
+ - `with_env_vars` - adds support for environment variable injection into the configuration file. See [example](./examples/env_injection).
+
+
+
+
+
+
+
 ## License
 
 config-rs is primarily distributed under the terms of both the MIT license and the Apache License (Version 2.0).
