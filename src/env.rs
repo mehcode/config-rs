@@ -63,7 +63,7 @@ impl Default for Environment {
 }
 
 impl Source for Environment {
-    fn clone_into_box(&self) -> Box<Source + Send + Sync> {
+    fn clone_into_box(&self) -> Box<dyn Source + Send + Sync> {
         Box::new((*self).clone())
     }
 
