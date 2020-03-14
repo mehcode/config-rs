@@ -17,11 +17,18 @@ use source::Source;
 pub struct FileSourceFile {
     /// Path of configuration file
     name: PathBuf,
+
+    /// Raise error if the exact filename is not found
+    disable_file_resolve: bool,
 }
 
 impl FileSourceFile {
     pub fn new(name: PathBuf) -> FileSourceFile {
-        FileSourceFile { name: name }
+        FileSourceFile { name: name, disable_file_resolve: false }
+    }
+
+    pub fn disable_file_resolve(&mut self, flag: bool) {
+        self.disable_file_resolve = flag;
     }
 
     fn find_file(
@@ -57,24 +64,26 @@ impl FileSourceFile {
             };
         }
 
-        match format_hint {
-            Some(format) => for ext in format.extensions() {
-                filename.set_extension(ext);
-
-                if filename.is_file() {
-                    return Ok((filename, format));
-                }
-            },
-
-            None => for (format, extensions) in ALL_EXTENSIONS.iter() {
-                for ext in format.extensions() {
+        if !self.disable_file_resolve {
+            match format_hint {
+                Some(format) => for ext in format.extensions() {
                     filename.set_extension(ext);
 
                     if filename.is_file() {
-                        return Ok((filename, *format));
+                        return Ok((filename, format));
                     }
-                }
-            },
+                },
+
+                None => for (format, extensions) in ALL_EXTENSIONS.iter() {
+                    for ext in format.extensions() {
+                        filename.set_extension(ext);
+
+                        if filename.is_file() {
+                            return Ok((filename, *format));
+                        }
+                    }
+                },
+            }
         }
 
         Err(Box::new(io::Error::new(
