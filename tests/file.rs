@@ -51,7 +51,7 @@ fn test_file_exact_exist_invalid_extension() {
 #[test]
 fn test_file_exact_explicit_format() {
     let mut c = Config::default();
-    c.merge(File::new("tests/Settings.wrongextension", FileFormat::Toml).exact_name(true))
+    c.merge(File::new("tests/Settings.wrongextension", FileFormat::Toml).exact(true))
         .unwrap();
 
     assert_eq!(c.get("debug").ok(), Some(false));

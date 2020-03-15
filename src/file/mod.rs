@@ -60,12 +60,12 @@ impl File<source::file::FileSourceFile> {
     /// any attempt to locate another file. It will analyze the extension if the property
     /// format isn't setted but without using file with a different fullname.
     pub fn with_exact_name(name: &str) -> Self {
-        Self::with_name(name).exact_name(true)
+        Self::with_name(name).exact(true)
     }
 
-    /// If enabeld, if a file with the exact name is not found,
+    /// If enabeld, and a file with the exact name is not found,
     /// will not attempt to locate a file based on the format property.
-    pub fn exact_name(mut self, flag: bool) -> Self {
+    pub fn exact(mut self, flag: bool) -> Self {
         self.source.disable_file_resolve(flag);
         self
     }
