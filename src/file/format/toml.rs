@@ -7,7 +7,7 @@ use value::{Value, ValueKind};
 pub fn parse(
     uri: Option<&String>,
     text: &str,
-) -> Result<HashMap<String, Value>, Box<Error + Send + Sync>> {
+) -> Result<HashMap<String, Value>, Box<dyn Error + Send + Sync>> {
     // Parse a TOML value from the provided text
     // TODO: Have a proper error fire if the root of a file is ever not a Table
     let value = from_toml_value(uri, &toml::from_str(text)?);

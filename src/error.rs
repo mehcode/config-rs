@@ -51,7 +51,7 @@ pub enum ConfigError {
 
         /// The captured error from attempting to parse the file in its desired format.
         /// This is the actual error object from the library used for the parsing.
-        cause: Box<Error + Send + Sync>,
+        cause: Box<dyn Error + Send + Sync>,
     },
 
     /// Value could not be converted into the requested type.
@@ -76,7 +76,7 @@ pub enum ConfigError {
     Message(String),
 
     /// Unadorned error from a foreign origin.
-    Foreign(Box<Error + Send + Sync>),
+    Foreign(Box<dyn Error + Send + Sync>),
 }
 
 impl ConfigError {
@@ -131,14 +131,12 @@ impl ConfigError {
                 unexpected,
                 expected,
                 key,
-            } => {
-                ConfigError::Type {
-                    origin,
-                    unexpected,
-                    expected,
-                    key: Some(concat(key)),
-                }
-            }
+            } => ConfigError::Type {
+                origin,
+                unexpected,
+                expected,
+                key: Some(concat(key)),
+            },
             ConfigError::NotFound(key) => ConfigError::NotFound(concat(Some(key))),
             _ => self,
         }
@@ -166,7 +164,7 @@ impl fmt::Debug for ConfigError {
 impl fmt::Display for ConfigError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            ConfigError::Frozen | ConfigError::PathParse(_) => write!(f, "{}", self.description()),
+            ConfigError::Frozen | ConfigError::PathParse(_) => write!(f, "{}", self.to_string()),
 
             ConfigError::Message(ref s) => write!(f, "{}", s),
 
@@ -209,21 +207,7 @@ impl fmt::Display for ConfigError {
 }
 
 impl Error for ConfigError {
-    fn description(&self) -> &str {
-        match *self {
-            ConfigError::Frozen => "configuration is frozen",
-            ConfigError::NotFound(_) => "configuration property not found",
-            ConfigError::Type { .. } => "invalid type",
-            ConfigError::Foreign(ref cause) | ConfigError::FileParse { ref cause, .. } => {
-                cause.description()
-            }
-            ConfigError::PathParse(ref kind) => kind.description(),
-
-            _ => "configuration error",
-        }
-    }
-
-    fn cause(&self) -> Option<&Error> {
+    fn cause(&self) -> Option<&dyn Error> {
         match *self {
             ConfigError::Foreign(ref cause) | ConfigError::FileParse { ref cause, .. } => {
                 Some(cause.as_ref())

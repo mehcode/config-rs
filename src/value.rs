@@ -500,7 +500,7 @@ impl<'de> Deserialize<'de> for Value {
             {
                 let mut vec = Array::new();
 
-                while let Some(elem) = try!(visitor.next_element()) {
+                while let Some(elem) = visitor.next_element()? {
                     vec.push(elem);
                 }
 
@@ -513,7 +513,7 @@ impl<'de> Deserialize<'de> for Value {
             {
                 let mut values = Table::new();
 
-                while let Some((key, value)) = try!(visitor.next_entry()) {
+                while let Some((key, value)) = visitor.next_entry()? {
                     values.insert(key, value);
                 }
 

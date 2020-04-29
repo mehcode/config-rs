@@ -80,11 +80,14 @@ fn test_error_enum_de() {
         "value of enum Diode should be represented by either string or table with exactly one key"
     );
 
-
-    let confused_v: Value =
-    [("Brightness".to_string(), 100.into()),
-     ("Blinking".to_string(), vec![300, 700].into())]
-    .iter().cloned().collect::<std::collections::HashMap<String, Value>>().into();
+    let confused_v: Value = [
+        ("Brightness".to_string(), 100.into()),
+        ("Blinking".to_string(), vec![300, 700].into()),
+    ]
+    .iter()
+    .cloned()
+    .collect::<std::collections::HashMap<String, Value>>()
+    .into();
     let confused_d = confused_v.try_into::<Diode>();
     assert_eq!(
         confused_d.unwrap_err().to_string(),
@@ -111,7 +114,10 @@ inner:
     let mut cfg = Config::new();
     cfg.merge(File::from_str(CFG, FileFormat::Yaml)).unwrap();
     let e = cfg.try_into::<Outer>().unwrap_err();
-    if let ConfigError::Type { key: Some(path), .. } = e {
+    if let ConfigError::Type {
+        key: Some(path), ..
+    } = e
+    {
         assert_eq!(path, "inner.test");
     } else {
         panic!("Wrong error {:?}", e);

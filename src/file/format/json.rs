@@ -7,7 +7,7 @@ use value::{Value, ValueKind};
 pub fn parse(
     uri: Option<&String>,
     text: &str,
-) -> Result<HashMap<String, Value>, Box<Error + Send + Sync>> {
+) -> Result<HashMap<String, Value>, Box<dyn Error + Send + Sync>> {
     // Parse a JSON object value from the text
     // TODO: Have a proper error fire if the root of a file is ever not a Table
     let value = from_json_value(uri, &serde_json::from_str(text)?);
@@ -22,13 +22,15 @@ fn from_json_value(uri: Option<&String>, value: &serde_json::Value) -> Value {
     match *value {
         serde_json::Value::String(ref value) => Value::new(uri, ValueKind::String(value.clone())),
 
-        serde_json::Value::Number(ref value) => if let Some(value) = value.as_i64() {
-            Value::new(uri, ValueKind::Integer(value))
-        } else if let Some(value) = value.as_f64() {
-            Value::new(uri, ValueKind::Float(value))
-        } else {
-            unreachable!();
-        },
+        serde_json::Value::Number(ref value) => {
+            if let Some(value) = value.as_i64() {
+                Value::new(uri, ValueKind::Integer(value))
+            } else if let Some(value) = value.as_f64() {
+                Value::new(uri, ValueKind::Float(value))
+            } else {
+                unreachable!();
+            }
+        }
 
         serde_json::Value::Bool(value) => Value::new(uri, ValueKind::Boolean(value)),
 

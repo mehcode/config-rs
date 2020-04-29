@@ -86,7 +86,7 @@ impl FileFormat {
         &self,
         uri: Option<&String>,
         text: &str,
-    ) -> Result<HashMap<String, Value>, Box<Error + Send + Sync>> {
+    ) -> Result<HashMap<String, Value>, Box<dyn Error + Send + Sync>> {
         match *self {
             #[cfg(feature = "toml")]
             FileFormat::Toml => toml::parse(uri, text),

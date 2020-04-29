@@ -10,8 +10,8 @@ use value::Value;
 pub use self::format::FileFormat;
 use self::source::FileSource;
 
-pub use self::source::string::FileSourceString;
 pub use self::source::file::FileSourceFile;
+pub use self::source::string::FileSourceString;
 
 #[derive(Clone, Debug)]
 pub struct File<T>
@@ -94,7 +94,7 @@ where
     T: 'static,
     T: Sync + Send,
 {
-    fn clone_into_box(&self) -> Box<Source + Send + Sync> {
+    fn clone_into_box(&self) -> Box<dyn Source + Send + Sync> {
         Box::new((*self).clone())
     }
 
