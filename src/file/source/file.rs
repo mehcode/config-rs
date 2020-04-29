@@ -21,7 +21,7 @@ pub struct FileSourceFile {
 
 impl FileSourceFile {
     pub fn new(name: PathBuf) -> FileSourceFile {
-        FileSourceFile { name: name }
+        FileSourceFile { name }
     }
 
     fn find_file(
@@ -107,7 +107,7 @@ impl FileSource for FileSourceFile {
         };
 
         // Read contents from file
-        let mut file = fs::File::open(filename.clone())?;
+        let mut file = fs::File::open(filename)?;
         let mut text = String::new();
         file.read_to_string(&mut text)?;
 

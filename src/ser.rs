@@ -48,10 +48,9 @@ impl ConfigSerializer {
             self.keys
                 .get_mut(len - 1)
                 .map(|pair| pair.1 = pair.1.map(|i| i + 1).or(Some(0)))
-                .ok_or(ConfigError::Message(format!(
-                    "last key is not found in {} keys",
-                    len
-                )))
+                .ok_or_else(|| {
+                    ConfigError::Message(format!("last key is not found in {} keys", len))
+                })
         } else {
             Err(ConfigError::Message("keys is empty".to_string()))
         }

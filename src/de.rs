@@ -127,8 +127,8 @@ impl<'de> de::Deserializer<'de> for Value {
     {
         visitor.visit_enum(EnumAccess {
             value: self,
-            name: name,
-            variants: variants,
+            name,
+            variants,
         })
     }
 
@@ -243,12 +243,12 @@ struct EnumAccess {
 }
 
 impl EnumAccess {
-    fn variant_deserializer(&self, name: &String) -> Result<StrDeserializer> {
+    fn variant_deserializer(&self, name: &str) -> Result<StrDeserializer> {
         self.variants
             .iter()
-            .find(|&s| s == name)
+            .find(|&s| s == &name)
             .map(|&s| StrDeserializer(s))
-            .ok_or(self.no_constructor_error(name))
+            .ok_or_else(|| self.no_constructor_error(name))
     }
 
     fn table_deserializer(&self, table: &Table) -> Result<StrDeserializer> {
@@ -452,8 +452,8 @@ impl<'de> de::Deserializer<'de> for Config {
     {
         visitor.visit_enum(EnumAccess {
             value: self.cache,
-            name: name,
-            variants: variants,
+            name,
+            variants,
         })
     }
 

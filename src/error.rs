@@ -88,9 +88,9 @@ impl ConfigError {
         expected: &'static str,
     ) -> Self {
         ConfigError::Type {
-            origin: origin,
-            unexpected: unexpected,
-            expected: expected,
+            origin,
+            unexpected,
+            expected,
             key: None,
         }
     }
@@ -105,9 +105,9 @@ impl ConfigError {
                 expected,
                 ..
             } => ConfigError::Type {
-                origin: origin,
-                unexpected: unexpected,
-                expected: expected,
+                origin,
+                unexpected,
+                expected,
                 key: Some(key.into()),
             },
 

@@ -39,7 +39,7 @@ where
 
 impl From<String> for ValueKind {
     fn from(value: String) -> Self {
-        ValueKind::String(value.into())
+        ValueKind::String(value)
     }
 }
 
@@ -179,17 +179,17 @@ impl Value {
 
             // Unexpected type
             ValueKind::Nil => Err(ConfigError::invalid_type(
-                self.origin.clone(),
+                self.origin,
                 Unexpected::Unit,
                 "a boolean",
             )),
             ValueKind::Table(_) => Err(ConfigError::invalid_type(
-                self.origin.clone(),
+                self.origin,
                 Unexpected::Map,
                 "a boolean",
             )),
             ValueKind::Array(_) => Err(ConfigError::invalid_type(
-                self.origin.clone(),
+                self.origin,
                 Unexpected::Seq,
                 "a boolean",
             )),
@@ -224,17 +224,17 @@ impl Value {
 
             // Unexpected type
             ValueKind::Nil => Err(ConfigError::invalid_type(
-                self.origin.clone(),
+                self.origin,
                 Unexpected::Unit,
                 "an integer",
             )),
             ValueKind::Table(_) => Err(ConfigError::invalid_type(
-                self.origin.clone(),
+                self.origin,
                 Unexpected::Map,
                 "an integer",
             )),
             ValueKind::Array(_) => Err(ConfigError::invalid_type(
-                self.origin.clone(),
+                self.origin,
                 Unexpected::Seq,
                 "an integer",
             )),
@@ -269,17 +269,17 @@ impl Value {
 
             // Unexpected type
             ValueKind::Nil => Err(ConfigError::invalid_type(
-                self.origin.clone(),
+                self.origin,
                 Unexpected::Unit,
                 "a floating point",
             )),
             ValueKind::Table(_) => Err(ConfigError::invalid_type(
-                self.origin.clone(),
+                self.origin,
                 Unexpected::Map,
                 "a floating point",
             )),
             ValueKind::Array(_) => Err(ConfigError::invalid_type(
-                self.origin.clone(),
+                self.origin,
                 Unexpected::Seq,
                 "a floating point",
             )),
