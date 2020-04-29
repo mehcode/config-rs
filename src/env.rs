@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::convert::TryInto;
 use std::env;
 
 use crate::error::*;
@@ -23,6 +24,9 @@ pub struct Environment {
 
     /// Ignore empty env values (treat as unset).
     ignore_empty: bool,
+
+    /// Parse numbers if they're detected.
+    parse_numbers: bool,
 }
 
 impl Environment {
@@ -51,6 +55,11 @@ impl Environment {
         self.ignore_empty = ignore;
         self
     }
+
+    pub fn parse_numbers(mut self, parse_numbers: bool) -> Self {
+        self.parse_numbers = parse_numbers;
+        self
+    }
 }
 
 impl Default for Environment {
@@ -59,6 +68,7 @@ impl Default for Environment {
             prefix: None,
             separator: None,
             ignore_empty: false,
+            parse_numbers: false,
         }
     }
 }
@@ -115,10 +125,19 @@ impl Source for Environment {
                 key = key.replace(separator, ".");
             }
 
-            m.insert(
-                key.to_lowercase(),
-                Value::new(Some(&uri), ValueKind::String(value)),
-            );
+            let value = if self.parse_numbers {
+                if let Ok(parsed) = value.parse() {
+                    ValueKind::Integer(parsed)
+                } else if let Ok(parsed) = value.parse() {
+                    ValueKind::Float(parsed)
+                } else {
+                    ValueKind::String(value)
+                }
+            } else {
+                ValueKind::String(value)
+            };
+
+            m.insert(key.to_lowercase(), Value::new(Some(&uri), value));
         }
 
         Ok(m)
