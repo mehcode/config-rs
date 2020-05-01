@@ -126,10 +126,14 @@ impl Source for Environment {
             }
 
             let value = if self.parse_numbers {
-                if let Ok(parsed) = value.parse() {
+                let string_value = Value::new(Some(&uri), ValueKind::String(value.clone()));
+
+                if let Ok(parsed) = string_value.clone().into_int() {
                     ValueKind::Integer(parsed)
-                } else if let Ok(parsed) = value.parse() {
+                } else if let Ok(parsed) = string_value.clone().into_float() {
                     ValueKind::Float(parsed)
+                } else if let Ok(parsed) = string_value.clone().into_bool() {
+                    ValueKind::Boolean(parsed)
                 } else {
                     ValueKind::String(value)
                 }
