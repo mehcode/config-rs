@@ -89,7 +89,8 @@ fn test_parse_numbers() {
     env::set_var("FLOAT_VAL", "42.2");
     env::set_var("BOOL_VAL", "true");
 
-    let environment = Environment::new().parse_numbers(true);
+    let environment = Environment::new().try_parsing(true);
+
     let values = environment.collect().unwrap();
 
     assert_eq!(

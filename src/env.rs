@@ -25,8 +25,8 @@ pub struct Environment {
     /// Ignore empty env values (treat as unset).
     ignore_empty: bool,
 
-    /// Parse numbers if they're detected.
-    parse_numbers: bool,
+    /// Parses booleans, integers and floats if they're detected (can be safely parsed).
+    try_parsing: bool,
 }
 
 impl Environment {
@@ -56,8 +56,8 @@ impl Environment {
         self
     }
 
-    pub fn parse_numbers(mut self, parse_numbers: bool) -> Self {
-        self.parse_numbers = parse_numbers;
+    pub fn try_parsing(mut self, try_parsing: bool) -> Self {
+        self.try_parsing = try_parsing;
         self
     }
 }
@@ -68,7 +68,7 @@ impl Default for Environment {
             prefix: None,
             separator: None,
             ignore_empty: false,
-            parse_numbers: false,
+            try_parsing: false,
         }
     }
 }
@@ -125,7 +125,7 @@ impl Source for Environment {
                 key = key.replace(separator, ".");
             }
 
-            let value = if self.parse_numbers {
+            let value = if self.try_parsing {
                 let string_value = Value::new(Some(&uri), ValueKind::String(value.clone()));
 
                 if let Ok(parsed) = string_value.clone().into_int() {
