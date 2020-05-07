@@ -128,7 +128,13 @@ impl Source for Environment {
             let value = if self.try_parsing {
                 let string_value = Value::new(Some(&uri), ValueKind::String(value.clone()));
 
-                if let Ok(parsed) = string_value.clone().into_int() {
+                // if the value is "true" or "false" it should be parsed as a bool
+                if let (true, Ok(parsed)) = (
+                    value.to_lowercase() == "true" || value.to_lowercase() == "false",
+                    string_value.clone().into_bool(),
+                ) {
+                    ValueKind::Boolean(parsed)
+                } else if let Ok(parsed) = string_value.clone().into_int() {
                     ValueKind::Integer(parsed)
                 } else if let Ok(parsed) = string_value.clone().into_float() {
                     ValueKind::Float(parsed)
