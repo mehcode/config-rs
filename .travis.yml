@@ -2,13 +2,14 @@ sudo: true
 language: rust
 cache: cargo
 rust:
-  - nightly
-  - beta
-  - stable
+    - nightly
+    - beta
+    - stable
 
 matrix:
     allow_failures:
         - rust: nightly
 
 script:
-  - cargo test
+    - cargo clippy --tests -- -D warnings
+    - cargo test
