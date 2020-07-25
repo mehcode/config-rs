@@ -152,7 +152,7 @@ impl Expression {
             },
 
             Expression::Subscript(ref expr, index) => {
-                let mut do_again = false;
+                let do_again = false;
                 match expr.get_mut_forcibly(root) {
                     Some(value) => {
                         match value.kind {
@@ -244,20 +244,13 @@ impl Expression {
                         _ => *parent = Vec::<Value>::new().into(),
                     }
 
-                    match parent.kind {
-                        ValueKind::Array(ref mut array) => {
-                            let uindex = sindex_to_uindex(index, array.len());
-                            if uindex >= array.len() {
-                                array.resize(
-                                    (uindex + 1) as usize,
-                                    Value::new(None, ValueKind::Nil),
-                                );
-                            }
-
-                            array[uindex] = value.clone();
+                    if let ValueKind::Array(array) = &mut parent.kind {
+                        let uindex = sindex_to_uindex(index, array.len());
+                        if uindex >= array.len() {
+                            array.resize((uindex + 1) as usize, Value::new(None, ValueKind::Nil));
                         }
 
-                        _ => (),
+                        array[uindex] = value;
                     }
                 }
             }
