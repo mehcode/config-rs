@@ -11,7 +11,7 @@ lazy_static! {
 	static ref SETTINGS: RwLock<Config> = RwLock::new(Config::default());
 }
 
-fn try_main() -> Result<(), Box<Error>> {
+fn try_main() -> Result<(), Box<dyn Error>> {
 	// Set property
 	SETTINGS.write()?.set("property", 42)?;
 

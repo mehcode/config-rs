@@ -94,7 +94,7 @@ where
     T: 'static,
     T: Sync + Send,
 {
-    fn clone_into_box(&self) -> Box<Source + Send + Sync> {
+    fn clone_into_box(&self) -> Box<dyn Source + Send + Sync> {
         Box::new((*self).clone())
     }
 
@@ -120,8 +120,8 @@ where
         format
             .parse(uri.as_ref(), &contents)
             .map_err(|cause| ConfigError::FileParse {
-                uri: uri,
-                cause: cause,
+                uri,
+                cause,
             })
     }
 }

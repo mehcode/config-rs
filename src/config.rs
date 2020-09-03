@@ -18,7 +18,7 @@ enum ConfigKind {
     Mutable {
         defaults: HashMap<path::Expression, Value>,
         overrides: HashMap<path::Expression, Value>,
-        sources: Vec<Box<Source + Send + Sync>>,
+        sources: Vec<Box<dyn Source + Send + Sync>>,
     },
 
     // A frozen configuration.
@@ -212,7 +212,7 @@ impl Config {
 }
 
 impl Source for Config {
-    fn clone_into_box(&self) -> Box<Source + Send + Sync> {
+    fn clone_into_box(&self) -> Box<dyn Source + Send + Sync> {
         Box::new((*self).clone())
     }
 

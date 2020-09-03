@@ -7,7 +7,7 @@ use value::{Value, ValueKind};
 
 /// Describes a generic _source_ of configuration properties.
 pub trait Source: Debug {
-    fn clone_into_box(&self) -> Box<Source + Send + Sync>;
+    fn clone_into_box(&self) -> Box<dyn Source + Send + Sync>;
 
     /// Collect all configuration properties available from this source and return
     /// a HashMap.
@@ -35,14 +35,14 @@ pub trait Source: Debug {
     }
 }
 
-impl Clone for Box<Source + Send + Sync> {
-    fn clone(&self) -> Box<Source + Send + Sync> {
+impl Clone for Box<dyn Source + Send + Sync> {
+    fn clone(&self) -> Box<dyn Source + Send + Sync> {
         self.clone_into_box()
     }
 }
 
-impl Source for Vec<Box<Source + Send + Sync>> {
-    fn clone_into_box(&self) -> Box<Source + Send + Sync> {
+impl Source for Vec<Box<dyn Source + Send + Sync>> {
+    fn clone_into_box(&self) -> Box<dyn Source + Send + Sync> {
         Box::new((*self).clone())
     }
 
@@ -67,7 +67,7 @@ where
     T: Clone,
     T: 'static,
 {
-    fn clone_into_box(&self) -> Box<Source + Send + Sync> {
+    fn clone_into_box(&self) -> Box<dyn Source + Send + Sync> {
         Box::new((*self).clone())
     }
 

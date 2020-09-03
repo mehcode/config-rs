@@ -21,13 +21,13 @@ pub struct FileSourceFile {
 
 impl FileSourceFile {
     pub fn new(name: PathBuf) -> FileSourceFile {
-        FileSourceFile { name: name }
+        FileSourceFile { name }
     }
 
     fn find_file(
         &self,
         format_hint: Option<FileFormat>,
-    ) -> Result<(PathBuf, FileFormat), Box<Error + Send + Sync>> {
+    ) -> Result<(PathBuf, FileFormat), Box<dyn Error + Send + Sync>> {
         // First check for an _exact_ match
         let mut filename = env::current_dir()?.as_path().join(self.name.clone());
         if filename.is_file() {
@@ -91,7 +91,7 @@ impl FileSource for FileSourceFile {
     fn resolve(
         &self,
         format_hint: Option<FileFormat>,
-    ) -> Result<(Option<String>, String, FileFormat), Box<Error + Send + Sync>> {
+    ) -> Result<(Option<String>, String, FileFormat), Box<dyn Error + Send + Sync>> {
         // Find file
         let (filename, format) = self.find_file(format_hint)?;
 
@@ -103,7 +103,7 @@ impl FileSource for FileSourceFile {
         };
 
         // Read contents from file
-        let mut file = fs::File::open(filename.clone())?;
+        let mut file = fs::File::open(filename)?;
         let mut text = String::new();
         file.read_to_string(&mut text)?;
 

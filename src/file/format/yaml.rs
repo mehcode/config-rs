@@ -9,7 +9,7 @@ use yaml_rust as yaml;
 pub fn parse(
     uri: Option<&String>,
     text: &str,
-) -> Result<HashMap<String, Value>, Box<Error + Send + Sync>> {
+) -> Result<HashMap<String, Value>, Box<dyn Error + Send + Sync>> {
     // Parse a YAML object from file
     let mut docs = yaml::YamlLoader::load_from_str(text)?;
     let root = match docs.len() {
