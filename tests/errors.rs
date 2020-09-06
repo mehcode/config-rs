@@ -6,6 +6,7 @@ extern crate config;
 extern crate serde_derive;
 
 use config::*;
+use std::path::PathBuf;
 
 fn make() -> Config {
     let mut c = Config::default();
@@ -20,10 +21,12 @@ fn test_error_parse() {
     let mut c = Config::default();
     let res = c.merge(File::new("tests/Settings-invalid", FileFormat::Toml));
 
+    let path : PathBuf = ["tests", "Settings-invalid.toml"].iter().collect();
+
     assert!(res.is_err());
     assert_eq!(
         res.unwrap_err().to_string(),
-        "failed to parse datetime for key `error` at line 2 column 9 in tests/Settings-invalid.toml".to_string()
+        format!("failed to parse datetime for key `error` at line 2 column 9 in {}", path.to_str().unwrap())
     );
 }
 
@@ -33,12 +36,12 @@ fn test_error_type() {
 
     let res = c.get::<bool>("boolean_s_parse");
 
+    let path : PathBuf = ["tests", "Settings.toml"].iter().collect();
+
     assert!(res.is_err());
     assert_eq!(
         res.unwrap_err().to_string(),
-        "invalid type: string \"fals\", expected a boolean for key \
-         `boolean_s_parse` in tests/Settings.toml"
-            .to_string()
+        format!("invalid type: string \"fals\", expected a boolean for key `boolean_s_parse` in {}", path.to_str().unwrap())
     );
 }
 

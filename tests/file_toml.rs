@@ -10,6 +10,7 @@ extern crate serde_derive;
 use config::*;
 use float_cmp::ApproxEqUlps;
 use std::collections::HashMap;
+use std::path::PathBuf;
 
 #[derive(Debug, Deserialize)]
 struct Place {
@@ -79,9 +80,11 @@ fn test_error_parse() {
     let mut c = Config::default();
     let res = c.merge(File::new("tests/Settings-invalid", FileFormat::Toml));
 
+    let path_with_extension : PathBuf = ["tests", "Settings-invalid.toml"].iter().collect();
+
     assert!(res.is_err());
     assert_eq!(
         res.unwrap_err().to_string(),
-        "failed to parse datetime for key `error` at line 2 column 9 in tests/Settings-invalid.toml".to_string()
+        format!("failed to parse datetime for key `error` at line 2 column 9 in {}", path_with_extension.to_str().unwrap())
     );
 }
