@@ -75,6 +75,6 @@ fn test_error_parse() {
     assert!(res.is_err());
     assert_eq!(
         res.unwrap_err().to_string(),
-        format!("expected `:` at line 4 column 1 in {}", path_with_extension.to_str().unwrap())
+        format!("expected `:` at line 4 column 1 in {}", path_with_extension.display())
     );
 }

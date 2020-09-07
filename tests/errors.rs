@@ -26,7 +26,7 @@ fn test_error_parse() {
     assert!(res.is_err());
     assert_eq!(
         res.unwrap_err().to_string(),
-        format!("failed to parse datetime for key `error` at line 2 column 9 in {}", path.to_str().unwrap())
+        format!("failed to parse datetime for key `error` at line 2 column 9 in {}", path.display())
     );
 }
 
@@ -41,7 +41,7 @@ fn test_error_type() {
     assert!(res.is_err());
     assert_eq!(
         res.unwrap_err().to_string(),
-        format!("invalid type: string \"fals\", expected a boolean for key `boolean_s_parse` in {}", path.to_str().unwrap())
+        format!("invalid type: string \"fals\", expected a boolean for key `boolean_s_parse` in {}", path.display())
     );
 }
 

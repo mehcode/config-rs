@@ -76,6 +76,6 @@ fn test_error_parse() {
     assert_eq!(
         res.unwrap_err().to_string(),
         format!("while parsing a block mapping, did not find expected key at \
-         line 2 column 1 in {}", path_with_extension.to_str().unwrap())
+         line 2 column 1 in {}", path_with_extension.display())
     );
 }
