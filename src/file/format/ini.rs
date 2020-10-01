@@ -15,22 +15,13 @@ pub fn parse(
             Some(ref sec) => {
                 let mut sec_map: HashMap<String, Value> = HashMap::new();
                 for (k, v) in prop.iter() {
-                    sec_map.insert(
-                        k.clone(),
-                        Value::new(uri, ValueKind::String(v.clone())),
-                    );
+                    sec_map.insert(k.clone(), Value::new(uri, ValueKind::String(v.clone())));
                 }
-                map.insert(
-                    sec.clone(),
-                    Value::new(uri, ValueKind::Table(sec_map)),
-                );
+                map.insert(sec.clone(), Value::new(uri, ValueKind::Table(sec_map)));
             }
             None => {
                 for (k, v) in prop.iter() {
-                    map.insert(
-                        k.clone(),
-                        Value::new(uri, ValueKind::String(v.clone())),
-                    );
+                    map.insert(k.clone(), Value::new(uri, ValueKind::String(v.clone())));
                 }
             }
         }

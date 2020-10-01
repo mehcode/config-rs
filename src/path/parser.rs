@@ -1,49 +1,49 @@
 use super::Expression;
 use nom::{
-  IResult, Err,
-  error::ErrorKind,
-  bytes::complete::{is_a, tag},
-  character::complete::{char, digit1, space0},
-  sequence::{delimited, pair, preceded},
-  branch::alt,
-  combinator::{map, map_res, opt, recognize},
+    branch::alt,
+    bytes::complete::{is_a, tag},
+    character::complete::{char, digit1, space0},
+    combinator::{map, map_res, opt, recognize},
+    error::ErrorKind,
+    sequence::{delimited, pair, preceded},
+    Err, IResult,
 };
 use std::str::{from_utf8, FromStr};
 
 fn raw_ident(i: &str) -> IResult<&str, String> {
-  map(is_a(
-        "abcdefghijklmnopqrstuvwxyz \
+    map(
+        is_a(
+            "abcdefghijklmnopqrstuvwxyz \
          ABCDEFGHIJKLMNOPQRSTUVWXYZ \
          0123456789 \
-         _-"
-  ), |s:&str| s.to_string())(i)
+         _-",
+        ),
+        |s: &str| s.to_string(),
+    )(i)
 }
 
 fn integer(i: &str) -> IResult<&str, isize> {
-  map_res(
-    delimited(
-      space0,
-      recognize(pair(opt(tag("-")), digit1)),
-      space0
-    ),
-    FromStr::from_str
-  )(i)
+    map_res(
+        delimited(space0, recognize(pair(opt(tag("-")), digit1)), space0),
+        FromStr::from_str,
+    )(i)
 }
 
 fn ident(i: &str) -> IResult<&str, Expression> {
-  map(raw_ident, Expression::Identifier)(i)
+    map(raw_ident, Expression::Identifier)(i)
 }
 
 fn postfix<'a>(expr: Expression) -> impl Fn(&'a str) -> IResult<&'a str, Expression> {
-  let e2 = expr.clone();
-  let child = map(preceded(tag("."), raw_ident), move |id| Expression::Child(Box::new(expr.clone()), id));
+    let e2 = expr.clone();
+    let child = map(preceded(tag("."), raw_ident), move |id| {
+        Expression::Child(Box::new(expr.clone()), id)
+    });
 
-  let subscript = map(delimited(char('['), integer, char(']')), move |num| Expression::Subscript(Box::new(e2.clone()), num));
+    let subscript = map(delimited(char('['), integer, char(']')), move |num| {
+        Expression::Subscript(Box::new(e2.clone()), num)
+    });
 
-  alt((
-    child,
-    subscript
-  ))
+    alt((child, subscript))
 }
 
 pub fn from_str(input: &str) -> Result<Expression, ErrorKind> {
@@ -72,10 +72,10 @@ pub fn from_str(input: &str) -> Result<Expression, ErrorKind> {
 }
 
 pub fn to_error_kind(e: Err<(&str, ErrorKind)>) -> ErrorKind {
-  match e {
-    Err::Incomplete(_) => ErrorKind::Complete,
-    Err::Failure((_, e)) | Err::Error((_, e)) => e,
-  }
+    match e {
+        Err::Incomplete(_) => ErrorKind::Complete,
+        Err::Failure((_, e)) | Err::Error((_, e)) => e,
+    }
 }
 
 #[cfg(test)]

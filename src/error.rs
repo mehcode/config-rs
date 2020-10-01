@@ -131,14 +131,12 @@ impl ConfigError {
                 unexpected,
                 expected,
                 key,
-            } => {
-                ConfigError::Type {
-                    origin,
-                    unexpected,
-                    expected,
-                    key: Some(concat(key)),
-                }
-            }
+            } => ConfigError::Type {
+                origin,
+                unexpected,
+                expected,
+                key: Some(concat(key)),
+            },
             ConfigError::NotFound(key) => ConfigError::NotFound(concat(Some(key))),
             _ => self,
         }
@@ -210,7 +208,7 @@ impl fmt::Display for ConfigError {
     }
 }
 
-impl Error for ConfigError { }
+impl Error for ConfigError {}
 
 impl de::Error for ConfigError {
     fn custom<T: fmt::Display>(msg: T) -> Self {

@@ -151,34 +151,30 @@ impl Expression {
                 _ => None,
             },
 
-            Expression::Subscript(ref expr, index) => {
-                match expr.get_mut_forcibly(root) {
-                    Some(value) => {
-                        match value.kind {
-                            ValueKind::Array(_) => (),
-                            _ => *value = Vec::<Value>::new().into(),
-                        }
+            Expression::Subscript(ref expr, index) => match expr.get_mut_forcibly(root) {
+                Some(value) => {
+                    match value.kind {
+                        ValueKind::Array(_) => (),
+                        _ => *value = Vec::<Value>::new().into(),
+                    }
 
-                        match value.kind {
-                            ValueKind::Array(ref mut array) => {
-                                let index = sindex_to_uindex(index, array.len());
+                    match value.kind {
+                        ValueKind::Array(ref mut array) => {
+                            let index = sindex_to_uindex(index, array.len());
 
-                                if index >= array.len() {
-                                    array.resize(
-                                        (index + 1) as usize,
-                                        Value::new(None, ValueKind::Nil),
-                                    );
-                                }
-
-                                Some(&mut array[index])
+                            if index >= array.len() {
+                                array
+                                    .resize((index + 1) as usize, Value::new(None, ValueKind::Nil));
                             }
 
-                            _ => None,
+                            Some(&mut array[index])
                         }
+
+                        _ => None,
                     }
-                    _ => None,
                 }
-            }
+                _ => None,
+            },
         }
     }
 
@@ -246,10 +242,7 @@ impl Expression {
                     if let ValueKind::Array(ref mut array) = parent.kind {
                         let uindex = sindex_to_uindex(index, array.len());
                         if uindex >= array.len() {
-                            array.resize(
-                                (uindex + 1) as usize,
-                                Value::new(None, ValueKind::Nil),
-                            );
+                            array.resize((uindex + 1) as usize, Value::new(None, ValueKind::Nil));
                         }
 
                         array[uindex] = value;

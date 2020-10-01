@@ -10,8 +10,8 @@ use value::Value;
 pub use self::format::FileFormat;
 use self::source::FileSource;
 
-pub use self::source::string::FileSourceString;
 pub use self::source::file::FileSourceFile;
+pub use self::source::string::FileSourceString;
 
 #[derive(Clone, Debug)]
 pub struct File<T>
@@ -119,9 +119,6 @@ where
         // Parse the string using the given format
         format
             .parse(uri.as_ref(), &contents)
-            .map_err(|cause| ConfigError::FileParse {
-                uri,
-                cause,
-            })
+            .map_err(|cause| ConfigError::FileParse { uri, cause })
     }
 }

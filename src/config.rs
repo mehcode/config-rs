@@ -161,8 +161,7 @@ impl Config {
         match value {
             Some(value) => {
                 // Deserialize the received value into the requested type
-                T::deserialize(value)
-                    .map_err(|e| e.extend_with_key(key))
+                T::deserialize(value).map_err(|e| e.extend_with_key(key))
             }
 
             None => Err(ConfigError::NotFound(key.into())),

@@ -3,7 +3,7 @@ use error::*;
 use serde::de;
 use std::collections::{HashMap, VecDeque};
 use std::iter::Enumerate;
-use value::{Value, ValueKind, Table};
+use value::{Table, Value, ValueKind};
 
 impl<'de> de::Deserializer<'de> for Value {
     type Error = ConfigError;
@@ -125,7 +125,11 @@ impl<'de> de::Deserializer<'de> for Value {
     where
         V: de::Visitor<'de>,
     {
-        visitor.visit_enum(EnumAccess{ value: self, name, variants })
+        visitor.visit_enum(EnumAccess {
+            value: self,
+            name,
+            variants,
+        })
     }
 
     forward_to_deserialize_any! {
@@ -178,11 +182,10 @@ impl<'de> de::SeqAccess<'de> for SeqAccess {
         T: de::DeserializeSeed<'de>,
     {
         match self.elements.next() {
-            Some((idx, value)) => {
-                seed.deserialize(value)
-                    .map(Some)
-                    .map_err(|e| e.prepend_index(idx))
-            }
+            Some((idx, value)) => seed
+                .deserialize(value)
+                .map(Some)
+                .map_err(|e| e.prepend_index(idx)),
             None => Ok(None),
         }
     }
@@ -229,8 +232,7 @@ impl<'de> de::MapAccess<'de> for MapAccess {
         V: de::DeserializeSeed<'de>,
     {
         let (key, value) = self.elements.pop_front().unwrap();
-        de::DeserializeSeed::deserialize(seed, value)
-            .map_err(|e| e.prepend_key(key))
+        de::DeserializeSeed::deserialize(seed, value).map_err(|e| e.prepend_key(key))
     }
 }
 
@@ -315,21 +317,21 @@ impl<'de> de::VariantAccess<'de> for EnumAccess {
         V: de::Visitor<'de>,
     {
         match self.value.kind {
-            ValueKind::Table(t) => de::Deserializer::deserialize_seq(t.into_iter().next().unwrap().1, visitor),
+            ValueKind::Table(t) => {
+                de::Deserializer::deserialize_seq(t.into_iter().next().unwrap().1, visitor)
+            }
             _ => unreachable!(),
         }
     }
 
-    fn struct_variant<V>(
-        self,
-        _fields: &'static [&'static str],
-        visitor: V,
-    ) -> Result<V::Value>
+    fn struct_variant<V>(self, _fields: &'static [&'static str], visitor: V) -> Result<V::Value>
     where
         V: de::Visitor<'de>,
     {
         match self.value.kind {
-            ValueKind::Table(t) => de::Deserializer::deserialize_map(t.into_iter().next().unwrap().1, visitor),
+            ValueKind::Table(t) => {
+                de::Deserializer::deserialize_map(t.into_iter().next().unwrap().1, visitor)
+            }
             _ => unreachable!(),
         }
     }
@@ -448,7 +450,11 @@ impl<'de> de::Deserializer<'de> for Config {
     where
         V: de::Visitor<'de>,
     {
-        visitor.visit_enum(EnumAccess{ value: self.cache, name, variants })
+        visitor.visit_enum(EnumAccess {
+            value: self.cache,
+            name,
+            variants,
+        })
     }
 
     forward_to_deserialize_any! {

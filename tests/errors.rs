@@ -21,12 +21,15 @@ fn test_error_parse() {
     let mut c = Config::default();
     let res = c.merge(File::new("tests/Settings-invalid", FileFormat::Toml));
 
-    let path : PathBuf = ["tests", "Settings-invalid.toml"].iter().collect();
+    let path: PathBuf = ["tests", "Settings-invalid.toml"].iter().collect();
 
     assert!(res.is_err());
     assert_eq!(
         res.unwrap_err().to_string(),
-        format!("failed to parse datetime for key `error` at line 2 column 9 in {}", path.display())
+        format!(
+            "failed to parse datetime for key `error` at line 2 column 9 in {}",
+            path.display()
+        )
     );
 }
 
@@ -36,12 +39,15 @@ fn test_error_type() {
 
     let res = c.get::<bool>("boolean_s_parse");
 
-    let path : PathBuf = ["tests", "Settings.toml"].iter().collect();
+    let path: PathBuf = ["tests", "Settings.toml"].iter().collect();
 
     assert!(res.is_err());
     assert_eq!(
         res.unwrap_err().to_string(),
-        format!("invalid type: string \"fals\", expected a boolean for key `boolean_s_parse` in {}", path.display())
+        format!(
+            "invalid type: string \"fals\", expected a boolean for key `boolean_s_parse` in {}",
+            path.display()
+        )
     );
 }
 
@@ -83,11 +89,14 @@ fn test_error_enum_de() {
         "value of enum Diode should be represented by either string or table with exactly one key"
     );
 
-
-    let confused_v: Value =
-    [("Brightness".to_string(), 100.into()),
-     ("Blinking".to_string(), vec![300, 700].into())]
-    .iter().cloned().collect::<std::collections::HashMap<String, Value>>().into();
+    let confused_v: Value = [
+        ("Brightness".to_string(), 100.into()),
+        ("Blinking".to_string(), vec![300, 700].into()),
+    ]
+    .iter()
+    .cloned()
+    .collect::<std::collections::HashMap<String, Value>>()
+    .into();
     let confused_d = confused_v.try_into::<Diode>();
     assert_eq!(
         confused_d.unwrap_err().to_string(),
@@ -114,7 +123,10 @@ inner:
     let mut cfg = Config::new();
     cfg.merge(File::from_str(CFG, FileFormat::Yaml)).unwrap();
     let e = cfg.try_into::<Outer>().unwrap_err();
-    if let ConfigError::Type { key: Some(path), .. } = e {
+    if let ConfigError::Type {
+        key: Some(path), ..
+    } = e
+    {
         assert_eq!(path, "inner.test");
     } else {
         panic!("Wrong error {:?}", e);

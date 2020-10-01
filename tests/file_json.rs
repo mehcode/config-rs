@@ -70,11 +70,14 @@ fn test_error_parse() {
     let mut c = Config::default();
     let res = c.merge(File::new("tests/Settings-invalid", FileFormat::Json));
 
-    let path_with_extension : PathBuf = ["tests", "Settings-invalid.json"].iter().collect();
+    let path_with_extension: PathBuf = ["tests", "Settings-invalid.json"].iter().collect();
 
     assert!(res.is_err());
     assert_eq!(
         res.unwrap_err().to_string(),
-        format!("expected `:` at line 4 column 1 in {}", path_with_extension.display())
+        format!(
+            "expected `:` at line 4 column 1 in {}",
+            path_with_extension.display()
+        )
     );
 }
