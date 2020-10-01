@@ -10,5 +10,9 @@ matrix:
     allow_failures:
         - rust: nightly
 
+before_script:
+  - rustup component add rustfmt
+
 script:
   - cargo test
+  - cargo fmt -- --check
