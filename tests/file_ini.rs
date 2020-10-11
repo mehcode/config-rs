@@ -58,11 +58,14 @@ fn test_error_parse() {
     let mut c = Config::default();
     let res = c.merge(File::new("tests/Settings-invalid", FileFormat::Ini));
 
-    let path : PathBuf = ["tests", "Settings-invalid.ini"].iter().collect();
+    let path: PathBuf = ["tests", "Settings-invalid.ini"].iter().collect();
 
     assert!(res.is_err());
     assert_eq!(
         res.unwrap_err().to_string(),
-        format!(r#"2:0 Expecting "[Some('='), Some(':')]" but found EOF. in {}"#, path.display())
+        format!(
+            r#"2:0 Expecting "[Some('='), Some(':')]" but found EOF. in {}"#,
+            path.display()
+        )
     );
 }

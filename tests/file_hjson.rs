@@ -70,7 +70,7 @@ fn test_error_parse() {
     let mut c = Config::default();
     let res = c.merge(File::new("tests/Settings-invalid", FileFormat::Hjson));
 
-    let path : PathBuf = ["tests", "Settings-invalid.hjson"].iter().collect();
+    let path: PathBuf = ["tests", "Settings-invalid.hjson"].iter().collect();
 
     assert!(res.is_err());
     assert_eq!(

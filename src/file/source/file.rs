@@ -58,23 +58,27 @@ impl FileSourceFile {
         }
 
         match format_hint {
-            Some(format) => for ext in format.extensions() {
-                filename.set_extension(ext);
-
-                if filename.is_file() {
-                    return Ok((filename, format));
-                }
-            },
-
-            None => for (format, extensions) in ALL_EXTENSIONS.iter() {
+            Some(format) => {
                 for ext in format.extensions() {
                     filename.set_extension(ext);
 
                     if filename.is_file() {
-                        return Ok((filename, *format));
+                        return Ok((filename, format));
                     }
                 }
-            },
+            }
+
+            None => {
+                for (format, extensions) in ALL_EXTENSIONS.iter() {
+                    for ext in format.extensions() {
+                        filename.set_extension(ext);
+
+                        if filename.is_file() {
+                            return Ok((filename, *format));
+                        }
+                    }
+                }
+            }
         }
 
         Err(Box::new(io::Error::new(

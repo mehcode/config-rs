@@ -224,7 +224,13 @@ fn test_enum() {
     assert_eq!(s.diodes["green"], Diode::Off);
     assert_eq!(s.diodes["red"], Diode::Brightness(100));
     assert_eq!(s.diodes["blue"], Diode::Blinking(300, 700));
-    assert_eq!(s.diodes["white"], Diode::Pattern{name: "christmas".into(), inifinite: true,});
+    assert_eq!(
+        s.diodes["white"],
+        Diode::Pattern {
+            name: "christmas".into(),
+            inifinite: true,
+        }
+    );
 }
 
 #[test]
