@@ -25,7 +25,7 @@
 
 ```toml
 [dependencies]
-config = "0.9"
+config = "0.10"
 ```
 
  - `ini` - Adds support for reading INI files
