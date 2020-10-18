@@ -1,0 +1,52 @@
+name: Test build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  publish:
+    name: Test on ${{ matrix.os }} for ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        toolchain: [stable, nightly, beta]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{ matrix.toolchain }}
+          override: true
+          components: rustfmt, clippy
+
+      - name: cargo build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+
+      - name: cargo test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+
+      - name: cargo fmt
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all -- --check
+        if: matrix.os == 'ubuntu-latest' && matrix.toolchain == 'stable'
+
+      - name: cargo clippy
+        uses: actions-rs/cargo@v1
+        if: matrix.os == 'ubuntu-latest' && matrix.toolchain == 'stable'
+        with:
+          command: clippy
+          args: -- -D warnings
