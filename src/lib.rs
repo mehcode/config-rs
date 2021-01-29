@@ -66,4 +66,4 @@ pub use env::Environment;
 pub use error::ConfigError;
 pub use file::{File, FileFormat, FileSourceFile, FileSourceString};
 pub use source::Source;
-pub use value::Value;
+pub use value::{Value, ValueKind};
