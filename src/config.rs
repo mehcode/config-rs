@@ -168,7 +168,7 @@ impl Config {
         }
     }
 
-    pub fn get_value_mut<'de, T: Deserialize<'de>>(&mut self, key: &str) -> Result<&mut Value> {
+    pub fn get_value_mut(&mut self, key: &str) -> Result<&mut Value> {
         key.parse::<path::Expression>()?
             .get_mut(&mut self.cache)
             .ok_or_else(|| ConfigError::NotFound(key.into()))
