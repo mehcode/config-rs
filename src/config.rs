@@ -151,6 +151,18 @@ impl Config {
         self.refresh()
     }
 
+    pub fn set_once(&mut self, key: &str, value: Value) -> Result<()> {
+        let expr: path::Expression = key.parse()?;
+
+        // Traverse the cache using the path to (possibly) retrieve a value
+        if let Some(ref mut val) = expr.get_mut(&mut self.cache) {
+            **val = value;
+        } else {
+            expr.set(&mut self.cache, value);
+        }
+        Ok(())
+    }
+
     pub fn get<'de, T: Deserialize<'de>>(&self, key: &str) -> Result<T> {
         // Parse the key into a path expression
         let expr: path::Expression = key.parse()?;
