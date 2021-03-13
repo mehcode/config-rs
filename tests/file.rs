@@ -1,8 +1,8 @@
 #![cfg(feature = "yaml")]
 
-extern crate config;
+extern crate config_maint;
 
-use config::*;
+use config_maint::*;
 
 #[test]
 fn test_file_not_required() {

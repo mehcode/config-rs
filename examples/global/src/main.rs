@@ -1,11 +1,11 @@
 #[macro_use]
 extern crate lazy_static;
 
-extern crate config;
+extern crate config_maint;
 
 use std::error::Error;
 use std::sync::RwLock;
-use config::Config;
+use config_maint::Config;
 
 lazy_static! {
 	static ref SETTINGS: RwLock<Config> = RwLock::new(Config::default());

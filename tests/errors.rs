@@ -1,11 +1,11 @@
 #![cfg(feature = "toml")]
 
-extern crate config;
+extern crate config_maint;
 
 #[macro_use]
 extern crate serde_derive;
 
-use config::*;
+use config_maint::*;
 use std::path::PathBuf;
 
 fn make() -> Config {
@@ -27,7 +27,7 @@ fn test_error_parse() {
     assert_eq!(
         res.unwrap_err().to_string(),
         format!(
-            "failed to parse datetime for key `error` at line 2 column 9 in {}",
+            "invalid TOML value, did you mean to use a quoted string? at line 2 column 9 in {}",
             path.display()
         )
     );

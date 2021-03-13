@@ -7,10 +7,10 @@
 ))]
 
 extern crate chrono;
-extern crate config;
+extern crate config_maint;
 
 use chrono::{DateTime, TimeZone, Utc};
-use config::*;
+use config_maint::*;
 
 fn make() -> Config {
     Config::default()
