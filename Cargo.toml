@@ -12,6 +12,9 @@ authors = ["Ryan Leckey <leckey.ryan@gmail.com>",
 categories = ["config"]
 license = "MIT/Apache-2.0"
 
+[badges]
+maintenance = { status = "actively-developed" }
+
 [features]
 default = ["toml", "json", "yaml", "hjson", "ini"]
 json = ["serde_json"]
