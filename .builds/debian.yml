@@ -1,0 +1,24 @@
+image: debian/buster
+sources:
+  - https://git.sr.ht/~matthiasbeyer/config-rs-maint
+tasks:
+  - install: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain 1.50.0
+  - build: |
+      cd config-rs-maint
+      PATH="$HOME/.cargo/bin:$PATH" cargo build --all --all-features
+  - test: |
+      cd config-rs-maint
+      PATH="$HOME/.cargo/bin:$PATH" cargo test --all --all-features
+  - clippy: |
+      cd config-rs-maint
+      PATH="$HOME/.cargo/bin:$PATH" rustup component add clippy
+      PATH="$HOME/.cargo/bin:$PATH" cargo clippy --all --all-targets --all-features -- -D warnings
+  - fmt: |
+      cd config-rs-maint
+      PATH="$HOME/.cargo/bin:$PATH" rustup component add rustfmt
+      PATH="$HOME/.cargo/bin:$PATH" cargo fmt -- --check
+triggers:
+  - action: email
+    condition: always
+    to: mail@beyermatthias.de
+
