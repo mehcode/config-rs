@@ -84,7 +84,7 @@ impl Source for Environment {
 
         for (key, value) in env::vars() {
             // Treat empty environment variables as unset
-            if self.ignore_empty && value == "" {
+            if self.ignore_empty && value.is_empty() {
                 continue;
             }
 
