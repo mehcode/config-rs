@@ -1,17 +1,16 @@
 [package]
-name = "config"
+name = "config-maint"
 version = "0.10.1"
-description = "Layered configuration system for Rust applications."
-homepage = "https://github.com/mehcode/config-rs"
-repository = "https://github.com/mehcode/config-rs"
+description = "Layered configuration system for Rust applications. (Maintenance fork)"
+homepage = "https://sr.ht/~matthiasbeyer/config-rs-maint/"
+repository = "https://git.sr.ht/~matthiasbeyer/config-rs-maint/"
+documentation = "https://docs.rs/config-maint"
 readme = "README.md"
 keywords = ["config", "configuration", "settings", "env", "environment"]
-authors = ["Ryan Leckey <leckey.ryan@gmail.com>"]
+authors = ["Ryan Leckey <leckey.ryan@gmail.com>",
+           "Matthias Beyer <mail@beyermatthias.de>"]
 categories = ["config"]
 license = "MIT/Apache-2.0"
-
-[badges]
-travis-ci = { repository = "mehcode/config-rs" }
 
 [features]
 default = ["toml", "json", "yaml", "hjson", "ini"]
