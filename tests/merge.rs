@@ -1,8 +1,8 @@
 #![cfg(feature = "toml")]
 
-extern crate config;
+extern crate config_maint;
 
-use config::*;
+use config_maint::*;
 
 fn make() -> Config {
     let mut c = Config::default();

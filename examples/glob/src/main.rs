@@ -1,9 +1,9 @@
 extern crate glob;
-extern crate config;
+extern crate config_maint;
 
 use std::path::Path;
 use std::collections::HashMap;
-use config::*;
+use config_maint::*;
 use glob::glob;
 
 fn main() {

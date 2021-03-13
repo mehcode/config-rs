@@ -1,13 +1,13 @@
 #![cfg(feature = "ini")]
 
-extern crate config;
+extern crate config_maint;
 extern crate float_cmp;
 extern crate serde;
 
 #[macro_use]
 extern crate serde_derive;
 
-use config::*;
+use config_maint::*;
 use std::path::PathBuf;
 
 #[derive(Debug, Deserialize, PartialEq)]

@@ -1,4 +1,4 @@
-extern crate config;
+extern crate config_maint;
 
 use std::collections::HashMap;
 

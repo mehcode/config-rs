@@ -1,13 +1,13 @@
 #![cfg(feature = "toml")]
 
-extern crate config;
+extern crate config_maint;
 extern crate float_cmp;
 extern crate serde;
 
 #[macro_use]
 extern crate serde_derive;
 
-use config::*;
+use config_maint::*;
 use float_cmp::ApproxEqUlps;
 use std::collections::HashMap;
 use std::path::PathBuf;

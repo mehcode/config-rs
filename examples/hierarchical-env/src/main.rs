@@ -1,4 +1,4 @@
-extern crate config;
+extern crate config_maint;
 extern crate serde;
 
 #[macro_use]

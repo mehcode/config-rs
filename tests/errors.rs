@@ -1,11 +1,11 @@
 #![cfg(feature = "toml")]
 
-extern crate config;
+extern crate config_maint;
 
 #[macro_use]
 extern crate serde_derive;
 
-use config::*;
+use config_maint::*;
 use std::path::PathBuf;
 
 fn make() -> Config {
