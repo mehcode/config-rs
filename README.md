@@ -1,41 +1,19 @@
-# config-rs
-![Rust](https://img.shields.io/badge/rust-stable-brightgreen.svg)
-[![Build Status](https://travis-ci.org/mehcode/config-rs.svg?branch=master)](https://travis-ci.org/mehcode/config-rs)
-[![Crates.io](https://img.shields.io/crates/d/config.svg)](https://crates.io/crates/config)
-[![Docs.rs](https://docs.rs/config/badge.svg)](https://docs.rs/config)
+# config-rs-maint
 
 > Layered configuration system for Rust applications (with strong support for [12-factor] applications).
 
-[12-factor]: https://12factor.net/config
 
- - Set defaults
- - Set explicit values (to programmatically override)
- - Read from [JSON], [TOML], [YAML], [HJSON], [INI] files
- - Read from environment
- - Loosely typed — Configuration values may be read in any supported type, as long as there exists a reasonable conversion
- - Access nested fields using a formatted path — Uses a subset of JSONPath; currently supports the child ( `redis.port` ) and subscript operators ( `databases[0].name` )
+## Note
 
-[JSON]: https://github.com/serde-rs/json
-[TOML]: https://github.com/toml-lang/toml
-[YAML]: https://github.com/chyh1990/yaml-rust
-[HJSON]: https://github.com/hjson/hjson-rust
-[INI]: https://github.com/zonyitoo/rust-ini
+This is a maintenance fork of [config-rs](https://github.com/mehcode/config-rs/)
+because the upstream maintainer(s) are unresponsive.
 
-## Usage
+I will maintain this fork as I see fit, but contributions are welcome.
+Bugfixes and new features are explicitely welcome here.
 
-```toml
-[dependencies]
-config = "0.10"
-```
+As soon as upstream is responsive again, I hope I can work with them to include
+all patches landed here into upstream.
 
- - `ini` - Adds support for reading INI files
- - `json` - Adds support for reading JSON files
- - `hjson` - Adds support for reading HJSON files
- - `yaml` - Adds support for reading YAML files
- - `toml` - Adds support for reading TOML files
-
-See the [documentation](https://docs.rs/config) or [examples](https://github.com/mehcode/config-rs/tree/master/examples) for
-more usage information.
 
 ## License
 
