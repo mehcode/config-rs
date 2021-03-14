@@ -710,9 +710,9 @@ mod test {
             int: 1,
             seq: vec!["a".to_string(), "b".to_string()],
         };
-        let config = Config::try_from(&test).unwrap();
+        let config = Config::try_serialize(&test).unwrap();
 
-        let actual: Test = config.try_into().unwrap();
+        let actual: Test = config.try_deserialize().unwrap();
         assert_eq!(test, actual);
     }
 }
