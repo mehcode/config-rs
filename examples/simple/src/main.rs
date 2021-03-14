@@ -13,5 +13,5 @@ fn main() {
 
     // Print out our settings (as a HashMap)
     println!("{:?}",
-             settings.try_into::<HashMap<String, String>>().unwrap());
+             settings.try_deserialize::<HashMap<String, String>>().unwrap());
 }

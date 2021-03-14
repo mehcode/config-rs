@@ -227,20 +227,20 @@ impl Config {
     }
 
     /// Attempt to deserialize the entire configuration into the requested type.
-    pub fn try_into<'de, T: Deserialize<'de>>(self) -> Result<T> {
+    pub fn try_deserialize<'de, T: Deserialize<'de>>(self) -> Result<T> {
         T::deserialize(self)
     }
 
     /// Attempt to serialize the entire configuration from the given type.
-    pub fn try_from<T: Serialize>(from: &T) -> Result<Self> {
+    pub fn try_serialize<T: Serialize>(from: &T) -> Result<Self> {
         let mut serializer = ConfigSerializer::default();
         from.serialize(&mut serializer)?;
         Ok(serializer.output)
     }
 
-    #[deprecated(since = "0.7.0", note = "please use 'try_into' instead")]
+    #[deprecated(since = "0.7.0", note = "please use 'try_deserialize' instead")]
     pub fn deserialize<'de, T: Deserialize<'de>>(self) -> Result<T> {
-        self.try_into()
+        self.try_deserialize()
     }
 }
 
