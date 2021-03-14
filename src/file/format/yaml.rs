@@ -46,7 +46,7 @@ fn from_yaml_value(
                 .map(ValueKind::Float)
                 .map(|f| Value::new(uri, f))
         }
-        yaml::Yaml::Integer(value) => Ok(Value::new(uri, ValueKind::Integer(value))),
+        yaml::Yaml::Integer(value) => Ok(Value::new(uri, ValueKind::I64(value))),
         yaml::Yaml::Boolean(value) => Ok(Value::new(uri, ValueKind::Boolean(value))),
         yaml::Yaml::Hash(ref table) => {
             let mut m = Map::new();
