@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.11.0 - 2021-03-13
+ - First Release as config-rs-maint. Should be more or less compatible with
+   config-rs 0.10.1.
+   Development continues on sourcehut for config-rs-maint.
+
 ## 0.10.1 - 2019-12-07
  - Allow enums as configuration keys [#119]
 
