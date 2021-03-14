@@ -78,6 +78,28 @@ impl Config {
         self.refresh()
     }
 
+    /// Merge in a configuration property source.
+    pub fn with_merged<T>(mut self, source: T) -> Result<Self>
+    where
+        T: 'static,
+        T: Source + Send + Sync,
+    {
+        match self.kind {
+            ConfigKind::Mutable {
+                ref mut sources, ..
+            } => {
+                sources.push(Box::new(source));
+            }
+
+            ConfigKind::Frozen => {
+                return Err(ConfigError::Frozen);
+            }
+        }
+
+        self.refresh()?;
+        Ok(self)
+    }
+
     /// Refresh the configuration cache with fresh
     /// data from added sources.
     ///
