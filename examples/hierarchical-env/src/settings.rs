@@ -1,5 +1,5 @@
 use std::env;
-use config_maint::{ConfigError, Config, File, Environment};
+use config::{ConfigError, Config, File, Environment};
 
 #[derive(Debug, Deserialize)]
 struct Database {

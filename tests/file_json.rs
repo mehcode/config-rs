@@ -1,13 +1,13 @@
 #![cfg(feature = "json")]
 
-extern crate config_maint;
+extern crate config;
 extern crate float_cmp;
 extern crate serde;
 
 #[macro_use]
 extern crate serde_derive;
 
-use config_maint::*;
+use config::*;
 use float_cmp::ApproxEqUlps;
 use std::collections::HashMap;
 use std::path::PathBuf;

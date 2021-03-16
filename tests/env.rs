@@ -1,6 +1,6 @@
-extern crate config_maint;
+extern crate config;
 
-use config_maint::*;
+use config::*;
 use std::env;
 
 #[test]

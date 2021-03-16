@@ -1,10 +1,10 @@
-extern crate config_maint;
+extern crate config;
 extern crate notify;
 
 #[macro_use]
 extern crate lazy_static;
 
-use config_maint::*;
+use config::*;
 use std::collections::HashMap;
 use std::sync::RwLock;
 use notify::{RecommendedWatcher, DebouncedEvent, Watcher, RecursiveMode};
