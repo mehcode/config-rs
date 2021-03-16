@@ -77,10 +77,7 @@ impl Source for Environment {
         };
 
         // Define a prefix pattern to test and exclude from keys
-        let prefix_pattern = match self.prefix {
-            Some(ref prefix) => Some(prefix.clone() + "_"),
-            _ => None,
-        };
+        let prefix_pattern = self.prefix.as_ref().map(|prefix| prefix.clone() + "_");
 
         for (key, value) in env::vars() {
             // Treat empty environment variables as unset
