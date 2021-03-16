@@ -1,14 +1,12 @@
 [package]
-name = "config-maint"
+name = "config"
 version = "0.10.1"
-description = "Layered configuration system for Rust applications. (Maintenance fork)"
-homepage = "https://sr.ht/~matthiasbeyer/config-rs-maint/"
-repository = "https://git.sr.ht/~matthiasbeyer/config-rs-maint/"
-documentation = "https://docs.rs/config-maint"
+description = "Layered configuration system for Rust applications."
+homepage = "https://github.com/mehcode/config-rs"
+repository = "https://github.com/mehcode/config-rs"
 readme = "README.md"
 keywords = ["config", "configuration", "settings", "env", "environment"]
-authors = ["Ryan Leckey <leckey.ryan@gmail.com>",
-           "Matthias Beyer <mail@beyermatthias.de>"]
+authors = ["Ryan Leckey <leckey.ryan@gmail.com>"]
 categories = ["config"]
 license = "MIT/Apache-2.0"
 
