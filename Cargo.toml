@@ -11,7 +11,7 @@ categories = ["config"]
 license = "MIT/Apache-2.0"
 
 [badges]
-travis-ci = { repository = "mehcode/config-rs" }
+maintenance = { status = "actively-developed" }
 
 [features]
 default = ["toml", "json", "yaml", "hjson", "ini"]
