@@ -41,6 +41,7 @@ struct Settings {
     elements: Vec<String>,
 }
 
+#[cfg(test)]
 fn make() -> Config {
     let mut c = Config::default();
     c.merge(File::new("tests/Settings", FileFormat::Toml))
