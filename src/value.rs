@@ -15,9 +15,6 @@ use crate::map::Map;
 pub enum ValueKind {
     Nil,
     Boolean(bool),
-    I8(i8),
-    I16(i16),
-    I32(i32),
     I64(i64),
     I128(i128),
     Float(f64),
@@ -61,19 +58,19 @@ impl<'a> From<&'a str> for ValueKind {
 
 impl From<i8> for ValueKind {
     fn from(value: i8) -> Self {
-        ValueKind::I8(value)
+        ValueKind::I64(value as i64)
     }
 }
 
 impl From<i16> for ValueKind {
     fn from(value: i16) -> Self {
-        ValueKind::I16(value)
+        ValueKind::I64(value as i64)
     }
 }
 
 impl From<i32> for ValueKind {
     fn from(value: i32) -> Self {
-        ValueKind::I32(value)
+        ValueKind::I64(value as i64)
     }
 }
 
@@ -125,9 +122,6 @@ impl Display for ValueKind {
         match *self {
             ValueKind::String(ref value) => write!(f, "{}", value),
             ValueKind::Boolean(value) => write!(f, "{}", value),
-            ValueKind::I8(value) => write!(f, "{}", value),
-            ValueKind::I16(value) => write!(f, "{}", value),
-            ValueKind::I32(value) => write!(f, "{}", value),
             ValueKind::I64(value) => write!(f, "{}", value),
             ValueKind::I128(value) => write!(f, "{}", value),
             ValueKind::Float(value) => write!(f, "{}", value),
@@ -192,9 +186,6 @@ impl Value {
     pub fn into_bool(self) -> Result<bool> {
         match self.kind {
             ValueKind::Boolean(value) => Ok(value),
-            ValueKind::I8(value) => Ok(value != 0),
-            ValueKind::I16(value) => Ok(value != 0),
-            ValueKind::I32(value) => Ok(value != 0),
             ValueKind::I64(value) => Ok(value != 0),
             ValueKind::I128(value) => Ok(value != 0),
             ValueKind::Float(value) => Ok(value != 0.0),
@@ -236,9 +227,6 @@ impl Value {
     // FIXME: Should this not be `try_into_*` ?
     pub fn into_int(self) -> Result<i64> {
         match self.kind {
-            ValueKind::I8(value) => Ok(value as i64),
-            ValueKind::I16(value) => Ok(value as i64),
-            ValueKind::I32(value) => Ok(value as i64),
             ValueKind::I64(value) => Ok(value),
             ValueKind::I128(value) => Err(ConfigError::invalid_type(
                 self.origin,
@@ -288,9 +276,6 @@ impl Value {
     /// Returns `self` into an i128, if possible.
     pub fn into_int128(self) -> Result<i128> {
         match self.kind {
-            ValueKind::I8(value) => Ok(value as i128),
-            ValueKind::I16(value) => Ok(value as i128),
-            ValueKind::I32(value) => Ok(value as i128),
             ValueKind::I64(value) => Ok(value as i128),
             ValueKind::I128(value) => Ok(value),
 
@@ -356,9 +341,6 @@ impl Value {
                 }
             }
 
-            ValueKind::I8(value) => Ok(value as f64),
-            ValueKind::I16(value) => Ok(value as f64),
-            ValueKind::I32(value) => Ok(value as f64),
             ValueKind::I64(value) => Ok(value as f64),
             ValueKind::I128(value) => Ok(value as f64),
             ValueKind::Boolean(value) => Ok(if value { 1.0 } else { 0.0 }),
@@ -389,9 +371,6 @@ impl Value {
             ValueKind::String(value) => Ok(value),
 
             ValueKind::Boolean(value) => Ok(value.to_string()),
-            ValueKind::I8(value) => Ok(value.to_string()),
-            ValueKind::I16(value) => Ok(value.to_string()),
-            ValueKind::I32(value) => Ok(value.to_string()),
             ValueKind::I64(value) => Ok(value.to_string()),
             ValueKind::I128(value) => Ok(value.to_string()),
             ValueKind::Float(value) => Ok(value.to_string()),
@@ -430,21 +409,6 @@ impl Value {
             ValueKind::String(value) => Err(ConfigError::invalid_type(
                 self.origin,
                 Unexpected::Str(value),
-                "an array",
-            )),
-            ValueKind::I8(value) => Err(ConfigError::invalid_type(
-                self.origin,
-                Unexpected::I8(value),
-                "an array",
-            )),
-            ValueKind::I16(value) => Err(ConfigError::invalid_type(
-                self.origin,
-                Unexpected::I16(value),
-                "an array",
-            )),
-            ValueKind::I32(value) => Err(ConfigError::invalid_type(
-                self.origin,
-                Unexpected::I32(value),
                 "an array",
             )),
             ValueKind::I64(value) => Err(ConfigError::invalid_type(
@@ -490,21 +454,6 @@ impl Value {
             ValueKind::String(value) => Err(ConfigError::invalid_type(
                 self.origin,
                 Unexpected::Str(value),
-                "a map",
-            )),
-            ValueKind::I8(value) => Err(ConfigError::invalid_type(
-                self.origin,
-                Unexpected::I8(value),
-                "a map",
-            )),
-            ValueKind::I16(value) => Err(ConfigError::invalid_type(
-                self.origin,
-                Unexpected::I16(value),
-                "a map",
-            )),
-            ValueKind::I32(value) => Err(ConfigError::invalid_type(
-                self.origin,
-                Unexpected::I32(value),
                 "a map",
             )),
             ValueKind::I64(value) => Err(ConfigError::invalid_type(
@@ -558,17 +507,17 @@ impl<'de> Deserialize<'de> for Value {
 
             #[inline]
             fn visit_i8<E>(self, value: i8) -> ::std::result::Result<Value, E> {
-                Ok((value).into())
+                Ok((value as i64).into())
             }
 
             #[inline]
             fn visit_i16<E>(self, value: i16) -> ::std::result::Result<Value, E> {
-                Ok((value).into())
+                Ok((value as i64).into())
             }
 
             #[inline]
             fn visit_i32<E>(self, value: i32) -> ::std::result::Result<Value, E> {
-                Ok((value).into())
+                Ok((value as i64).into())
             }
 
             #[inline]

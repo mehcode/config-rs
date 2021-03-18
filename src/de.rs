@@ -19,9 +19,6 @@ impl<'de> de::Deserializer<'de> for Value {
         // Deserialize based on the underlying type
         match self.kind {
             ValueKind::Nil => visitor.visit_unit(),
-            ValueKind::I8(i) => visitor.visit_i8(i),
-            ValueKind::I16(i) => visitor.visit_i16(i),
-            ValueKind::I32(i) => visitor.visit_i32(i),
             ValueKind::I64(i) => visitor.visit_i64(i),
             ValueKind::I128(i) => visitor.visit_i128(i),
             ValueKind::Boolean(b) => visitor.visit_bool(b),
@@ -349,9 +346,6 @@ impl<'de> de::Deserializer<'de> for Config {
         // Deserialize based on the underlying type
         match self.cache.kind {
             ValueKind::Nil => visitor.visit_unit(),
-            ValueKind::I8(i) => visitor.visit_i8(i),
-            ValueKind::I16(i) => visitor.visit_i16(i),
-            ValueKind::I32(i) => visitor.visit_i32(i),
             ValueKind::I64(i) => visitor.visit_i64(i),
             ValueKind::I128(i) => visitor.visit_i128(i),
             ValueKind::Boolean(b) => visitor.visit_bool(b),
