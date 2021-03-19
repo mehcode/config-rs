@@ -17,6 +17,8 @@ pub enum ValueKind {
     Boolean(bool),
     I64(i64),
     I128(i128),
+    U64(u64),
+    U128(u128),
     Float(f64),
     String(String),
     Table(Table),
@@ -86,6 +88,36 @@ impl From<i128> for ValueKind {
     }
 }
 
+impl From<u8> for ValueKind {
+    fn from(value: u8) -> Self {
+        ValueKind::U64(value as u64)
+    }
+}
+
+impl From<u16> for ValueKind {
+    fn from(value: u16) -> Self {
+        ValueKind::U64(value as u64)
+    }
+}
+
+impl From<u32> for ValueKind {
+    fn from(value: u32) -> Self {
+        ValueKind::U64(value as u64)
+    }
+}
+
+impl From<u64> for ValueKind {
+    fn from(value: u64) -> Self {
+        ValueKind::U64(value)
+    }
+}
+
+impl From<u128> for ValueKind {
+    fn from(value: u128) -> Self {
+        ValueKind::U128(value)
+    }
+}
+
 impl From<f64> for ValueKind {
     fn from(value: f64) -> Self {
         ValueKind::Float(value)
@@ -124,6 +156,8 @@ impl Display for ValueKind {
             ValueKind::Boolean(value) => write!(f, "{}", value),
             ValueKind::I64(value) => write!(f, "{}", value),
             ValueKind::I128(value) => write!(f, "{}", value),
+            ValueKind::U64(value) => write!(f, "{}", value),
+            ValueKind::U128(value) => write!(f, "{}", value),
             ValueKind::Float(value) => write!(f, "{}", value),
             ValueKind::Nil => write!(f, "nil"),
             ValueKind::Table(ref table) => write!(f, "{{ {} }}", {
@@ -188,6 +222,8 @@ impl Value {
             ValueKind::Boolean(value) => Ok(value),
             ValueKind::I64(value) => Ok(value != 0),
             ValueKind::I128(value) => Ok(value != 0),
+            ValueKind::U64(value) => Ok(value != 0),
+            ValueKind::U128(value) => Ok(value != 0),
             ValueKind::Float(value) => Ok(value != 0.0),
 
             ValueKind::String(ref value) => {
@@ -231,7 +267,17 @@ impl Value {
             ValueKind::I128(value) => Err(ConfigError::invalid_type(
                 self.origin,
                 Unexpected::I128(value),
-                "an 64 bit or less integer",
+                "an signed 64 bit or less integer",
+            )),
+            ValueKind::U64(value) => Err(ConfigError::invalid_type(
+                self.origin,
+                Unexpected::U64(value),
+                "an signed 64 bit or less integer",
+            )),
+            ValueKind::U128(value) => Err(ConfigError::invalid_type(
+                self.origin,
+                Unexpected::U128(value),
+                "an signed 64 bit or less integer",
             )),
 
             ValueKind::String(ref s) => {
@@ -278,6 +324,12 @@ impl Value {
         match self.kind {
             ValueKind::I64(value) => Ok(value as i128),
             ValueKind::I128(value) => Ok(value),
+            ValueKind::U64(value) => Ok(value as i128),
+            ValueKind::U128(value) => Err(ConfigError::invalid_type(
+                self.origin,
+                Unexpected::U128(value),
+                "an signed 128 bit integer",
+            )),
 
             ValueKind::String(ref s) => {
                 match s.to_lowercase().as_ref() {
@@ -298,6 +350,121 @@ impl Value {
 
             ValueKind::Boolean(value) => Ok(if value { 1 } else { 0 }),
             ValueKind::Float(value) => Ok(value.round() as i128),
+
+            // Unexpected type
+            ValueKind::Nil => Err(ConfigError::invalid_type(
+                self.origin,
+                Unexpected::Unit,
+                "an integer",
+            )),
+            ValueKind::Table(_) => Err(ConfigError::invalid_type(
+                self.origin,
+                Unexpected::Map,
+                "an integer",
+            )),
+            ValueKind::Array(_) => Err(ConfigError::invalid_type(
+                self.origin,
+                Unexpected::Seq,
+                "an integer",
+            )),
+        }
+    }
+
+    /// Returns `self` into an u64, if possible.
+    // FIXME: Should this not be `try_into_*` ?
+    pub fn into_uint(self) -> Result<u64> {
+        match self.kind {
+            ValueKind::U64(value) => Ok(value),
+            ValueKind::U128(value) => Err(ConfigError::invalid_type(
+                self.origin,
+                Unexpected::U128(value),
+                "an unsigned 64 bit or less integer",
+            )),
+            ValueKind::I64(value) => Err(ConfigError::invalid_type(
+                self.origin,
+                Unexpected::I64(value),
+                "an unsigned 64 bit or less integer",
+            )),
+            ValueKind::I128(value) => Err(ConfigError::invalid_type(
+                self.origin,
+                Unexpected::I128(value),
+                "an unsigned 64 bit or less integer",
+            )),
+
+            ValueKind::String(ref s) => {
+                match s.to_lowercase().as_ref() {
+                    "true" | "on" | "yes" => Ok(1),
+                    "false" | "off" | "no" => Ok(0),
+                    _ => {
+                        s.parse().map_err(|_| {
+                            // Unexpected string
+                            ConfigError::invalid_type(
+                                self.origin.clone(),
+                                Unexpected::Str(s.clone()),
+                                "an integer",
+                            )
+                        })
+                    }
+                }
+            }
+
+            ValueKind::Boolean(value) => Ok(if value { 1 } else { 0 }),
+            ValueKind::Float(value) => Ok(value.round() as u64),
+
+            // Unexpected type
+            ValueKind::Nil => Err(ConfigError::invalid_type(
+                self.origin,
+                Unexpected::Unit,
+                "an integer",
+            )),
+            ValueKind::Table(_) => Err(ConfigError::invalid_type(
+                self.origin,
+                Unexpected::Map,
+                "an integer",
+            )),
+            ValueKind::Array(_) => Err(ConfigError::invalid_type(
+                self.origin,
+                Unexpected::Seq,
+                "an integer",
+            )),
+        }
+    }
+
+    /// Returns `self` into an u128, if possible.
+    pub fn into_uint128(self) -> Result<u128> {
+        match self.kind {
+            ValueKind::U64(value) => Ok(value as u128),
+            ValueKind::U128(value) => Ok(value),
+            ValueKind::I64(value) => Err(ConfigError::invalid_type(
+                self.origin,
+                Unexpected::I64(value),
+                "an unsigned 128 bit or less integer",
+            )),
+            ValueKind::I128(value) => Err(ConfigError::invalid_type(
+                self.origin,
+                Unexpected::I128(value),
+                "an unsigned 128 bit or less integer",
+            )),
+
+            ValueKind::String(ref s) => {
+                match s.to_lowercase().as_ref() {
+                    "true" | "on" | "yes" => Ok(1),
+                    "false" | "off" | "no" => Ok(0),
+                    _ => {
+                        s.parse().map_err(|_| {
+                            // Unexpected string
+                            ConfigError::invalid_type(
+                                self.origin.clone(),
+                                Unexpected::Str(s.clone()),
+                                "an integer",
+                            )
+                        })
+                    }
+                }
+            }
+
+            ValueKind::Boolean(value) => Ok(if value { 1 } else { 0 }),
+            ValueKind::Float(value) => Ok(value.round() as u128),
 
             // Unexpected type
             ValueKind::Nil => Err(ConfigError::invalid_type(
@@ -343,6 +510,8 @@ impl Value {
 
             ValueKind::I64(value) => Ok(value as f64),
             ValueKind::I128(value) => Ok(value as f64),
+            ValueKind::U64(value) => Ok(value as f64),
+            ValueKind::U128(value) => Ok(value as f64),
             ValueKind::Boolean(value) => Ok(if value { 1.0 } else { 0.0 }),
 
             // Unexpected type
@@ -373,6 +542,8 @@ impl Value {
             ValueKind::Boolean(value) => Ok(value.to_string()),
             ValueKind::I64(value) => Ok(value.to_string()),
             ValueKind::I128(value) => Ok(value.to_string()),
+            ValueKind::U64(value) => Ok(value.to_string()),
+            ValueKind::U128(value) => Ok(value.to_string()),
             ValueKind::Float(value) => Ok(value.to_string()),
 
             // Cannot convert
@@ -421,6 +592,16 @@ impl Value {
                 Unexpected::I128(value),
                 "an array",
             )),
+            ValueKind::U64(value) => Err(ConfigError::invalid_type(
+                self.origin,
+                Unexpected::U64(value),
+                "an array",
+            )),
+            ValueKind::U128(value) => Err(ConfigError::invalid_type(
+                self.origin,
+                Unexpected::U128(value),
+                "an array",
+            )),
             ValueKind::Boolean(value) => Err(ConfigError::invalid_type(
                 self.origin,
                 Unexpected::Bool(value),
@@ -464,6 +645,16 @@ impl Value {
             ValueKind::I128(value) => Err(ConfigError::invalid_type(
                 self.origin,
                 Unexpected::I128(value),
+                "a map",
+            )),
+            ValueKind::U64(value) => Err(ConfigError::invalid_type(
+                self.origin,
+                Unexpected::U64(value),
+                "a map",
+            )),
+            ValueKind::U128(value) => Err(ConfigError::invalid_type(
+                self.origin,
+                Unexpected::U128(value),
                 "a map",
             )),
             ValueKind::Boolean(value) => Err(ConfigError::invalid_type(
