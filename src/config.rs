@@ -156,6 +156,14 @@ impl Config {
         self.refresh()
     }
 
+    /// Set an overwrite
+    ///
+    /// This function sets an overwrite value.
+    /// The overwrite `value` is written to the `key` location on every `refresh()`
+    ///
+    /// # Warning
+    ///
+    /// Errors if config is frozen
     pub fn set<T>(&mut self, key: &str, value: T) -> Result<&mut Config>
     where
         T: Into<Value>,
