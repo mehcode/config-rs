@@ -39,7 +39,7 @@ impl Default for ConfigKind {
 /// A prioritized configuration repository. It maintains a set of
 /// configuration sources, fetches values to populate those, and provides
 /// them according to the source's priority.
-#[derive(Default, Clone, Debug)]
+#[derive(Clone, Debug)]
 pub struct Config {
     kind: ConfigKind,
 
@@ -47,16 +47,16 @@ pub struct Config {
     pub cache: Value,
 }
 
-impl Config {
-    pub fn new() -> Self {
-        Self {
+impl Default for Config {
+    fn default() -> Self {
+        Config {
             kind: ConfigKind::default(),
-            // Config root should be instantiated as an empty table
-            // to avoid deserialization errors.
             cache: Value::new(None, Table::new()),
         }
     }
+}
 
+impl Config {
     /// Merge in a configuration property source.
     pub fn merge<T>(&mut self, source: T) -> Result<&mut Config>
     where
