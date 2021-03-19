@@ -100,6 +100,34 @@ impl Config {
         Ok(self)
     }
 
+    /// Merge multiple sources without refresh()ing each time.
+    ///
+    /// This function can be used if the `Config::refresh()` call would be expensive (e.g. with a
+    /// very large configuration).
+    /// Because `Config::merge()` and `Config::with_merged()` call `Config::refresh()` before
+    /// returning, and `Config::refresh()` might be expensive, this function exists.
+    ///
+    /// Merging multiple sources with this function calls `Config::refresh()` only once: after all
+    /// config sources are merged in.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use config::ConfigError;
+    /// # use config::Config;
+    /// # fn run() -> Result<(), ConfigError> {
+    /// let mut config = Config::default();
+    /// config.with_sources()
+    ///     .merge(config::File::with_name("Settings"))?
+    ///     .merge(config::File::with_name("MoreSettings"))?
+    ///     .merge(config::File::with_name("EvenMoreSettings"))?
+    ///     .refresh()?;
+    /// # Ok(())
+    /// # }
+    pub fn with_sources(&mut self) -> WithSources<'_> {
+        WithSources(self)
+    }
+
     /// Refresh the configuration cache with fresh
     /// data from added sources.
     ///
@@ -260,5 +288,41 @@ impl Source for Config {
 
     fn collect(&self) -> Result<HashMap<String, Value>> {
         self.cache.clone().into_table()
+    }
+}
+
+pub struct WithSources<'a>(&'a mut Config);
+
+impl<'a> WithSources<'a> {
+    /// Merge a configuration source onto the `Config` object,
+    /// without calling `Config::refresh()`.
+    ///
+    /// # Note
+    ///
+    /// The `WithSources::refresh()` method _must_ be used to get the `Config` object back.
+    /// If it is not used, and the `WithSources` object is dropped, the user is free to call
+    /// `Config::refresh()` at any later point in time, of course.
+    pub fn merge<T>(self, source: T) -> Result<Self>
+    where
+        T: 'static,
+        T: Source + Send + Sync,
+    {
+        match self.0.kind {
+            ConfigKind::Mutable {
+                ref mut sources, ..
+            } => {
+                sources.push(Box::new(source));
+            }
+
+            ConfigKind::Frozen => {
+                return Err(ConfigError::Frozen);
+            }
+        }
+
+        Ok(self)
+    }
+
+    pub fn refresh(self) -> Result<&'a mut Config> {
+        self.0.refresh()
     }
 }
