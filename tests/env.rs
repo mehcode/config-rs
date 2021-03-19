@@ -71,3 +71,14 @@ fn test_empty_value_is_ignored() {
 
     env::remove_var("C_A_B");
 }
+
+#[test]
+fn test_custom_separator_behavior() {
+    env::set_var("C.B.A", "abc");
+
+    let environment = Environment::with_prefix("C").separator(".");
+
+    assert!(environment.collect().unwrap().contains_key("b.a"));
+
+    env::remove_var("C.B.A");
+}
