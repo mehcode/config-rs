@@ -139,6 +139,7 @@ impl Config {
         Ok(self)
     }
 
+    /// Set a default `value` at `key`
     pub fn set_default<T>(&mut self, key: &str, value: T) -> Result<&mut Config>
     where
         T: Into<Value>,
