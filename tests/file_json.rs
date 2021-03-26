@@ -81,3 +81,24 @@ fn test_error_parse() {
         )
     );
 }
+
+#[test]
+fn test_json_vec() {
+    let c = Config::default()
+        .merge(File::from_str(
+            r#"
+            {
+              "WASTE": ["example_dir1", "example_dir2"]
+            }
+            "#,
+            FileFormat::Json,
+        ))
+        .unwrap()
+        .clone();
+
+    let v = c.get_array("WASTE").unwrap();
+    let mut vi = v.into_iter();
+    assert_eq!(vi.next().unwrap().into_str().unwrap(), "example_dir1");
+    assert_eq!(vi.next().unwrap().into_str().unwrap(), "example_dir2");
+    assert!(vi.next().is_none());
+}
