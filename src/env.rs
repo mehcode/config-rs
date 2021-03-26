@@ -76,8 +76,16 @@ impl Source for Environment {
             _ => "",
         };
 
+        let group_separator = match self.separator {
+            Some(ref separator) => separator,
+            _ => "_",
+        };
+
         // Define a prefix pattern to test and exclude from keys
-        let prefix_pattern = self.prefix.as_ref().map(|prefix| prefix.clone() + "_");
+        let prefix_pattern = self
+            .prefix
+            .as_ref()
+            .map(|prefix| format!("{}{}", prefix.clone(), group_separator));
 
         for (key, value) in env::vars() {
             // Treat empty environment variables as unset
