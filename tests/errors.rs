@@ -120,7 +120,7 @@ inner:
     test: ABC
 "#;
 
-    let mut cfg = Config::new();
+    let mut cfg = Config::default();
     cfg.merge(File::from_str(CFG, FileFormat::Yaml)).unwrap();
     let e = cfg.try_into::<Outer>().unwrap_err();
     if let ConfigError::Type {
