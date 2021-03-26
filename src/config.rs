@@ -139,6 +139,7 @@ impl Config {
         Ok(self)
     }
 
+    /// Set a default `value` at `key`
     pub fn set_default<T>(&mut self, key: &str, value: T) -> Result<&mut Config>
     where
         T: Into<Value>,
@@ -156,6 +157,14 @@ impl Config {
         self.refresh()
     }
 
+    /// Set an overwrite
+    ///
+    /// This function sets an overwrite value.
+    /// The overwrite `value` is written to the `key` location on every `refresh()`
+    ///
+    /// # Warning
+    ///
+    /// Errors if config is frozen
     pub fn set<T>(&mut self, key: &str, value: T) -> Result<&mut Config>
     where
         T: Into<Value>,
