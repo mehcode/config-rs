@@ -89,12 +89,12 @@ impl<'de> de::Deserializer<'de> for Value {
 
     #[inline]
     fn deserialize_str<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
-        visitor.visit_string(self.into_str()?)
+        visitor.visit_string(self.into_string()?)
     }
 
     #[inline]
     fn deserialize_string<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
-        visitor.visit_string(self.into_str()?)
+        visitor.visit_string(self.into_string()?)
     }
 
     #[inline]
@@ -421,12 +421,12 @@ impl<'de> de::Deserializer<'de> for Config {
 
     #[inline]
     fn deserialize_str<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
-        visitor.visit_string(self.cache.into_str()?)
+        visitor.visit_string(self.cache.into_string()?)
     }
 
     #[inline]
     fn deserialize_string<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
-        visitor.visit_string(self.cache.into_str()?)
+        visitor.visit_string(self.cache.into_string()?)
     }
 
     #[inline]

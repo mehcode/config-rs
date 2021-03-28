@@ -60,7 +60,7 @@ fn test_file() {
     assert_eq!(s.elements.len(), 10);
     assert_eq!(s.elements[3], "4".to_string());
     assert_eq!(
-        s.place.creator["name"].clone().into_str().unwrap(),
+        s.place.creator["name"].clone().into_string().unwrap(),
         "John Smith".to_string()
     );
 }
@@ -98,7 +98,7 @@ fn test_json_vec() {
 
     let v = c.get_array("WASTE").unwrap();
     let mut vi = v.into_iter();
-    assert_eq!(vi.next().unwrap().into_str().unwrap(), "example_dir1");
-    assert_eq!(vi.next().unwrap().into_str().unwrap(), "example_dir2");
+    assert_eq!(vi.next().unwrap().into_string().unwrap(), "example_dir1");
+    assert_eq!(vi.next().unwrap().into_string().unwrap(), "example_dir2");
     assert!(vi.next().is_none());
 }
