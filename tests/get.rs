@@ -111,7 +111,7 @@ fn test_map() {
 
     assert_eq!(m.len(), 8);
     assert_eq!(
-        m["name"].clone().into_str().unwrap(),
+        m["name"].clone().into_string().unwrap(),
         "Torre di Pisa".to_string()
     );
     assert_eq!(m["reviews"].clone().into_int().unwrap(), 3866);
@@ -138,7 +138,7 @@ fn test_map_struct() {
 
     assert_eq!(s.place.len(), 8);
     assert_eq!(
-        s.place["name"].clone().into_str().unwrap(),
+        s.place["name"].clone().into_string().unwrap(),
         "Torre di Pisa".to_string()
     );
     assert_eq!(s.place["reviews"].clone().into_int().unwrap(), 3866);

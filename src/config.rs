@@ -211,8 +211,8 @@ impl Config {
         }
     }
 
-    pub fn get_str(&self, key: &str) -> Result<String> {
-        self.get(key).and_then(Value::into_str)
+    pub fn get_string(&self, key: &str) -> Result<String> {
+        self.get(key).and_then(Value::into_string)
     }
 
     pub fn get_int(&self, key: &str) -> Result<i64> {

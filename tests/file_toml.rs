@@ -71,7 +71,7 @@ fn test_file() {
     assert_eq!(s.elements.len(), 10);
     assert_eq!(s.elements[3], "4".to_string());
     assert_eq!(
-        s.place.creator["name"].clone().into_str().unwrap(),
+        s.place.creator["name"].clone().into_string().unwrap(),
         "John Smith".to_string()
     );
 }

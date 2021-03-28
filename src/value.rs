@@ -286,9 +286,9 @@ impl Value {
         }
     }
 
-    /// Returns `self` into a str, if possible.
+    /// Returns `self` into a string, if possible.
     // FIXME: Should this not be `try_into_*` ?
-    pub fn into_str(self) -> Result<String> {
+    pub fn into_string(self) -> Result<String> {
         match self.kind {
             ValueKind::String(value) => Ok(value),
 
