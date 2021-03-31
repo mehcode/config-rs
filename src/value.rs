@@ -82,13 +82,7 @@ where
     T: Into<Value>,
 {
     fn from(values: Vec<T>) -> Self {
-        let mut l = Vec::new();
-
-        for v in values {
-            l.push(v.into());
-        }
-
-        ValueKind::Array(l)
+        ValueKind::Array(values.into_iter().map(T::into).collect())
     }
 }
 
