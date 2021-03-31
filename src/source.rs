@@ -14,22 +14,15 @@ pub trait Source: Debug {
     fn collect(&self) -> Result<HashMap<String, Value>>;
 
     fn collect_to(&self, cache: &mut Value) -> Result<()> {
-        let props = match self.collect() {
-            Ok(props) => props,
-            Err(error) => {
-                return Err(error);
-            }
-        };
-
-        for (key, val) in &props {
-            match path::Expression::from_str(key) {
+        self.collect()?
+            .iter()
+            .for_each(|(key, val)| match path::Expression::from_str(key) {
                 // Set using the path
                 Ok(expr) => expr.set(cache, val.clone()),
 
                 // Set diretly anyway
                 _ => path::Expression::Identifier(key.clone()).set(cache, val.clone()),
-            }
-        }
+            });
 
         Ok(())
     }
