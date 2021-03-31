@@ -72,13 +72,8 @@ where
     T: Into<Value>,
 {
     fn from(values: HashMap<String, T>) -> Self {
-        let mut r = HashMap::new();
-
-        for (k, v) in values {
-            r.insert(k.clone(), v.into());
-        }
-
-        ValueKind::Table(r)
+        let t = values.into_iter().map(|(k, v)| (k, v.into())).collect();
+        ValueKind::Table(t)
     }
 }
 
