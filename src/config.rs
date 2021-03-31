@@ -57,6 +57,10 @@ impl Default for Config {
 }
 
 impl Config {
+    pub fn freeze(&mut self) {
+        self.kind = ConfigKind::Frozen
+    }
+
     /// Merge in a configuration property source.
     pub fn merge<T>(&mut self, source: T) -> Result<&mut Config>
     where
