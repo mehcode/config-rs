@@ -94,10 +94,15 @@ impl Display for ValueKind {
             ValueKind::Integer(value) => write!(f, "{}", value),
             ValueKind::Float(value) => write!(f, "{}", value),
             ValueKind::Nil => write!(f, "nil"),
-
-            // TODO: Figure out a nice Display for these
-            ValueKind::Table(ref table) => write!(f, "{:?}", table),
-            ValueKind::Array(ref array) => write!(f, "{:?}", array),
+            ValueKind::Table(ref table) => write!(f, "{{ {} }}", {
+                table
+                    .iter()
+                    .map(|(k, v)| format!("{} => {}, ", k, v))
+                    .collect::<String>()
+            }),
+            ValueKind::Array(ref array) => write!(f, "{:?}", {
+                array.iter().map(|e| format!("{}, ", e)).collect::<String>()
+            }),
         }
     }
 }
