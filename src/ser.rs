@@ -1,6 +1,5 @@
 use serde::ser;
 use std::fmt::Display;
-use std::mem;
 
 use error::*;
 use value::{Value, ValueKind};
@@ -696,7 +695,6 @@ impl ser::SerializeStructVariant for StringKeySerializer {
 #[cfg(test)]
 mod test {
     use super::*;
-    use serde::Serialize;
 
     #[test]
     fn test_struct() {

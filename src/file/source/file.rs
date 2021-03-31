@@ -1,6 +1,4 @@
 use std::error::Error;
-use std::result;
-use std::str::FromStr;
 
 use file::format::ALL_EXTENSIONS;
 use std::env;
@@ -10,7 +8,6 @@ use std::iter::Iterator;
 use std::path::{Path, PathBuf};
 
 use super::{FileFormat, FileSource};
-use source::Source;
 
 /// Describes a file sourced from a file
 #[derive(Clone, Debug)]

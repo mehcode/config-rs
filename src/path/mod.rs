@@ -1,5 +1,4 @@
 use error::*;
-use nom::error::ErrorKind;
 use std::collections::HashMap;
 use std::str::FromStr;
 use value::{Value, ValueKind};

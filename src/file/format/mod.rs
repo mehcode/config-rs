@@ -2,7 +2,6 @@
 // BUG: ? For some reason this doesn't do anything if I try and function scope this
 #![allow(unused_mut)]
 
-use source::Source;
 use std::collections::HashMap;
 use std::error::Error;
 use value::Value;

@@ -5,7 +5,6 @@ use std::error::Error;
 use std::fmt::Debug;
 
 use super::FileFormat;
-use source::Source;
 
 /// Describes where the file is sourced
 pub trait FileSource: Debug + Clone {

@@ -8,7 +8,7 @@ use nom::{
     sequence::{delimited, pair, preceded},
     Err, IResult,
 };
-use std::str::{from_utf8, FromStr};
+use std::str::FromStr;
 
 fn raw_ident(i: &str) -> IResult<&str, String> {
     map(

@@ -1,5 +1,4 @@
-use source::Source;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::HashMap;
 use std::error::Error;
 use toml;
 use value::{Value, ValueKind};
