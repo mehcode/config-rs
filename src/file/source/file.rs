@@ -1,13 +1,12 @@
-use std::error::Error;
-
-use file::format::ALL_EXTENSIONS;
 use std::env;
+use std::error::Error;
 use std::fs;
 use std::io::{self, Read};
 use std::iter::Iterator;
 use std::path::{Path, PathBuf};
 
-use super::{FileFormat, FileSource};
+use crate::file::format::ALL_EXTENSIONS;
+use crate::file::{FileFormat, FileSource};
 
 /// Describes a file sourced from a file
 #[derive(Clone, Debug)]

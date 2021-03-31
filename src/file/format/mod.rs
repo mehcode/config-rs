@@ -4,7 +4,8 @@
 
 use std::collections::HashMap;
 use std::error::Error;
-use value::Value;
+
+use crate::value::Value;
 
 #[cfg(feature = "toml")]
 mod toml;

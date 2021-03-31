@@ -1,7 +1,9 @@
-use serde_hjson;
 use std::collections::HashMap;
 use std::error::Error;
-use value::{Value, ValueKind};
+
+use serde_hjson;
+
+use crate::value::{Value, ValueKind};
 
 pub fn parse(
     uri: Option<&String>,

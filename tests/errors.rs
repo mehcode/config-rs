@@ -5,8 +5,9 @@ extern crate config;
 #[macro_use]
 extern crate serde_derive;
 
-use config::*;
 use std::path::PathBuf;
+
+use config::*;
 
 fn make() -> Config {
     let mut c = Config::default();

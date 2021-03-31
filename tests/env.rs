@@ -1,7 +1,8 @@
 extern crate config;
 
-use config::*;
 use std::env;
+
+use config::*;
 
 #[test]
 fn test_default() {

@@ -1,9 +1,10 @@
-use serde::ser;
 use std::fmt::Display;
 
-use error::*;
-use value::{Value, ValueKind};
-use Config;
+use serde::ser;
+
+use crate::error::*;
+use crate::value::{Value, ValueKind};
+use crate::Config;
 
 #[derive(Default, Debug)]
 pub struct ConfigSerializer {

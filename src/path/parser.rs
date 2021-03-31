@@ -1,4 +1,5 @@
-use super::Expression;
+use std::str::FromStr;
+
 use nom::{
     branch::alt,
     bytes::complete::{is_a, tag},
@@ -8,7 +9,8 @@ use nom::{
     sequence::{delimited, pair, preceded},
     Err, IResult,
 };
-use std::str::FromStr;
+
+use crate::path::Expression;
 
 fn raw_ident(i: &str) -> IResult<&str, String> {
     map(

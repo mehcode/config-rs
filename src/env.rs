@@ -1,8 +1,9 @@
-use error::*;
-use source::Source;
 use std::collections::HashMap;
 use std::env;
-use value::{Value, ValueKind};
+
+use crate::error::*;
+use crate::source::Source;
+use crate::value::{Value, ValueKind};
 
 #[derive(Clone, Debug)]
 pub struct Environment {

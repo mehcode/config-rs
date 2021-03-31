@@ -1,7 +1,8 @@
-use error::*;
 use std::collections::HashMap;
 use std::str::FromStr;
-use value::{Value, ValueKind};
+
+use crate::error::*;
+use crate::value::{Value, ValueKind};
 
 mod parser;
 
