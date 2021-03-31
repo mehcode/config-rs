@@ -141,12 +141,6 @@ impl<'de> de::Deserializer<'de> for Value {
 
 struct StrDeserializer<'a>(&'a str);
 
-impl<'a> StrDeserializer<'a> {
-    fn new(key: &'a str) -> Self {
-        StrDeserializer(key)
-    }
-}
-
 impl<'de, 'a> de::Deserializer<'de> for StrDeserializer<'a> {
     type Error = ConfigError;
 
