@@ -116,16 +116,19 @@ impl Config {
     /// # use config::ConfigError;
     /// # use config::Config;
     /// # fn run() -> Result<(), ConfigError> {
-    /// let mut config = Config::default();
-    /// config.with_sources()
-    ///     .merge(config::File::with_name("Settings"))?
-    ///     .merge(config::File::with_name("MoreSettings"))?
-    ///     .merge(config::File::with_name("EvenMoreSettings"))?
-    ///     .refresh()?;
+    /// let config = Config::builder()
+    ///     .with_source(config::File::with_name("Settings"))
+    ///     .with_source(config::File::with_name("MoreSettings"))
+    ///     .with_source(config::File::with_name("EvenMoreSettings"))
+    ///     .build()?;
     /// # Ok(())
     /// # }
-    pub fn with_sources(&mut self) -> WithSources<'_> {
-        WithSources(self)
+    pub fn builder() -> ConfigBuilder {
+        ConfigBuilder {
+            defaults: HashMap::new(),
+            overrides: HashMap::new(),
+            sources: Vec::new(),
+        }
     }
 
     /// Refresh the configuration cache with fresh
@@ -291,38 +294,55 @@ impl Source for Config {
     }
 }
 
-pub struct WithSources<'a>(&'a mut Config);
+pub struct ConfigBuilder {
+    defaults: HashMap<path::Expression, Value>,
+    overrides: HashMap<path::Expression, Value>,
+    sources: Vec<Box<dyn Source + Send + Sync>>,
+}
 
-impl<'a> WithSources<'a> {
-    /// Merge a configuration source onto the `Config` object,
-    /// without calling `Config::refresh()`.
-    ///
-    /// # Note
-    ///
-    /// The `WithSources::refresh()` method _must_ be used to get the `Config` object back.
-    /// If it is not used, and the `WithSources` object is dropped, the user is free to call
-    /// `Config::refresh()` at any later point in time, of course.
-    pub fn merge<T>(self, source: T) -> Result<Self>
+impl ConfigBuilder {
+    /// Merge a configuration source onto the builder object
+    pub fn with_source<T>(mut self, source: T) -> Self
     where
         T: 'static,
         T: Source + Send + Sync,
     {
-        match self.0.kind {
-            ConfigKind::Mutable {
-                ref mut sources, ..
-            } => {
-                sources.push(Box::new(source));
-            }
+        self.sources.push(Box::new(source));
+        self
+    }
 
-            ConfigKind::Frozen => {
-                return Err(ConfigError::Frozen);
-            }
-        }
-
+    /// Set a default value at a certain key
+    pub fn with_default<T>(mut self, key: &str, value: T) -> Result<Self>
+    where
+        T: Into<Value>,
+    {
+        self.defaults.insert(key.parse()?, value.into());
         Ok(self)
     }
 
-    pub fn refresh(self) -> Result<&'a mut Config> {
-        self.0.refresh()
+    /// Set an overwrite value at a certain key
+    pub fn with_overwrite<T>(mut self, key: &str, value: T) -> Result<Self>
+    where
+        T: Into<Value>,
+    {
+        self.overrides.insert(key.parse()?, value.into());
+        Ok(self)
+    }
+
+    /// Build the Config object
+    pub fn build(mut self) -> Result<Config> {
+        let mut c = Config::default();
+        match c.kind {
+            ConfigKind::Mutable {
+                ref mut sources, ..
+            } => {
+                sources.append(&mut self.sources);
+            },
+
+            ConfigKind::Frozen => return Err(ConfigError::Frozen),
+        }
+
+        c.refresh()?;
+        Ok(c)
     }
 }
