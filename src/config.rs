@@ -337,7 +337,7 @@ impl ConfigBuilder {
                 ref mut sources, ..
             } => {
                 sources.append(&mut self.sources);
-            },
+            }
 
             ConfigKind::Frozen => return Err(ConfigError::Frozen),
         }
