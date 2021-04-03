@@ -72,13 +72,8 @@ where
     T: Into<Value>,
 {
     fn from(values: HashMap<String, T>) -> Self {
-        let mut r = HashMap::new();
-
-        for (k, v) in values {
-            r.insert(k.clone(), v.into());
-        }
-
-        ValueKind::Table(r)
+        let t = values.into_iter().map(|(k, v)| (k, v.into())).collect();
+        ValueKind::Table(t)
     }
 }
 
@@ -87,13 +82,7 @@ where
     T: Into<Value>,
 {
     fn from(values: Vec<T>) -> Self {
-        let mut l = Vec::new();
-
-        for v in values {
-            l.push(v.into());
-        }
-
-        ValueKind::Array(l)
+        ValueKind::Array(values.into_iter().map(T::into).collect())
     }
 }
 
@@ -105,10 +94,15 @@ impl Display for ValueKind {
             ValueKind::Integer(value) => write!(f, "{}", value),
             ValueKind::Float(value) => write!(f, "{}", value),
             ValueKind::Nil => write!(f, "nil"),
-
-            // TODO: Figure out a nice Display for these
-            ValueKind::Table(ref table) => write!(f, "{:?}", table),
-            ValueKind::Array(ref array) => write!(f, "{:?}", array),
+            ValueKind::Table(ref table) => write!(f, "{{ {} }}", {
+                table
+                    .iter()
+                    .map(|(k, v)| format!("{} => {}, ", k, v))
+                    .collect::<String>()
+            }),
+            ValueKind::Array(ref array) => write!(f, "{:?}", {
+                array.iter().map(|e| format!("{}, ", e)).collect::<String>()
+            }),
         }
     }
 }
