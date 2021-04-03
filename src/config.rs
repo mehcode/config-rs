@@ -12,36 +12,14 @@ use source::Source;
 use path;
 use value::{Table, Value, ValueKind};
 
-#[derive(Clone, Debug)]
-enum ConfigKind {
-    // A mutable configuration. This is the default.
-    Mutable {
-        defaults: HashMap<path::Expression, Value>,
-        overrides: HashMap<path::Expression, Value>,
-        sources: Vec<Box<dyn Source + Send + Sync>>,
-    },
-
-    // A frozen configuration.
-    // Configuration can no longer be mutated.
-    Frozen,
-}
-
-impl Default for ConfigKind {
-    fn default() -> Self {
-        ConfigKind::Mutable {
-            defaults: HashMap::new(),
-            overrides: HashMap::new(),
-            sources: Vec::new(),
-        }
-    }
-}
-
 /// A prioritized configuration repository. It maintains a set of
 /// configuration sources, fetches values to populate those, and provides
 /// them according to the source's priority.
 #[derive(Clone, Debug)]
 pub struct Config {
-    kind: ConfigKind,
+    defaults: HashMap<path::Expression, Value>,
+    overrides: HashMap<path::Expression, Value>,
+    sources: Vec<Box<dyn Source + Send + Sync>>,
 
     /// Root of the cached configuration.
     pub cache: Value,
@@ -50,7 +28,9 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         Config {
-            kind: ConfigKind::default(),
+            defaults: Default::default(),
+            overrides: Default::default(),
+            sources: Default::default(),
             cache: Value::new(None, Table::new()),
         }
     }
@@ -63,18 +43,7 @@ impl Config {
         T: 'static,
         T: Source + Send + Sync,
     {
-        match self.kind {
-            ConfigKind::Mutable {
-                ref mut sources, ..
-            } => {
-                sources.push(Box::new(source));
-            }
-
-            ConfigKind::Frozen => {
-                return Err(ConfigError::Frozen);
-            }
-        }
-
+        self.sources.push(Box::new(source));
         self.refresh()
     }
 
@@ -84,18 +53,7 @@ impl Config {
         T: 'static,
         T: Source + Send + Sync,
     {
-        match self.kind {
-            ConfigKind::Mutable {
-                ref mut sources, ..
-            } => {
-                sources.push(Box::new(source));
-            }
-
-            ConfigKind::Frozen => {
-                return Err(ConfigError::Frozen);
-            }
-        }
-
+        self.sources.push(Box::new(source));
         self.refresh()?;
         Ok(self)
     }
@@ -106,34 +64,23 @@ impl Config {
     /// Configuration is automatically refreshed after a mutation
     /// operation (`set`, `merge`, `set_default`, etc.).
     pub fn refresh(&mut self) -> Result<&mut Config> {
-        self.cache = match self.kind {
-            // TODO: We need to actually merge in all the stuff
-            ConfigKind::Mutable {
-                ref overrides,
-                ref sources,
-                ref defaults,
-            } => {
-                let mut cache: Value = HashMap::<String, Value>::new().into();
+        self.cache = {
+            let mut cache: Value = HashMap::<String, Value>::new().into();
 
-                // Add defaults
-                for (key, val) in defaults {
-                    key.set(&mut cache, val.clone());
-                }
-
-                // Add sources
-                sources.collect_to(&mut cache)?;
-
-                // Add overrides
-                for (key, val) in overrides {
-                    key.set(&mut cache, val.clone());
-                }
-
-                cache
+            // Add defaults
+            for (key, val) in self.defaults.iter() {
+                key.set(&mut cache, val.clone());
             }
 
-            ConfigKind::Frozen => {
-                return Err(ConfigError::Frozen);
+            // Add sources
+            self.sources.collect_to(&mut cache)?;
+
+            // Add overrides
+            for (key, val) in self.overrides.iter() {
+                key.set(&mut cache, val.clone());
             }
+
+            cache
         };
 
         Ok(self)
@@ -144,16 +91,7 @@ impl Config {
     where
         T: Into<Value>,
     {
-        match self.kind {
-            ConfigKind::Mutable {
-                ref mut defaults, ..
-            } => {
-                defaults.insert(key.parse()?, value.into());
-            }
-
-            ConfigKind::Frozen => return Err(ConfigError::Frozen),
-        };
-
+        self.defaults.insert(key.parse()?, value.into());
         self.refresh()
     }
 
@@ -169,16 +107,7 @@ impl Config {
     where
         T: Into<Value>,
     {
-        match self.kind {
-            ConfigKind::Mutable {
-                ref mut overrides, ..
-            } => {
-                overrides.insert(key.parse()?, value.into());
-            }
-
-            ConfigKind::Frozen => return Err(ConfigError::Frozen),
-        };
-
+        self.overrides.insert(key.parse()?, value.into());
         self.refresh()
     }
 
