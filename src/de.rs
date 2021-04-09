@@ -1,9 +1,11 @@
-use config::Config;
-use error::*;
-use serde::de;
 use std::collections::{HashMap, VecDeque};
 use std::iter::Enumerate;
-use value::{Table, Value, ValueKind};
+
+use serde::de;
+
+use crate::config::Config;
+use crate::error::*;
+use crate::value::{Table, Value, ValueKind};
 
 impl<'de> de::Deserializer<'de> for Value {
     type Error = ConfigError;

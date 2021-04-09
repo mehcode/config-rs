@@ -7,8 +7,9 @@ extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 
-use config::*;
 use std::path::PathBuf;
+
+use config::*;
 
 #[derive(Debug, Deserialize, PartialEq)]
 struct Place {

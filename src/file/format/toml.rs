@@ -1,8 +1,9 @@
-use source::Source;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::HashMap;
 use std::error::Error;
+
 use toml;
-use value::{Value, ValueKind};
+
+use crate::value::{Value, ValueKind};
 
 pub fn parse(
     uri: Option<&String>,

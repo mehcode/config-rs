@@ -7,10 +7,11 @@ extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 
-use config::*;
-use float_cmp::ApproxEqUlps;
 use std::collections::HashMap;
 use std::path::PathBuf;
+
+use config::*;
+use float_cmp::ApproxEqUlps;
 
 #[derive(Debug, Deserialize)]
 struct Place {

@@ -1,9 +1,6 @@
 use std::error::Error;
-use std::result;
-use std::str::FromStr;
 
-use super::{FileFormat, FileSource};
-use source::Source;
+use crate::file::{FileFormat, FileSource};
 
 /// Describes a file sourced from a string
 #[derive(Clone, Debug)]

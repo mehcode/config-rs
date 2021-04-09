@@ -1,16 +1,14 @@
-use serde::de::{Deserialize, Deserializer};
-use serde::ser::{Serialize, Serializer};
 use std::collections::HashMap;
 use std::fmt::Debug;
-use std::ops::Deref;
-use std::str::FromStr;
 
-use error::*;
-use ser::ConfigSerializer;
-use source::Source;
+use serde::de::Deserialize;
+use serde::ser::Serialize;
 
-use path;
-use value::{Table, Value, ValueKind};
+use crate::error::*;
+use crate::path;
+use crate::ser::ConfigSerializer;
+use crate::source::Source;
+use crate::value::{Table, Value};
 
 /// A prioritized configuration repository. It maintains a set of
 /// configuration sources, fetches values to populate those, and provides

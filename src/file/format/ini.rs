@@ -1,8 +1,9 @@
-use ini::Ini;
-use source::Source;
 use std::collections::HashMap;
 use std::error::Error;
-use value::{Value, ValueKind};
+
+use ini::Ini;
+
+use crate::value::{Value, ValueKind};
 
 pub fn parse(
     uri: Option<&String>,

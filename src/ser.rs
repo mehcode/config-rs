@@ -1,10 +1,10 @@
-use serde::ser;
 use std::fmt::Display;
-use std::mem;
 
-use error::*;
-use value::{Value, ValueKind};
-use Config;
+use serde::ser;
+
+use crate::error::*;
+use crate::value::{Value, ValueKind};
+use crate::Config;
 
 #[derive(Default, Debug)]
 pub struct ConfigSerializer {
@@ -696,7 +696,6 @@ impl ser::SerializeStructVariant for StringKeySerializer {
 #[cfg(test)]
 mod test {
     use super::*;
-    use serde::Serialize;
 
     #[test]
     fn test_struct() {

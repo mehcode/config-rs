@@ -7,9 +7,10 @@ extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 
+use std::collections::{HashMap, HashSet};
+
 use config::*;
 use float_cmp::ApproxEqUlps;
-use std::collections::{HashMap, HashSet};
 
 #[derive(Debug, Deserialize)]
 struct Place {

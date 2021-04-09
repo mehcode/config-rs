@@ -17,7 +17,6 @@
 //!
 //! See the [examples](https://github.com/mehcode/config-rs/tree/master/examples) for
 //! general usage information.
-#![allow(unused_imports)]
 #![allow(unused_variables)]
 #![allow(unknown_lints)]
 // #![warn(missing_docs)]
@@ -29,7 +28,6 @@ extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 
-#[macro_use]
 extern crate nom;
 
 #[macro_use]

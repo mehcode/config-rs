@@ -1,10 +1,10 @@
-use nom;
-use serde::de;
-use serde::ser;
-use std::borrow::Cow;
 use std::error::Error;
 use std::fmt;
 use std::result;
+
+use nom;
+use serde::de;
+use serde::ser;
 
 #[derive(Debug)]
 pub enum Unexpected {

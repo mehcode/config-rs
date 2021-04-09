@@ -4,8 +4,7 @@ pub mod string;
 use std::error::Error;
 use std::fmt::Debug;
 
-use super::FileFormat;
-use source::Source;
+use crate::file::FileFormat;
 
 /// Describes where the file is sourced
 pub trait FileSource: Debug + Clone {

@@ -1,11 +1,12 @@
 mod format;
 pub mod source;
 
-use error::*;
-use source::Source;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
-use value::Value;
+
+use crate::error::*;
+use crate::source::Source;
+use crate::value::Value;
 
 pub use self::format::FileFormat;
 use self::source::FileSource;
