@@ -29,6 +29,7 @@ jobs:
           command: check
 
   test:
+    needs: [check]
     name: Test Suite
     runs-on: ubuntu-latest
     strategy:
@@ -53,6 +54,7 @@ jobs:
           command: test
 
   fmt:
+    needs: [check]
     name: Rustfmt
     runs-on: ubuntu-latest
     strategy:
@@ -80,6 +82,7 @@ jobs:
           args: --all -- --check
 
   clippy:
+    needs: [check]
     name: Clippy
     runs-on: ubuntu-latest
     strategy:
