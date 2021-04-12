@@ -128,19 +128,19 @@ impl Source for Environment {
             let value = if self.try_parsing {
                 // convert to lowercase because bool parsing expects all lowercase
                 if let Ok(parsed) = value.to_lowercase().parse::<bool>() {
-                    Value::new(Some(&uri), ValueKind::Boolean(parsed))
+                    ValueKind::Boolean(parsed)
                 } else if let Ok(parsed) = value.parse::<i64>() {
-                    Value::new(Some(&uri), ValueKind::Integer(parsed))
+                    ValueKind::Integer(parsed)
                 } else if let Ok(parsed) = value.parse::<f64>() {
-                    Value::new(Some(&uri), ValueKind::Float(parsed))
+                    ValueKind::Float(parsed)
                 } else {
-                    Value::new(Some(&uri), ValueKind::String(value))
+                    ValueKind::String(value)
                 }
             } else {
-                Value::new(Some(&uri), ValueKind::String(value))
+                ValueKind::String(value)
             };
 
-            m.insert(key.to_lowercase(), value);
+            m.insert(key.to_lowercase(), Value::new(Some(&uri), value));
         }
 
         Ok(m)
