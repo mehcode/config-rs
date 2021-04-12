@@ -126,27 +126,21 @@ impl Source for Environment {
             }
 
             let value = if self.try_parsing {
-                let string_value = Value::new(Some(&uri), ValueKind::String(value.clone()));
-                let is_true_false =
-                    value.to_lowercase() == "true" || value.to_lowercase() == "false";
-
-                // if the value is "true" or "false" it should be parsed as a bool
-                if let (true, Ok(parsed)) = (is_true_false, string_value.clone().into_bool()) {
-                    ValueKind::Boolean(parsed)
-                } else if let Ok(parsed) = string_value.clone().into_int() {
-                    ValueKind::Integer(parsed)
-                } else if let Ok(parsed) = string_value.clone().into_float() {
-                    ValueKind::Float(parsed)
-                } else if let Ok(parsed) = string_value.clone().into_bool() {
-                    ValueKind::Boolean(parsed)
+                // convert to lowercase because bool parsing expects all lowercase
+                if let Ok(parsed) = value.to_lowercase().parse::<bool>() {
+                    Value::new(Some(&uri), ValueKind::Boolean(parsed))
+                } else if let Ok(parsed) = value.parse::<i64>() {
+                    Value::new(Some(&uri), ValueKind::Integer(parsed))
+                } else if let Ok(parsed) = value.parse::<f64>() {
+                    Value::new(Some(&uri), ValueKind::Float(parsed))
                 } else {
-                    ValueKind::String(value)
+                    Value::new(Some(&uri), ValueKind::String(value))
                 }
             } else {
-                ValueKind::String(value)
+                Value::new(Some(&uri), ValueKind::String(value))
             };
 
-            m.insert(key.to_lowercase(), Value::new(Some(&uri), value));
+            m.insert(key.to_lowercase(), value);
         }
 
         Ok(m)
