@@ -701,6 +701,7 @@ mod test {
 
     #[test]
     fn test_struct() {
+        use serde_derive::*;
         #[derive(Debug, Serialize, Deserialize, PartialEq)]
         struct Test {
             int: u32,
