@@ -98,12 +98,8 @@ impl ConfigError {
     // TODO: for now only json5 checked, need to finish others
     #[doc(hidden)]
     pub fn invalid_root(origin: Option<&String>, unexpected: Unexpected) -> Box<Self> {
-        let o = match origin {
-            Some(s) => Some(s.to_owned()),
-            None => None,
-        };
         Box::new(ConfigError::Type {
-            origin: o,
+            origin: origin.map(|s| s.to_owned()),
             unexpected,
             expected: "a map",
             key: None,
