@@ -22,6 +22,9 @@ mod hjson;
 #[cfg(feature = "ini")]
 mod ini;
 
+#[cfg(feature = "ron")]
+mod ron;
+
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
 pub enum FileFormat {
     /// TOML (parsed with toml)
@@ -42,6 +45,10 @@ pub enum FileFormat {
     /// INI (parsed with rust_ini)
     #[cfg(feature = "ini")]
     Ini,
+
+    /// RON (parsed with ron)
+    #[cfg(feature = "ron")]
+    Ron,
 }
 
 lazy_static! {
@@ -64,6 +71,9 @@ lazy_static! {
 
         #[cfg(feature = "ini")]
         formats.insert(FileFormat::Ini, vec!["ini"]);
+
+        #[cfg(feature = "ron")]
+        formats.insert(FileFormat::Ron, vec!["ron"]);
 
         formats
     };
@@ -102,6 +112,9 @@ impl FileFormat {
 
             #[cfg(feature = "ini")]
             FileFormat::Ini => ini::parse(uri, text),
+
+            #[cfg(feature = "ron")]
+            FileFormat::Ron => ron::parse(uri, text),
         }
     }
 }

@@ -10,7 +10,7 @@
 
  - Set defaults
  - Set explicit values (to programmatically override)
- - Read from [JSON], [TOML], [YAML], [HJSON], [INI] files
+ - Read from [JSON], [TOML], [YAML], [HJSON], [INI], [RON] files
  - Read from environment
  - Loosely typed — Configuration values may be read in any supported type, as long as there exists a reasonable conversion
  - Access nested fields using a formatted path — Uses a subset of JSONPath; currently supports the child ( `redis.port` ) and subscript operators ( `databases[0].name` )
@@ -20,6 +20,7 @@
 [YAML]: https://github.com/chyh1990/yaml-rust
 [HJSON]: https://github.com/hjson/hjson-rust
 [INI]: https://github.com/zonyitoo/rust-ini
+[RON]: https://github.com/ron-rs/ron
 
 ## Usage
 
@@ -33,6 +34,7 @@ config = "0.11"
  - `hjson` - Adds support for reading HJSON files
  - `yaml` - Adds support for reading YAML files
  - `toml` - Adds support for reading TOML files
+ - `ron` - Adds support for reading RON files
 
 See the [documentation](https://docs.rs/config) or [examples](https://github.com/mehcode/config-rs/tree/master/examples) for
 more usage information.

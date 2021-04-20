@@ -4,6 +4,7 @@
     feature = "hjson",
     feature = "yaml",
     feature = "ini",
+    feature = "ron",
 ))]
 
 extern crate chrono;
@@ -53,6 +54,15 @@ fn make() -> Config {
             FileFormat::Ini,
         ))
         .unwrap()
+        .merge(File::from_str(
+            r#"
+            (
+                ron_datetime: "2021-04-19T11:33:02Z"
+            )
+            "#,
+            FileFormat::Ron,
+        ))
+        .unwrap()
         .clone()
 }
 
@@ -84,6 +94,11 @@ fn test_datetime_string() {
     let date: String = s.get("ini_datetime").unwrap();
 
     assert_eq!(&date, "2017-05-10T02:14:53Z");
+
+    // RON
+    let date: String = s.get("ron_datetime").unwrap();
+
+    assert_eq!(&date, "2021-04-19T11:33:02Z");
 }
 
 #[test]
@@ -114,4 +129,9 @@ fn test_datetime() {
     let date: DateTime<Utc> = s.get("ini_datetime").unwrap();
 
     assert_eq!(date, Utc.ymd(2017, 5, 10).and_hms(2, 14, 53));
+
+    // RON
+    let date: DateTime<Utc> = s.get("ron_datetime").unwrap();
+
+    assert_eq!(date, Utc.ymd(2021, 4, 19).and_hms(11, 33, 2));
 }
