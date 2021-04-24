@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::fmt::Debug;
 
+use builder::ConfigBuilder;
 use serde::de::Deserialize;
 use serde::ser::Serialize;
 
@@ -35,7 +36,20 @@ impl Default for Config {
 }
 
 impl Config {
+    pub(crate) fn new(value: Value) -> Self {
+        Config {
+            cache: value,
+            ..Default::default()
+        }
+    }
+
+    /// Creates new [`ConfigBuilder`] instance
+    pub fn builder() -> ConfigBuilder {
+        ConfigBuilder::default()
+    }
+
     /// Merge in a configuration property source.
+    #[deprecated(since = "0.12.0", note = "please use 'ConfigBuilder' instead")]
     pub fn merge<T>(&mut self, source: T) -> Result<&mut Config>
     where
         T: 'static,
@@ -46,6 +60,7 @@ impl Config {
     }
 
     /// Merge in a configuration property source.
+    #[deprecated(since = "0.12.0", note = "please use 'ConfigBuilder' instead")]
     pub fn with_merged<T>(mut self, source: T) -> Result<Self>
     where
         T: 'static,
@@ -61,6 +76,7 @@ impl Config {
     ///
     /// Configuration is automatically refreshed after a mutation
     /// operation (`set`, `merge`, `set_default`, etc.).
+    #[deprecated(since = "0.12.0", note = "please use 'ConfigBuilder' instead")]
     pub fn refresh(&mut self) -> Result<&mut Config> {
         self.cache = {
             let mut cache: Value = HashMap::<String, Value>::new().into();
@@ -85,6 +101,7 @@ impl Config {
     }
 
     /// Set a default `value` at `key`
+    #[deprecated(since = "0.12.0", note = "please use 'ConfigBuilder' instead")]
     pub fn set_default<T>(&mut self, key: &str, value: T) -> Result<&mut Config>
     where
         T: Into<Value>,
@@ -101,6 +118,7 @@ impl Config {
     /// # Warning
     ///
     /// Errors if config is frozen
+    #[deprecated(since = "0.12.0", note = "please use 'ConfigBuilder' instead")]
     pub fn set<T>(&mut self, key: &str, value: T) -> Result<&mut Config>
     where
         T: Into<Value>,
@@ -109,6 +127,7 @@ impl Config {
         self.refresh()
     }
 
+    #[deprecated(since = "0.12.0", note = "please use 'ConfigBuilder' instead")]
     pub fn set_once(&mut self, key: &str, value: Value) -> Result<()> {
         let expr: path::Expression = key.parse()?;
 
