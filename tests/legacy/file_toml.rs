@@ -1,21 +1,18 @@
-#![cfg(feature = "ron")]
+#![cfg(feature = "toml")]
 
 extern crate config;
 extern crate float_cmp;
 extern crate serde;
 
-#[macro_use]
-extern crate serde_derive;
-
 use std::collections::HashMap;
 use std::path::PathBuf;
 
-use config::*;
-use float_cmp::ApproxEqUlps;
+use self::config::*;
+use self::float_cmp::ApproxEqUlps;
 
 #[derive(Debug, Deserialize)]
 struct Place {
-    initials: (char, char),
+    number: PlaceNumber,
     name: String,
     longitude: f64,
     latitude: f64,
@@ -26,19 +23,29 @@ struct Place {
     rating: Option<f32>,
 }
 
+#[derive(Debug, Deserialize, PartialEq)]
+struct PlaceNumber(u8);
+
+#[derive(Debug, Deserialize, PartialEq)]
+struct AsciiCode(i8);
+
 #[derive(Debug, Deserialize)]
 struct Settings {
     debug: f64,
     production: Option<String>,
+    code: AsciiCode,
     place: Place,
     #[serde(rename = "arr")]
     elements: Vec<String>,
 }
 
+#[cfg(test)]
 fn make() -> Config {
-    let mut c = Config::builder();
-    c.add_source(File::new("tests/Settings", FileFormat::Ron));
-    c.build().unwrap()
+    let mut c = Config::default();
+    c.merge(File::new("tests/Settings", FileFormat::Toml))
+        .unwrap();
+
+    c
 }
 
 #[test]
@@ -50,7 +57,8 @@ fn test_file() {
 
     assert!(s.debug.approx_eq_ulps(&1.0, 2));
     assert_eq!(s.production, Some("false".to_string()));
-    assert_eq!(s.place.initials, ('T', 'P'));
+    assert_eq!(s.code, AsciiCode(53));
+    assert_eq!(s.place.number, PlaceNumber(1));
     assert_eq!(s.place.name, "Torre di Pisa");
     assert!(s.place.longitude.approx_eq_ulps(&43.7224985, 2));
     assert!(s.place.latitude.approx_eq_ulps(&10.3970522, 2));
@@ -68,15 +76,17 @@ fn test_file() {
 
 #[test]
 fn test_error_parse() {
-    let mut c = Config::builder();
-    c.add_source(File::new("tests/Settings-invalid", FileFormat::Ron));
-    let res = c.build();
+    let mut c = Config::default();
+    let res = c.merge(File::new("tests/Settings-invalid", FileFormat::Toml));
 
-    let path_with_extension: PathBuf = ["tests", "Settings-invalid.ron"].iter().collect();
+    let path_with_extension: PathBuf = ["tests", "Settings-invalid.toml"].iter().collect();
 
     assert!(res.is_err());
     assert_eq!(
         res.unwrap_err().to_string(),
-        format!("4:1: Expected colon in {}", path_with_extension.display())
+        format!(
+            "invalid TOML value, did you mean to use a quoted string? at line 2 column 9 in {}",
+            path_with_extension.display()
+        )
     );
 }

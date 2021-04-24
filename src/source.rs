@@ -55,6 +55,26 @@ impl Source for Vec<Box<dyn Source + Send + Sync>> {
     }
 }
 
+impl Source for [Box<dyn Source + Send + Sync>] {
+    fn clone_into_box(&self) -> Box<dyn Source + Send + Sync> {
+        Box::new(self.to_owned())
+    }
+
+    fn collect(&self) -> Result<HashMap<String, Value>> {
+        let mut cache: Value = HashMap::<String, Value>::new().into();
+
+        for source in self {
+            source.collect_to(&mut cache)?;
+        }
+
+        if let ValueKind::Table(table) = cache.kind {
+            Ok(table)
+        } else {
+            unreachable!();
+        }
+    }
+}
+
 impl<T> Source for Vec<T>
 where
     T: Source + Sync + Send,

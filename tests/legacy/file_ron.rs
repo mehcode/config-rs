@@ -4,14 +4,11 @@ extern crate config;
 extern crate float_cmp;
 extern crate serde;
 
-#[macro_use]
-extern crate serde_derive;
-
 use std::collections::HashMap;
 use std::path::PathBuf;
 
-use config::*;
-use float_cmp::ApproxEqUlps;
+use self::config::*;
+use self::float_cmp::ApproxEqUlps;
 
 #[derive(Debug, Deserialize)]
 struct Place {
@@ -36,9 +33,11 @@ struct Settings {
 }
 
 fn make() -> Config {
-    let mut c = Config::builder();
-    c.add_source(File::new("tests/Settings", FileFormat::Ron));
-    c.build().unwrap()
+    let mut c = Config::default();
+    c.merge(File::new("tests/Settings", FileFormat::Ron))
+        .unwrap();
+
+    c
 }
 
 #[test]
@@ -68,9 +67,8 @@ fn test_file() {
 
 #[test]
 fn test_error_parse() {
-    let mut c = Config::builder();
-    c.add_source(File::new("tests/Settings-invalid", FileFormat::Ron));
-    let res = c.build();
+    let mut c = Config::default();
+    let res = c.merge(File::new("tests/Settings-invalid", FileFormat::Ron));
 
     let path_with_extension: PathBuf = ["tests", "Settings-invalid.ron"].iter().collect();
 

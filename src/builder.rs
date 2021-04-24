@@ -1,9 +1,7 @@
 use std::str::FromStr;
 use std::{collections::HashMap, iter::IntoIterator};
 
-use crate::{
-    config::Config, error, error::ConfigError, path::Expression, source::Source, value::Value,
-};
+use crate::{config::Config, error, path::Expression, source::Source, value::Value};
 
 /// A configuration builder
 ///
@@ -142,7 +140,7 @@ impl ConfigBuilder {
     fn build_internal(
         defaults: HashMap<Expression, Value>,
         overrides: HashMap<Expression, Value>,
-        sources: &Vec<Box<dyn Source + Send + Sync>>,
+        sources: &[Box<dyn Source + Send + Sync>],
     ) -> error::Result<Config> {
         let mut cache: Value = HashMap::<String, Value>::new().into();
 

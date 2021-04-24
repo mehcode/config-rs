@@ -10,14 +10,12 @@
 extern crate chrono;
 extern crate config;
 
-use chrono::{DateTime, TimeZone, Utc};
-use config::*;
+use self::chrono::{DateTime, TimeZone, Utc};
+use self::config::*;
 
 fn make() -> Config {
-    let mut builder = Config::builder();
-
-    builder
-        .add_source(File::from_str(
+    Config::default()
+        .merge(File::from_str(
             r#"
             {
                 "json_datetime": "2017-05-10T02:14:53Z"
@@ -25,19 +23,22 @@ fn make() -> Config {
             "#,
             FileFormat::Json,
         ))
-        .add_source(File::from_str(
+        .unwrap()
+        .merge(File::from_str(
             r#"
             yaml_datetime: 2017-06-12T10:58:30Z
             "#,
             FileFormat::Yaml,
         ))
-        .add_source(File::from_str(
+        .unwrap()
+        .merge(File::from_str(
             r#"
             toml_datetime = 2017-05-11T14:55:15Z
             "#,
             FileFormat::Toml,
         ))
-        .add_source(File::from_str(
+        .unwrap()
+        .merge(File::from_str(
             r#"
             {
                 "hjson_datetime": "2017-05-10T02:14:53Z"
@@ -45,22 +46,24 @@ fn make() -> Config {
             "#,
             FileFormat::Hjson,
         ))
-        .add_source(File::from_str(
+        .unwrap()
+        .merge(File::from_str(
             r#"
                 ini_datetime = 2017-05-10T02:14:53Z
             "#,
             FileFormat::Ini,
         ))
-        .add_source(File::from_str(
+        .unwrap()
+        .merge(File::from_str(
             r#"
             (
                 ron_datetime: "2021-04-19T11:33:02Z"
             )
             "#,
             FileFormat::Ron,
-        ));
-
-    builder.build().unwrap()
+        ))
+        .unwrap()
+        .clone()
 }
 
 #[test]

@@ -56,6 +56,8 @@ impl Config {
         T: Source + Send + Sync,
     {
         self.sources.push(Box::new(source));
+
+        #[allow(deprecated)]
         self.refresh()
     }
 
@@ -67,6 +69,8 @@ impl Config {
         T: Source + Send + Sync,
     {
         self.sources.push(Box::new(source));
+
+        #[allow(deprecated)]
         self.refresh()?;
         Ok(self)
     }
@@ -107,6 +111,8 @@ impl Config {
         T: Into<Value>,
     {
         self.defaults.insert(key.parse()?, value.into());
+
+        #[allow(deprecated)]
         self.refresh()
     }
 
@@ -124,6 +130,8 @@ impl Config {
         T: Into<Value>,
     {
         self.overrides.insert(key.parse()?, value.into());
+
+        #[allow(deprecated)]
         self.refresh()
     }
 

@@ -4,13 +4,10 @@ extern crate config;
 extern crate float_cmp;
 extern crate serde;
 
-#[macro_use]
-extern crate serde_derive;
-
 use std::collections::{HashMap, HashSet};
 
-use config::*;
-use float_cmp::ApproxEqUlps;
+use self::config::*;
+use self::float_cmp::ApproxEqUlps;
 
 #[derive(Debug, Deserialize)]
 struct Place {
@@ -31,9 +28,11 @@ struct Settings {
 }
 
 fn make() -> Config {
-    let mut c = Config::builder();
-    c.add_source(File::new("tests/Settings", FileFormat::Toml));
-    c.build().unwrap()
+    let mut c = Config::default();
+    c.merge(File::new("tests/Settings", FileFormat::Toml))
+        .unwrap();
+
+    c
 }
 
 #[test]

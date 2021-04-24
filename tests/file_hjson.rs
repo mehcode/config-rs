@@ -35,11 +35,9 @@ struct Settings {
 }
 
 fn make() -> Config {
-    let mut c = Config::default();
-    c.merge(File::new("tests/Settings", FileFormat::Hjson))
-        .unwrap();
-
-    c
+    let mut c = Config::builder();
+    c.add_source(File::new("tests/Settings", FileFormat::Hjson));
+    c.build().unwrap()
 }
 
 #[test]
@@ -68,8 +66,9 @@ fn test_file() {
 
 #[test]
 fn test_error_parse() {
-    let mut c = Config::default();
-    let res = c.merge(File::new("tests/Settings-invalid", FileFormat::Hjson));
+    let mut c = Config::builder();
+    c.add_source(File::new("tests/Settings-invalid", FileFormat::Hjson));
+    let res = c.build();
 
     let path: PathBuf = ["tests", "Settings-invalid.hjson"].iter().collect();
 
