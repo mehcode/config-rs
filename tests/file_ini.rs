@@ -28,9 +28,10 @@ struct Settings {
 }
 
 fn make() -> Config {
-    let mut c = Config::builder();
-    c.add_source(File::new("tests/Settings", FileFormat::Ini));
-    c.build().unwrap()
+    Config::builder()
+        .add_source(File::new("tests/Settings", FileFormat::Ini))
+        .build()
+        .unwrap()
 }
 
 #[test]
@@ -55,9 +56,9 @@ fn test_file() {
 
 #[test]
 fn test_error_parse() {
-    let mut c = Config::builder();
-    c.add_source(File::new("tests/Settings-invalid", FileFormat::Ini));
-    let res = c.build();
+    let res = Config::builder()
+        .add_source(File::new("tests/Settings-invalid", FileFormat::Ini))
+        .build();
 
     let path: PathBuf = ["tests", "Settings-invalid.ini"].iter().collect();
 

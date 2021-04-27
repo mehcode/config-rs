@@ -36,9 +36,10 @@ struct Settings {
 }
 
 fn make() -> Config {
-    let mut c = Config::builder();
-    c.add_source(File::new("tests/Settings", FileFormat::Ron));
-    c.build().unwrap()
+    Config::builder()
+        .add_source(File::new("tests/Settings", FileFormat::Ron))
+        .build()
+        .unwrap()
 }
 
 #[test]
@@ -68,9 +69,9 @@ fn test_file() {
 
 #[test]
 fn test_error_parse() {
-    let mut c = Config::builder();
-    c.add_source(File::new("tests/Settings-invalid", FileFormat::Ron));
-    let res = c.build();
+    let res = Config::builder()
+        .add_source(File::new("tests/Settings-invalid", FileFormat::Ron))
+        .build();
 
     let path_with_extension: PathBuf = ["tests", "Settings-invalid.ron"].iter().collect();
 

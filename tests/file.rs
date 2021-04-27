@@ -6,18 +6,18 @@ use config::*;
 
 #[test]
 fn test_file_not_required() {
-    let mut c = Config::builder();
-    c.add_source(File::new("tests/NoSettings", FileFormat::Yaml).required(false));
-    let res = c.build();
+    let res = Config::builder()
+        .add_source(File::new("tests/NoSettings", FileFormat::Yaml).required(false))
+        .build();
 
     assert!(res.is_ok());
 }
 
 #[test]
 fn test_file_required_not_found() {
-    let mut c = Config::builder();
-    c.add_source(File::new("tests/NoSettings", FileFormat::Yaml));
-    let res = c.build();
+    let res = Config::builder()
+        .add_source(File::new("tests/NoSettings", FileFormat::Yaml))
+        .build();
 
     assert!(res.is_err());
     assert_eq!(
@@ -28,10 +28,10 @@ fn test_file_required_not_found() {
 
 #[test]
 fn test_file_auto() {
-    let mut builder = Config::builder();
-    builder.add_source(File::with_name("tests/Settings-production"));
-
-    let c = builder.build().unwrap();
+    let c = Config::builder()
+        .add_source(File::with_name("tests/Settings-production"))
+        .build()
+        .unwrap();
 
     assert_eq!(c.get("debug").ok(), Some(false));
     assert_eq!(c.get("production").ok(), Some(true));
@@ -39,9 +39,9 @@ fn test_file_auto() {
 
 #[test]
 fn test_file_auto_not_found() {
-    let mut c = Config::builder();
-    c.add_source(File::with_name("tests/NoSettings"));
-    let res = c.build();
+    let res = Config::builder()
+        .add_source(File::with_name("tests/NoSettings"))
+        .build();
 
     assert!(res.is_err());
     assert_eq!(
@@ -52,10 +52,10 @@ fn test_file_auto_not_found() {
 
 #[test]
 fn test_file_ext() {
-    let mut builder = Config::builder();
-    builder.add_source(File::with_name("tests/Settings.json"));
-
-    let c = builder.build().unwrap();
+    let c = Config::builder()
+        .add_source(File::with_name("tests/Settings.json"))
+        .build()
+        .unwrap();
 
     assert_eq!(c.get("debug").ok(), Some(true));
     assert_eq!(c.get("production").ok(), Some(false));

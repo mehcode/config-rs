@@ -4,11 +4,10 @@ use config::*;
 
 #[test]
 fn test_set_override_scalar() {
-    let mut builder = Config::builder();
-
-    builder.set_override("value", true).unwrap();
-
-    let config = builder.build().unwrap();
+    let config = Config::builder()
+        .set_override("value", true)
+        .and_then(|b| b.build())
+        .unwrap();
 
     assert_eq!(config.get("value").ok(), Some(true));
 }
@@ -16,16 +15,14 @@ fn test_set_override_scalar() {
 #[cfg(feature = "toml")]
 #[test]
 fn test_set_scalar_default() {
-    let mut builder = Config::builder();
-
-    builder
+    let config = Config::builder()
         .add_source(File::new("tests/Settings", FileFormat::Toml))
         .set_default("debug", false)
         .unwrap()
         .set_default("staging", false)
+        .unwrap()
+        .build()
         .unwrap();
-
-    let config = builder.build().unwrap();
 
     assert_eq!(config.get("debug").ok(), Some(true));
     assert_eq!(config.get("staging").ok(), Some(false));
@@ -34,18 +31,16 @@ fn test_set_scalar_default() {
 #[cfg(feature = "toml")]
 #[test]
 fn test_set_scalar_path() {
-    let mut builder = Config::builder();
-
-    builder
+    let config = Config::builder()
         .set_override("first.second.third", true)
         .unwrap()
         .add_source(File::new("tests/Settings", FileFormat::Toml))
         .set_default("place.favorite", true)
         .unwrap()
         .set_default("place.blocked", true)
+        .unwrap()
+        .build()
         .unwrap();
-
-    let config = builder.build().unwrap();
 
     assert_eq!(config.get("first.second.third").ok(), Some(true));
     assert_eq!(config.get("place.favorite").ok(), Some(false));
@@ -55,9 +50,7 @@ fn test_set_scalar_path() {
 #[cfg(feature = "toml")]
 #[test]
 fn test_set_arr_path() {
-    let mut builder = Config::builder();
-
-    builder
+    let config = Config::builder()
         .set_override("items[0].name", "Ivan")
         .unwrap()
         .set_override("data[0].things[1].name", "foo")
@@ -68,9 +61,9 @@ fn test_set_arr_path() {
         .unwrap()
         .add_source(File::new("tests/Settings", FileFormat::Toml))
         .set_override("items[2]", "George")
+        .unwrap()
+        .build()
         .unwrap();
-
-    let config = builder.build().unwrap();
 
     assert_eq!(config.get("items[0].name").ok(), Some("Ivan".to_string()));
     assert_eq!(
@@ -85,16 +78,14 @@ fn test_set_arr_path() {
 #[cfg(feature = "toml")]
 #[test]
 fn test_set_capital() {
-    let mut builder = Config::builder();
-
-    builder
+    let config = Config::builder()
         .set_default("this", false)
         .unwrap()
         .set_override("ThAt", true)
         .unwrap()
-        .add_source(File::from_str("{\"logLevel\": 5}", FileFormat::Json));
-
-    let config = builder.build().unwrap();
+        .add_source(File::from_str("{\"logLevel\": 5}", FileFormat::Json))
+        .build()
+        .unwrap();
 
     assert_eq!(config.get("this").ok(), Some(false));
     assert_eq!(config.get("ThAt").ok(), Some(true));

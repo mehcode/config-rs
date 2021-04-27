@@ -14,9 +14,7 @@ use chrono::{DateTime, TimeZone, Utc};
 use config::*;
 
 fn make() -> Config {
-    let mut builder = Config::builder();
-
-    builder
+    Config::builder()
         .add_source(File::from_str(
             r#"
             {
@@ -58,9 +56,9 @@ fn make() -> Config {
             )
             "#,
             FileFormat::Ron,
-        ));
-
-    builder.build().unwrap()
+        ))
+        .build()
+        .unwrap()
 }
 
 #[test]

@@ -10,16 +10,17 @@ use std::path::PathBuf;
 use config::*;
 
 fn make() -> Config {
-    let mut c = Config::builder();
-    c.add_source(File::new("tests/Settings", FileFormat::Toml));
-    c.build().unwrap()
+    Config::builder()
+        .add_source(File::new("tests/Settings", FileFormat::Toml))
+        .build()
+        .unwrap()
 }
 
 #[test]
 fn test_error_parse() {
-    let mut c = Config::builder();
-    c.add_source(File::new("tests/Settings-invalid", FileFormat::Toml));
-    let res = c.build();
+    let res = Config::builder()
+        .add_source(File::new("tests/Settings-invalid", FileFormat::Toml))
+        .build();
 
     let path: PathBuf = ["tests", "Settings-invalid.toml"].iter().collect();
 
@@ -120,9 +121,13 @@ inner:
     test: ABC
 "#;
 
-    let mut cfg = Config::builder();
-    cfg.add_source(File::from_str(CFG, FileFormat::Yaml));
-    let e = cfg.build().unwrap().try_into::<Outer>().unwrap_err();
+    let e = Config::builder()
+        .add_source(File::from_str(CFG, FileFormat::Yaml))
+        .build()
+        .unwrap()
+        .try_into::<Outer>()
+        .unwrap_err();
+
     if let ConfigError::Type {
         key: Some(path), ..
     } = e

@@ -35,9 +35,10 @@ struct Settings {
 }
 
 fn make() -> Config {
-    let mut c = Config::builder();
-    c.add_source(File::new("tests/Settings", FileFormat::Json));
-    c.build().unwrap()
+    Config::builder()
+        .add_source(File::new("tests/Settings", FileFormat::Json))
+        .build()
+        .unwrap()
 }
 
 #[test]
@@ -66,9 +67,9 @@ fn test_file() {
 
 #[test]
 fn test_error_parse() {
-    let mut c = Config::builder();
-    c.add_source(File::new("tests/Settings-invalid", FileFormat::Json));
-    let res = c.build();
+    let res = Config::builder()
+        .add_source(File::new("tests/Settings-invalid", FileFormat::Json))
+        .build();
 
     let path_with_extension: PathBuf = ["tests", "Settings-invalid.json"].iter().collect();
 
@@ -84,17 +85,17 @@ fn test_error_parse() {
 
 #[test]
 fn test_json_vec() {
-    let mut builder = Config::builder();
-    builder.add_source(File::from_str(
-        r#"
+    let c = Config::builder()
+        .add_source(File::from_str(
+            r#"
             {
               "WASTE": ["example_dir1", "example_dir2"]
             }
             "#,
-        FileFormat::Json,
-    ));
-
-    let c = builder.build().unwrap();
+            FileFormat::Json,
+        ))
+        .build()
+        .unwrap();
 
     let v = c.get_array("WASTE").unwrap();
     let mut vi = v.into_iter();

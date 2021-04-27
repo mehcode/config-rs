@@ -27,11 +27,10 @@ use crate::{config::Config, error, path::Expression, source::Source, value::Valu
 /// # use config::*;
 /// # use std::error::Error;
 /// # fn main() -> Result<(), Box<dyn Error>> {
-/// let mut builder = ConfigBuilder::default();
-///
-/// builder.set_default("default", "1")?;
-/// builder.add_source(File::new("config/settings", FileFormat::Json));
-/// builder.set_override("override", "1")?;
+/// let mut builder = ConfigBuilder::default()
+///     .set_default("default", "1")?
+///     .add_source(File::new("config/settings", FileFormat::Json))
+///     .set_override("override", "1")?;
 ///
 /// match builder.build() {
 ///     Ok(config) => {
@@ -45,18 +44,16 @@ use crate::{config::Config, error, path::Expression, source::Source, value::Valu
 /// # }
 /// ```
 ///
-/// Calls can be chained as well
+/// Calls can be not chained as well
 /// ```rust
 /// # use std::error::Error;
 /// # use config::*;
 /// # fn main() -> Result<(), Box<dyn Error>> {
 /// let mut builder = ConfigBuilder::default();
-///
-/// builder
-///     .set_default("default", "1")?
-///     .add_source(File::new("config/settings", FileFormat::Json))
-///     .add_source(File::new("config/settings.prod", FileFormat::Json))
-///     .set_override("override", "1")?;
+/// builder = builder.set_default("default", "1")?;
+/// builder = builder.add_source(File::new("config/settings", FileFormat::Json));
+/// builder = builder.add_source(File::new("config/settings.prod", FileFormat::Json));
+/// builder = builder.set_override("override", "1")?;
 /// # Ok(())
 /// # }
 /// ```
@@ -75,7 +72,7 @@ impl ConfigBuilder {
     /// # Errors
     ///
     /// Fails if `Expression::from_str(key)` fails.
-    pub fn set_default<S, T>(&mut self, key: S, value: T) -> error::Result<&mut ConfigBuilder>
+    pub fn set_default<S, T>(mut self, key: S, value: T) -> error::Result<ConfigBuilder>
     where
         S: AsRef<str>,
         T: Into<Value>,
@@ -88,7 +85,7 @@ impl ConfigBuilder {
     /// Registers new [`Source`] in this builder.
     ///
     /// Calling this method does not invoke any I/O. [`Source`] is only saved in internal register for later use.
-    pub fn add_source<T>(&mut self, source: T) -> &mut Self
+    pub fn add_source<T>(mut self, source: T) -> Self
     where
         T: Source + Send + Sync + 'static,
     {
@@ -103,7 +100,7 @@ impl ConfigBuilder {
     /// # Errors
     ///
     /// Fails if `Expression::from_str(key)` fails.
-    pub fn set_override<S, T>(&mut self, key: S, value: T) -> error::Result<&mut ConfigBuilder>
+    pub fn set_override<S, T>(mut self, key: S, value: T) -> error::Result<ConfigBuilder>
     where
         S: AsRef<str>,
         T: Into<Value>,
