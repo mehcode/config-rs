@@ -56,6 +56,8 @@ impl Environment {
         self
     }
 
+    /// Note: enabling `try_parsing` can reduce performance it will try and parse
+    /// each environment variable 3 times (bool, i64, f64)
     pub fn try_parsing(mut self, try_parsing: bool) -> Self {
         self.try_parsing = try_parsing;
         self
