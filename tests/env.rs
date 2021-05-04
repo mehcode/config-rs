@@ -1,9 +1,9 @@
 extern crate config;
 extern crate serde_derive;
 
-use std::env;
 use config::*;
 use serde_derive::Deserialize;
+use std::env;
 
 /// Reminder that tests using env variables need to use different env variable names, since
 /// tests can be run in parallel
@@ -88,6 +88,7 @@ fn test_custom_separator_behavior() {
     env::remove_var("C.B.A");
 }
 
+#[test]
 fn test_parse_int() {
     // using a struct in an enum here to make serde use `deserialize_any`
     #[derive(Deserialize, Debug)]
@@ -104,7 +105,7 @@ fn test_parse_int() {
     env::set_var("INT_VAL", "42");
 
     let environment = Environment::new().try_parsing(true);
-    let mut config = Config::new();
+    let mut config = Config::default();
 
     config.set("tag", "Int").unwrap();
 
@@ -134,7 +135,7 @@ fn test_parse_float() {
     env::set_var("FLOAT_VAL", "42.3");
 
     let environment = Environment::new().try_parsing(true);
-    let mut config = Config::new();
+    let mut config = Config::default();
 
     config.set("tag", "Float").unwrap();
 
@@ -167,7 +168,7 @@ fn test_parse_bool() {
     env::set_var("BOOL_VAL", "true");
 
     let environment = Environment::new().try_parsing(true);
-    let mut config = Config::new();
+    let mut config = Config::default();
 
     config.set("tag", "Bool").unwrap();
 
@@ -201,7 +202,7 @@ fn test_parse_off_int() {
     env::set_var("INT_VAL_1", "42");
 
     let environment = Environment::new().try_parsing(false);
-    let mut config = Config::new();
+    let mut config = Config::default();
 
     config.set("tag", "Int").unwrap();
 
@@ -230,7 +231,7 @@ fn test_parse_off_float() {
     env::set_var("FLOAT_VAL_1", "42.3");
 
     let environment = Environment::new().try_parsing(false);
-    let mut config = Config::new();
+    let mut config = Config::default();
 
     config.set("tag", "Float").unwrap();
 
@@ -259,7 +260,7 @@ fn test_parse_off_bool() {
     env::set_var("BOOL_VAL_1", "true");
 
     let environment = Environment::new().try_parsing(false);
-    let mut config = Config::new();
+    let mut config = Config::default();
 
     config.set("tag", "Bool").unwrap();
 
@@ -288,7 +289,7 @@ fn test_parse_int_fail() {
     env::set_var("INT_VAL_2", "not an int");
 
     let environment = Environment::new().try_parsing(true);
-    let mut config = Config::new();
+    let mut config = Config::default();
 
     config.set("tag", "Int").unwrap();
 
@@ -317,7 +318,7 @@ fn test_parse_float_fail() {
     env::set_var("FLOAT_VAL_2", "not a float");
 
     let environment = Environment::new().try_parsing(true);
-    let mut config = Config::new();
+    let mut config = Config::default();
 
     config.set("tag", "Float").unwrap();
 
@@ -346,7 +347,7 @@ fn test_parse_bool_fail() {
     env::set_var("BOOL_VAL_2", "not a bool");
 
     let environment = Environment::new().try_parsing(true);
-    let mut config = Config::new();
+    let mut config = Config::default();
 
     config.set("tag", "Bool").unwrap();
 
@@ -374,7 +375,7 @@ fn test_parse_string() {
     env::set_var("STRING_VAL", "test string");
 
     let environment = Environment::new().try_parsing(true);
-    let mut config = Config::new();
+    let mut config = Config::default();
 
     config.set("tag", "String").unwrap();
 
@@ -408,7 +409,7 @@ fn test_parse_off_string() {
     env::set_var("STRING_VAL_1", "test string");
 
     let environment = Environment::new().try_parsing(false);
-    let mut config = Config::new();
+    let mut config = Config::default();
 
     config.set("tag", "String").unwrap();
 
