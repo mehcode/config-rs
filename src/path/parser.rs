@@ -35,7 +35,7 @@ fn ident(i: &str) -> IResult<&str, Expression> {
     map(raw_ident, Expression::Identifier)(i)
 }
 
-fn postfix<'a>(expr: Expression) -> impl Fn(&'a str) -> IResult<&'a str, Expression> {
+fn postfix<'a>(expr: Expression) -> impl FnMut(&'a str) -> IResult<&'a str, Expression> {
     let e2 = expr.clone();
     let child = map(preceded(tag("."), raw_ident), move |id| {
         Expression::Child(Box::new(expr.clone()), id)
@@ -73,10 +73,10 @@ pub fn from_str(input: &str) -> Result<Expression, ErrorKind> {
     }
 }
 
-pub fn to_error_kind(e: Err<(&str, ErrorKind)>) -> ErrorKind {
+pub fn to_error_kind(e: Err<nom::error::Error<&str>>) -> ErrorKind {
     match e {
         Err::Incomplete(_) => ErrorKind::Complete,
-        Err::Failure((_, e)) | Err::Error((_, e)) => e,
+        Err::Failure(e) | Err::Error(e) => e.code,
     }
 }
 

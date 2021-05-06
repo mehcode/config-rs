@@ -24,7 +24,7 @@ ini = ["rust-ini"]
 [dependencies]
 lazy_static = "1.0"
 serde = "1.0.8"
-nom = "5.0.0"
+nom = "6"
 
 toml = { version = "0.5", optional = true }
 serde_json = { version = "1.0.2", optional = true }
