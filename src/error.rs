@@ -2,7 +2,6 @@ use std::error::Error;
 use std::fmt;
 use std::result;
 
-use nom;
 use serde::de;
 use serde::ser;
 

@@ -1,9 +1,3 @@
-extern crate config;
-extern crate notify;
-
-#[macro_use]
-extern crate lazy_static;
-
 use config::*;
 use std::collections::HashMap;
 use std::sync::RwLock;
@@ -11,7 +5,7 @@ use notify::{RecommendedWatcher, DebouncedEvent, Watcher, RecursiveMode};
 use std::sync::mpsc::channel;
 use std::time::Duration;
 
-lazy_static! {
+lazy_static::lazy_static! {
     static ref SETTINGS: RwLock<Config> = RwLock::new({
         let mut settings = Config::default();
         settings.merge(File::with_name("Settings.toml")).unwrap();

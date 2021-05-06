@@ -1,8 +1,6 @@
 use std::collections::HashMap;
 use std::error::Error;
 
-use serde_hjson;
-
 use crate::value::{Value, ValueKind};
 
 pub fn parse(

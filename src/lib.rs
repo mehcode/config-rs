@@ -61,9 +61,9 @@ mod ser;
 mod source;
 mod value;
 
-pub use config::Config;
-pub use env::Environment;
-pub use error::ConfigError;
-pub use file::{File, FileFormat, FileSourceFile, FileSourceString};
-pub use source::Source;
-pub use value::Value;
+pub use crate::config::Config;
+pub use crate::env::Environment;
+pub use crate::error::ConfigError;
+pub use crate::file::{File, FileFormat, FileSourceFile, FileSourceString};
+pub use crate::source::Source;
+pub use crate::value::Value;
