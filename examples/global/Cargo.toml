@@ -5,4 +5,4 @@ edition = "2018"
 
 [dependencies]
 config = { path = "../../" }
-lazy_static = "^0.2.8"
+lazy_static = "1"

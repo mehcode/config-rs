@@ -5,4 +5,4 @@ edition = "2018"
 
 [dependencies]
 config = { path = "../../" }
-glob = "0.2"
+glob = "0.3"
