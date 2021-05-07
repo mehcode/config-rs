@@ -1,6 +1,3 @@
-extern crate glob;
-extern crate config;
-
 use std::path::Path;
 use std::collections::HashMap;
 use config::*;

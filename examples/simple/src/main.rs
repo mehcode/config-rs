@@ -1,5 +1,3 @@
-extern crate config;
-
 use std::collections::HashMap;
 
 fn main() {
