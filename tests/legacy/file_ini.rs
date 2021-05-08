@@ -4,12 +4,9 @@ extern crate config;
 extern crate float_cmp;
 extern crate serde;
 
-#[macro_use]
-extern crate serde_derive;
-
 use std::path::PathBuf;
 
-use config::*;
+use self::config::*;
 
 #[derive(Debug, Deserialize, PartialEq)]
 struct Place {
@@ -28,10 +25,10 @@ struct Settings {
 }
 
 fn make() -> Config {
-    Config::builder()
-        .add_source(File::new("tests/Settings", FileFormat::Ini))
-        .build()
-        .unwrap()
+    let mut c = Config::default();
+    c.merge(File::new("tests/Settings", FileFormat::Ini))
+        .unwrap();
+    c
 }
 
 #[test]
@@ -56,9 +53,8 @@ fn test_file() {
 
 #[test]
 fn test_error_parse() {
-    let res = Config::builder()
-        .add_source(File::new("tests/Settings-invalid", FileFormat::Ini))
-        .build();
+    let mut c = Config::default();
+    let res = c.merge(File::new("tests/Settings-invalid", FileFormat::Ini));
 
     let path: PathBuf = ["tests", "Settings-invalid.ini"].iter().collect();
 

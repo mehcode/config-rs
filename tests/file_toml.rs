@@ -44,11 +44,10 @@ struct Settings {
 
 #[cfg(test)]
 fn make() -> Config {
-    let mut c = Config::default();
-    c.merge(File::new("tests/Settings", FileFormat::Toml))
-        .unwrap();
-
-    c
+    Config::builder()
+        .add_source(File::new("tests/Settings", FileFormat::Toml))
+        .build()
+        .unwrap()
 }
 
 #[test]
@@ -79,8 +78,9 @@ fn test_file() {
 
 #[test]
 fn test_error_parse() {
-    let mut c = Config::default();
-    let res = c.merge(File::new("tests/Settings-invalid", FileFormat::Toml));
+    let res = Config::builder()
+        .add_source(File::new("tests/Settings-invalid", FileFormat::Toml))
+        .build();
 
     let path_with_extension: PathBuf = ["tests", "Settings-invalid.toml"].iter().collect();
 

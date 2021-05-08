@@ -1,17 +1,14 @@
-#![cfg(feature = "hjson")]
+#![cfg(feature = "yaml")]
 
 extern crate config;
 extern crate float_cmp;
 extern crate serde;
 
-#[macro_use]
-extern crate serde_derive;
-
 use std::collections::HashMap;
 use std::path::PathBuf;
 
-use config::*;
-use float_cmp::ApproxEqUlps;
+use self::config::*;
+use self::float_cmp::ApproxEqUlps;
 
 #[derive(Debug, Deserialize)]
 struct Place {
@@ -35,10 +32,11 @@ struct Settings {
 }
 
 fn make() -> Config {
-    Config::builder()
-        .add_source(File::new("tests/Settings", FileFormat::Hjson))
-        .build()
-        .unwrap()
+    let mut c = Config::default();
+    c.merge(File::new("tests/Settings", FileFormat::Yaml))
+        .unwrap();
+
+    c
 }
 
 #[test]
@@ -67,15 +65,18 @@ fn test_file() {
 
 #[test]
 fn test_error_parse() {
-    let res = Config::builder()
-        .add_source(File::new("tests/Settings-invalid", FileFormat::Hjson))
-        .build();
+    let mut c = Config::default();
+    let res = c.merge(File::new("tests/Settings-invalid", FileFormat::Yaml));
 
-    let path: PathBuf = ["tests", "Settings-invalid.hjson"].iter().collect();
+    let path_with_extension: PathBuf = ["tests", "Settings-invalid.yaml"].iter().collect();
 
     assert!(res.is_err());
     assert_eq!(
         res.unwrap_err().to_string(),
-        format!("Found a punctuator where a key name was expected (check your syntax or use quotes if the key name includes {{}}[],: or whitespace) at line 4 column 1 in {}", path.display())
+        format!(
+            "while parsing a block mapping, did not find expected key at \
+         line 2 column 1 in {}",
+            path_with_extension.display()
+        )
     );
 }

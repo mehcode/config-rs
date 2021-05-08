@@ -51,6 +51,7 @@ extern crate ini;
 #[cfg(feature = "ron")]
 extern crate ron;
 
+mod builder;
 mod config;
 mod de;
 mod env;
@@ -61,6 +62,7 @@ mod ser;
 mod source;
 mod value;
 
+pub use crate::builder::ConfigBuilder;
 pub use crate::config::Config;
 pub use crate::env::Environment;
 pub use crate::error::ConfigError;

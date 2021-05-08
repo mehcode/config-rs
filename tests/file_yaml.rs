@@ -35,11 +35,10 @@ struct Settings {
 }
 
 fn make() -> Config {
-    let mut c = Config::default();
-    c.merge(File::new("tests/Settings", FileFormat::Yaml))
-        .unwrap();
-
-    c
+    Config::builder()
+        .add_source(File::new("tests/Settings", FileFormat::Yaml))
+        .build()
+        .unwrap()
 }
 
 #[test]
@@ -68,8 +67,9 @@ fn test_file() {
 
 #[test]
 fn test_error_parse() {
-    let mut c = Config::default();
-    let res = c.merge(File::new("tests/Settings-invalid", FileFormat::Yaml));
+    let res = Config::builder()
+        .add_source(File::new("tests/Settings-invalid", FileFormat::Yaml))
+        .build();
 
     let path_with_extension: PathBuf = ["tests", "Settings-invalid.yaml"].iter().collect();
 

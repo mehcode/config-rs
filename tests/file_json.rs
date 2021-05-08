@@ -35,11 +35,10 @@ struct Settings {
 }
 
 fn make() -> Config {
-    let mut c = Config::default();
-    c.merge(File::new("tests/Settings", FileFormat::Json))
-        .unwrap();
-
-    c
+    Config::builder()
+        .add_source(File::new("tests/Settings", FileFormat::Json))
+        .build()
+        .unwrap()
 }
 
 #[test]
@@ -68,8 +67,9 @@ fn test_file() {
 
 #[test]
 fn test_error_parse() {
-    let mut c = Config::default();
-    let res = c.merge(File::new("tests/Settings-invalid", FileFormat::Json));
+    let res = Config::builder()
+        .add_source(File::new("tests/Settings-invalid", FileFormat::Json))
+        .build();
 
     let path_with_extension: PathBuf = ["tests", "Settings-invalid.json"].iter().collect();
 
@@ -85,8 +85,8 @@ fn test_error_parse() {
 
 #[test]
 fn test_json_vec() {
-    let c = Config::default()
-        .merge(File::from_str(
+    let c = Config::builder()
+        .add_source(File::from_str(
             r#"
             {
               "WASTE": ["example_dir1", "example_dir2"]
@@ -94,8 +94,8 @@ fn test_json_vec() {
             "#,
             FileFormat::Json,
         ))
-        .unwrap()
-        .clone();
+        .build()
+        .unwrap();
 
     let v = c.get_array("WASTE").unwrap();
     let mut vi = v.into_iter();

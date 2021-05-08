@@ -2,25 +2,22 @@
 
 extern crate config;
 
-#[macro_use]
-extern crate serde_derive;
-
 use std::path::PathBuf;
 
-use config::*;
+use self::config::*;
 
 fn make() -> Config {
-    Config::builder()
-        .add_source(File::new("tests/Settings", FileFormat::Toml))
-        .build()
-        .unwrap()
+    let mut c = Config::default();
+    c.merge(File::new("tests/Settings", FileFormat::Toml))
+        .unwrap();
+
+    c
 }
 
 #[test]
 fn test_error_parse() {
-    let res = Config::builder()
-        .add_source(File::new("tests/Settings-invalid", FileFormat::Toml))
-        .build();
+    let mut c = Config::default();
+    let res = c.merge(File::new("tests/Settings-invalid", FileFormat::Toml));
 
     let path: PathBuf = ["tests", "Settings-invalid.toml"].iter().collect();
 
@@ -121,13 +118,9 @@ inner:
     test: ABC
 "#;
 
-    let e = Config::builder()
-        .add_source(File::from_str(CFG, FileFormat::Yaml))
-        .build()
-        .unwrap()
-        .try_into::<Outer>()
-        .unwrap_err();
-
+    let mut cfg = Config::default();
+    cfg.merge(File::from_str(CFG, FileFormat::Yaml)).unwrap();
+    let e = cfg.try_into::<Outer>().unwrap_err();
     if let ConfigError::Type {
         key: Some(path), ..
     } = e

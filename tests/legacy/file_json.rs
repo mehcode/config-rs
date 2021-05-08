@@ -1,17 +1,14 @@
-#![cfg(feature = "hjson")]
+#![cfg(feature = "json")]
 
 extern crate config;
 extern crate float_cmp;
 extern crate serde;
 
-#[macro_use]
-extern crate serde_derive;
-
 use std::collections::HashMap;
 use std::path::PathBuf;
 
-use config::*;
-use float_cmp::ApproxEqUlps;
+use self::config::*;
+use self::float_cmp::ApproxEqUlps;
 
 #[derive(Debug, Deserialize)]
 struct Place {
@@ -35,10 +32,11 @@ struct Settings {
 }
 
 fn make() -> Config {
-    Config::builder()
-        .add_source(File::new("tests/Settings", FileFormat::Hjson))
-        .build()
-        .unwrap()
+    let mut c = Config::default();
+    c.merge(File::new("tests/Settings", FileFormat::Json))
+        .unwrap();
+
+    c
 }
 
 #[test]
@@ -67,15 +65,38 @@ fn test_file() {
 
 #[test]
 fn test_error_parse() {
-    let res = Config::builder()
-        .add_source(File::new("tests/Settings-invalid", FileFormat::Hjson))
-        .build();
+    let mut c = Config::default();
+    let res = c.merge(File::new("tests/Settings-invalid", FileFormat::Json));
 
-    let path: PathBuf = ["tests", "Settings-invalid.hjson"].iter().collect();
+    let path_with_extension: PathBuf = ["tests", "Settings-invalid.json"].iter().collect();
 
     assert!(res.is_err());
     assert_eq!(
         res.unwrap_err().to_string(),
-        format!("Found a punctuator where a key name was expected (check your syntax or use quotes if the key name includes {{}}[],: or whitespace) at line 4 column 1 in {}", path.display())
+        format!(
+            "expected `:` at line 4 column 1 in {}",
+            path_with_extension.display()
+        )
     );
+}
+
+#[test]
+fn test_json_vec() {
+    let c = Config::default()
+        .merge(File::from_str(
+            r#"
+            {
+              "WASTE": ["example_dir1", "example_dir2"]
+            }
+            "#,
+            FileFormat::Json,
+        ))
+        .unwrap()
+        .clone();
+
+    let v = c.get_array("WASTE").unwrap();
+    let mut vi = v.into_iter();
+    assert_eq!(vi.next().unwrap().into_string().unwrap(), "example_dir1");
+    assert_eq!(vi.next().unwrap().into_string().unwrap(), "example_dir2");
+    assert!(vi.next().is_none());
 }

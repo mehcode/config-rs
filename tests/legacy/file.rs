@@ -2,22 +2,20 @@
 
 extern crate config;
 
-use config::*;
+use self::config::*;
 
 #[test]
 fn test_file_not_required() {
-    let res = Config::builder()
-        .add_source(File::new("tests/NoSettings", FileFormat::Yaml).required(false))
-        .build();
+    let mut c = Config::default();
+    let res = c.merge(File::new("tests/NoSettings", FileFormat::Yaml).required(false));
 
     assert!(res.is_ok());
 }
 
 #[test]
 fn test_file_required_not_found() {
-    let res = Config::builder()
-        .add_source(File::new("tests/NoSettings", FileFormat::Yaml))
-        .build();
+    let mut c = Config::default();
+    let res = c.merge(File::new("tests/NoSettings", FileFormat::Yaml));
 
     assert!(res.is_err());
     assert_eq!(
@@ -28,9 +26,8 @@ fn test_file_required_not_found() {
 
 #[test]
 fn test_file_auto() {
-    let c = Config::builder()
-        .add_source(File::with_name("tests/Settings-production"))
-        .build()
+    let mut c = Config::default();
+    c.merge(File::with_name("tests/Settings-production"))
         .unwrap();
 
     assert_eq!(c.get("debug").ok(), Some(false));
@@ -39,9 +36,8 @@ fn test_file_auto() {
 
 #[test]
 fn test_file_auto_not_found() {
-    let res = Config::builder()
-        .add_source(File::with_name("tests/NoSettings"))
-        .build();
+    let mut c = Config::default();
+    let res = c.merge(File::with_name("tests/NoSettings"));
 
     assert!(res.is_err());
     assert_eq!(
@@ -52,10 +48,8 @@ fn test_file_auto_not_found() {
 
 #[test]
 fn test_file_ext() {
-    let c = Config::builder()
-        .add_source(File::with_name("tests/Settings.json"))
-        .build()
-        .unwrap();
+    let mut c = Config::default();
+    c.merge(File::with_name("tests/Settings.json")).unwrap();
 
     assert_eq!(c.get("debug").ok(), Some(true));
     assert_eq!(c.get("production").ok(), Some(false));

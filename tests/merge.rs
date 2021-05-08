@@ -5,14 +5,11 @@ extern crate config;
 use config::*;
 
 fn make() -> Config {
-    let mut c = Config::default();
-    c.merge(File::new("tests/Settings", FileFormat::Toml))
-        .unwrap();
-
-    c.merge(File::new("tests/Settings-production", FileFormat::Toml))
-        .unwrap();
-
-    c
+    Config::builder()
+        .add_source(File::new("tests/Settings", FileFormat::Toml))
+        .add_source(File::new("tests/Settings-production", FileFormat::Toml))
+        .build()
+        .unwrap()
 }
 
 #[test]
@@ -30,20 +27,20 @@ fn test_merge() {
 
 #[test]
 fn test_merge_whole_config() {
-    let mut c1 = Config::default();
-    let mut c2 = Config::default();
+    let builder1 = Config::builder().set_override("x", 10).unwrap();
+    let builder2 = Config::builder().set_override("y", 25).unwrap();
 
-    c1.set("x", 10).unwrap();
-    c2.set("y", 25).unwrap();
+    let config1 = builder1.build_cloned().unwrap();
+    let config2 = builder2.build_cloned().unwrap();
 
-    assert_eq!(c1.get("x").ok(), Some(10));
-    assert_eq!(c2.get::<()>("x").ok(), None);
+    assert_eq!(config1.get("x").ok(), Some(10));
+    assert_eq!(config2.get::<()>("x").ok(), None);
 
-    assert_eq!(c2.get("y").ok(), Some(25));
-    assert_eq!(c1.get::<()>("y").ok(), None);
+    assert_eq!(config2.get("y").ok(), Some(25));
+    assert_eq!(config1.get::<()>("y").ok(), None);
 
-    c1.merge(c2).unwrap();
+    let config3 = builder1.add_source(config2).build().unwrap();
 
-    assert_eq!(c1.get("x").ok(), Some(10));
-    assert_eq!(c1.get("y").ok(), Some(25));
+    assert_eq!(config3.get("x").ok(), Some(10));
+    assert_eq!(config3.get("y").ok(), Some(25));
 }
