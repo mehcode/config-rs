@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::fmt::Debug;
 
-use builder::ConfigBuilder;
+use crate::builder::ConfigBuilder;
 use serde::de::Deserialize;
 use serde::ser::Serialize;
 

@@ -8,85 +8,6 @@ use std::env;
 /// Reminder that tests using env variables need to use different env variable names, since
 /// tests can be run in parallel
 
-#[test]
-fn test_default() {
-    env::set_var("A_B_C", "abc");
-
-    let environment = Environment::new();
-
-    assert!(environment.collect().unwrap().contains_key("a_b_c"));
-
-    env::remove_var("A_B_C");
-}
-
-#[test]
-fn test_prefix_is_removed_from_key() {
-    env::set_var("B_A_C", "abc");
-
-    let environment = Environment::with_prefix("B");
-
-    assert!(environment.collect().unwrap().contains_key("a_c"));
-
-    env::remove_var("B_A_C");
-}
-
-#[test]
-fn test_prefix_with_variant_forms_of_spelling() {
-    env::set_var("a_A_C", "abc");
-
-    let environment = Environment::with_prefix("a");
-
-    assert!(environment.collect().unwrap().contains_key("a_c"));
-
-    env::remove_var("a_A_C");
-    env::set_var("aB_A_C", "abc");
-
-    let environment = Environment::with_prefix("aB");
-
-    assert!(environment.collect().unwrap().contains_key("a_c"));
-
-    env::remove_var("aB_A_C");
-    env::set_var("Ab_A_C", "abc");
-
-    let environment = Environment::with_prefix("ab");
-
-    assert!(environment.collect().unwrap().contains_key("a_c"));
-
-    env::remove_var("Ab_A_C");
-}
-
-#[test]
-fn test_separator_behavior() {
-    env::set_var("C_B_A", "abc");
-
-    let environment = Environment::with_prefix("C").separator("_");
-
-    assert!(environment.collect().unwrap().contains_key("b.a"));
-
-    env::remove_var("C_B_A");
-}
-
-#[test]
-fn test_empty_value_is_ignored() {
-    env::set_var("C_A_B", "");
-
-    let environment = Environment::new().ignore_empty(true);
-
-    assert!(!environment.collect().unwrap().contains_key("c_a_b"));
-
-    env::remove_var("C_A_B");
-}
-
-#[test]
-fn test_custom_separator_behavior() {
-    env::set_var("C.B.A", "abc");
-
-    let environment = Environment::with_prefix("C").separator(".");
-
-    assert!(environment.collect().unwrap().contains_key("b.a"));
-
-    env::remove_var("C.B.A");
-}
 
 #[test]
 fn test_parse_int() {
@@ -105,13 +26,11 @@ fn test_parse_int() {
     env::set_var("INT_VAL", "42");
 
     let environment = Environment::new().try_parsing(true);
+    let mut config = Config::default();
 
-    let config = Config::builder()
-        .set_default("tag", "Int")
-        .unwrap()
-        .add_source(environment)
-        .build()
-        .unwrap();
+    config.set("tag", "Int").unwrap();
+
+    config.merge(environment).unwrap();
 
     let config: TestIntEnum = config.try_into().unwrap();
 
@@ -137,13 +56,11 @@ fn test_parse_float() {
     env::set_var("FLOAT_VAL", "42.3");
 
     let environment = Environment::new().try_parsing(true);
+    let mut config = Config::default();
 
-    let config = Config::builder()
-        .set_default("tag", "Float")
-        .unwrap()
-        .add_source(environment)
-        .build()
-        .unwrap();
+    config.set("tag", "Float").unwrap();
+
+    config.merge(environment).unwrap();
 
     let config: TestFloatEnum = config.try_into().unwrap();
 
@@ -172,13 +89,11 @@ fn test_parse_bool() {
     env::set_var("BOOL_VAL", "true");
 
     let environment = Environment::new().try_parsing(true);
+    let mut config = Config::default();
 
-    let config = Config::builder()
-        .set_default("tag", "Bool")
-        .unwrap()
-        .add_source(environment)
-        .build()
-        .unwrap();
+    config.set("tag", "Bool").unwrap();
+
+    config.merge(environment).unwrap();
 
     let config: TestBoolEnum = config.try_into().unwrap();
 
@@ -208,13 +123,11 @@ fn test_parse_off_int() {
     env::set_var("INT_VAL_1", "42");
 
     let environment = Environment::new().try_parsing(false);
+    let mut config = Config::default();
 
-    let config = Config::builder()
-        .set_default("tag", "Int")
-        .unwrap()
-        .add_source(environment)
-        .build()
-        .unwrap();
+    config.set("tag", "Int").unwrap();
+
+    config.merge(environment).unwrap();
 
     env::remove_var("INT_VAL_1");
 
@@ -239,13 +152,11 @@ fn test_parse_off_float() {
     env::set_var("FLOAT_VAL_1", "42.3");
 
     let environment = Environment::new().try_parsing(false);
+    let mut config = Config::default();
 
-    let config = Config::builder()
-        .set_default("tag", "Float")
-        .unwrap()
-        .add_source(environment)
-        .build()
-        .unwrap();
+    config.set("tag", "Float").unwrap();
+
+    config.merge(environment).unwrap();
 
     env::remove_var("FLOAT_VAL_1");
 
@@ -270,13 +181,11 @@ fn test_parse_off_bool() {
     env::set_var("BOOL_VAL_1", "true");
 
     let environment = Environment::new().try_parsing(false);
+    let mut config = Config::default();
 
-    let config = Config::builder()
-        .set_default("tag", "Bool")
-        .unwrap()
-        .add_source(environment)
-        .build()
-        .unwrap();
+    config.set("tag", "Bool").unwrap();
+
+    config.merge(environment).unwrap();
 
     env::remove_var("BOOL_VAL_1");
 
@@ -301,13 +210,11 @@ fn test_parse_int_fail() {
     env::set_var("INT_VAL_2", "not an int");
 
     let environment = Environment::new().try_parsing(true);
+    let mut config = Config::default();
 
-    let config = Config::builder()
-        .set_default("tag", "Int")
-        .unwrap()
-        .add_source(environment)
-        .build()
-        .unwrap();
+    config.set("tag", "Int").unwrap();
+
+    config.merge(environment).unwrap();
 
     env::remove_var("INT_VAL_2");
 
@@ -332,13 +239,11 @@ fn test_parse_float_fail() {
     env::set_var("FLOAT_VAL_2", "not a float");
 
     let environment = Environment::new().try_parsing(true);
+    let mut config = Config::default();
 
-    let config = Config::builder()
-        .set_default("tag", "Float")
-        .unwrap()
-        .add_source(environment)
-        .build()
-        .unwrap();
+    config.set("tag", "Float").unwrap();
+
+    config.merge(environment).unwrap();
 
     env::remove_var("FLOAT_VAL_2");
 
@@ -363,13 +268,11 @@ fn test_parse_bool_fail() {
     env::set_var("BOOL_VAL_2", "not a bool");
 
     let environment = Environment::new().try_parsing(true);
+    let mut config = Config::default();
 
-    let config = Config::builder()
-        .set_default("tag", "Bool")
-        .unwrap()
-        .add_source(environment)
-        .build()
-        .unwrap();
+    config.set("tag", "Bool").unwrap();
+
+    config.merge(environment).unwrap();
 
     env::remove_var("BOOL_VAL_2");
 
@@ -393,13 +296,11 @@ fn test_parse_string() {
     env::set_var("STRING_VAL", "test string");
 
     let environment = Environment::new().try_parsing(true);
+    let mut config = Config::default();
 
-    let config = Config::builder()
-        .set_default("tag", "String")
-        .unwrap()
-        .add_source(environment)
-        .build()
-        .unwrap();
+    config.set("tag", "String").unwrap();
+
+    config.merge(environment).unwrap();
 
     let config: TestStringEnum = config.try_into().unwrap();
 
@@ -429,13 +330,11 @@ fn test_parse_off_string() {
     env::set_var("STRING_VAL_1", "test string");
 
     let environment = Environment::new().try_parsing(false);
+    let mut config = Config::default();
 
-    let config = Config::builder()
-        .set_default("tag", "String")
-        .unwrap()
-        .add_source(environment)
-        .build()
-        .unwrap();
+    config.set("tag", "String").unwrap();
+
+    config.merge(environment).unwrap();
 
     let config: TestStringEnum = config.try_into().unwrap();
 
