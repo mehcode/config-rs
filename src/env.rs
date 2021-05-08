@@ -23,6 +23,9 @@ pub struct Environment {
 
     /// Ignore empty env values (treat as unset).
     ignore_empty: bool,
+
+    /// Parses booleans, integers and floats if they're detected (can be safely parsed).
+    try_parsing: bool,
 }
 
 impl Environment {
@@ -51,6 +54,13 @@ impl Environment {
         self.ignore_empty = ignore;
         self
     }
+
+    /// Note: enabling `try_parsing` can reduce performance it will try and parse
+    /// each environment variable 3 times (bool, i64, f64)
+    pub fn try_parsing(mut self, try_parsing: bool) -> Self {
+        self.try_parsing = try_parsing;
+        self
+    }
 }
 
 impl Default for Environment {
@@ -59,6 +69,7 @@ impl Default for Environment {
             prefix: None,
             separator: None,
             ignore_empty: false,
+            try_parsing: false,
         }
     }
 }
@@ -115,10 +126,22 @@ impl Source for Environment {
                 key = key.replace(separator, ".");
             }
 
-            m.insert(
-                key.to_lowercase(),
-                Value::new(Some(&uri), ValueKind::String(value)),
-            );
+            let value = if self.try_parsing {
+                // convert to lowercase because bool parsing expects all lowercase
+                if let Ok(parsed) = value.to_lowercase().parse::<bool>() {
+                    ValueKind::Boolean(parsed)
+                } else if let Ok(parsed) = value.parse::<i64>() {
+                    ValueKind::Integer(parsed)
+                } else if let Ok(parsed) = value.parse::<f64>() {
+                    ValueKind::Float(parsed)
+                } else {
+                    ValueKind::String(value)
+                }
+            } else {
+                ValueKind::String(value)
+            };
+
+            m.insert(key.to_lowercase(), Value::new(Some(&uri), value));
         }
 
         Ok(m)
