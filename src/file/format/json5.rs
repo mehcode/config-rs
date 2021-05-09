@@ -35,7 +35,7 @@ pub fn parse(
         return Err(ConfigError::invalid_root(uri, err));
     }
 
-    let value = from_json5_value(uri, &root);
+    let value = from_json5_value(uri, root);
     match value.kind {
         ValueKind::Table(map) => Ok(map),
 
@@ -43,9 +43,9 @@ pub fn parse(
     }
 }
 
-fn from_json5_value(uri: Option<&String>, value: &Val) -> Value {
-    match *value {
-        Val::String(ref v) => Value::new(uri, ValueKind::String(v.clone())),
+fn from_json5_value(uri: Option<&String>, value: Val) -> Value {
+    match value {
+        Val::String(v) => Value::new(uri, ValueKind::String(v)),
 
         Val::Integer(v) => Value::new(uri, ValueKind::Integer(v)),
 
@@ -53,17 +53,17 @@ fn from_json5_value(uri: Option<&String>, value: &Val) -> Value {
 
         Val::Boolean(v) => Value::new(uri, ValueKind::Boolean(v)),
 
-        Val::Object(ref table) => {
+        Val::Object(table) => {
             let mut m = HashMap::new();
 
             for (key, value) in table {
-                m.insert(key.clone(), from_json5_value(uri, value));
+                m.insert(key, from_json5_value(uri, value));
             }
 
             Value::new(uri, ValueKind::Table(m))
         }
 
-        Val::Array(ref array) => {
+        Val::Array(array) => {
             let mut l = Vec::new();
 
             for value in array {
