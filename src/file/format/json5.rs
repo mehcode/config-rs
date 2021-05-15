@@ -1,12 +1,10 @@
-use serde_derive::Deserialize;
-
 use std::collections::HashMap;
 use std::error::Error;
 
 use crate::error::{ConfigError, Unexpected};
 use crate::value::{Value, ValueKind};
 
-#[derive(Deserialize, Debug)]
+#[derive(serde::Deserialize, Debug)]
 #[serde(untagged)]
 pub enum Val {
     Null,

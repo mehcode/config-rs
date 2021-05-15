@@ -24,7 +24,7 @@
 #[macro_use]
 extern crate serde;
 
-#[cfg(any(test, feature = "json5"))]
+#[cfg(test)]
 extern crate serde_derive;
 
 extern crate nom;
