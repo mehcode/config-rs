@@ -20,25 +20,20 @@ pub fn parse(
     uri: Option<&String>,
     text: &str,
 ) -> Result<HashMap<String, Value>, Box<dyn Error + Send + Sync>> {
-    let root = json5_rs::from_str::<Val>(&text)?;
-    if let Some(err) = match root {
-        Val::String(ref value) => Some(Unexpected::Str(value.clone())),
-        Val::Integer(value) => Some(Unexpected::Integer(value)),
-        Val::Float(value) => Some(Unexpected::Float(value)),
-        Val::Boolean(value) => Some(Unexpected::Bool(value)),
-        Val::Object(_) => None,
-        Val::Array(_) => Some(Unexpected::Seq),
-        Val::Null => Some(Unexpected::Unit),
-    } {
-        return Err(ConfigError::invalid_root(uri, err));
+    match json5_rs::from_str::<Val>(&text)? {
+        Val::String(ref value) => Err(Unexpected::Str(value.clone())),
+        Val::Integer(value) => Err(Unexpected::Integer(value)),
+        Val::Float(value) => Err(Unexpected::Float(value)),
+        Val::Boolean(value) => Err(Unexpected::Bool(value)),
+        Val::Array(_) => Err(Unexpected::Seq),
+        Val::Null => Err(Unexpected::Unit),
+        Val::Object(o) => match from_json5_value(uri, Val::Object(o)).kind {
+            ValueKind::Table(map) => Ok(map),
+            _ => Ok(HashMap::new()),
+        },
     }
-
-    let value = from_json5_value(uri, root);
-    match value.kind {
-        ValueKind::Table(map) => Ok(map),
-
-        _ => Ok(HashMap::new()),
-    }
+    .map_err(|err| ConfigError::invalid_root(uri, err))
+    .map_err(|err| Box::new(err) as Box<dyn Error + Send + Sync>)
 }
 
 fn from_json5_value(uri: Option<&String>, value: Val) -> Value {
