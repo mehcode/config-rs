@@ -37,35 +37,30 @@ pub fn parse(
 }
 
 fn from_json5_value(uri: Option<&String>, value: Val) -> Value {
-    match value {
-        Val::String(v) => Value::new(uri, ValueKind::String(v)),
-
-        Val::Integer(v) => Value::new(uri, ValueKind::Integer(v)),
-
-        Val::Float(v) => Value::new(uri, ValueKind::Float(v)),
-
-        Val::Boolean(v) => Value::new(uri, ValueKind::Boolean(v)),
-
+    let vk = match value {
+        Val::Null => ValueKind::Nil,
+        Val::String(v) => ValueKind::String(v),
+        Val::Integer(v) => ValueKind::Integer(v),
+        Val::Float(v) => ValueKind::Float(v),
+        Val::Boolean(v) => ValueKind::Boolean(v),
         Val::Object(table) => {
-            let mut m = HashMap::new();
+            let m = table
+                .into_iter()
+                .map(|(k, v)| (k, from_json5_value(uri, v)))
+                .collect();
 
-            for (key, value) in table {
-                m.insert(key, from_json5_value(uri, value));
-            }
-
-            Value::new(uri, ValueKind::Table(m))
+            ValueKind::Table(m)
         }
 
         Val::Array(array) => {
-            let mut l = Vec::new();
+            let l = array
+                .into_iter()
+                .map(|v| from_json5_value(uri, v))
+                .collect();
 
-            for value in array {
-                l.push(from_json5_value(uri, value));
-            }
-
-            Value::new(uri, ValueKind::Array(l))
+            ValueKind::Array(l)
         }
+    };
 
-        Val::Null => Value::new(uri, ValueKind::Nil),
-    }
+    Value::new(uri, vk)
 }
