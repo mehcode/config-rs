@@ -94,6 +94,18 @@ impl ConfigError {
         }
     }
 
+    // Have a proper error fire if the root of a file is ever not a Table
+    // TODO: for now only json5 checked, need to finish others
+    #[doc(hidden)]
+    pub fn invalid_root(origin: Option<&String>, unexpected: Unexpected) -> Box<Self> {
+        Box::new(ConfigError::Type {
+            origin: origin.map(|s| s.to_owned()),
+            unexpected,
+            expected: "a map",
+            key: None,
+        })
+    }
+
     // FIXME: pub(crate)
     #[doc(hidden)]
     pub fn extend_with_key(self, key: &str) -> Self {

@@ -15,11 +15,12 @@ edition = "2018"
 maintenance = { status = "actively-developed" }
 
 [features]
-default = ["toml", "json", "yaml", "hjson", "ini", "ron"]
+default = ["toml", "json", "yaml", "hjson", "ini", "ron", "json5"]
 json = ["serde_json"]
 yaml = ["yaml-rust"]
 hjson = ["serde-hjson"]
 ini = ["rust-ini"]
+json5 = ["json5_rs"]
 
 [dependencies]
 lazy_static = "1.0"
@@ -32,6 +33,7 @@ yaml-rust = { version = "0.4", optional = true }
 serde-hjson = { version = "0.9", default-features = false, optional = true }
 rust-ini = { version = "0.17", optional = true }
 ron = { version = "0.6", optional = true }
+json5_rs = { version = "0.3", optional = true, package = "json5" }
 
 [dev-dependencies]
 serde_derive = "1.0.8"

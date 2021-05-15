@@ -25,6 +25,9 @@ mod ini;
 #[cfg(feature = "ron")]
 mod ron;
 
+#[cfg(feature = "json5")]
+mod json5;
+
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
 pub enum FileFormat {
     /// TOML (parsed with toml)
@@ -42,6 +45,7 @@ pub enum FileFormat {
     /// HJSON (parsed with serde_hjson)
     #[cfg(feature = "hjson")]
     Hjson,
+
     /// INI (parsed with rust_ini)
     #[cfg(feature = "ini")]
     Ini,
@@ -49,6 +53,10 @@ pub enum FileFormat {
     /// RON (parsed with ron)
     #[cfg(feature = "ron")]
     Ron,
+
+    /// JSON5 (parsed with json5)
+    #[cfg(feature = "json5")]
+    Json5,
 }
 
 lazy_static! {
@@ -74,6 +82,9 @@ lazy_static! {
 
         #[cfg(feature = "ron")]
         formats.insert(FileFormat::Ron, vec!["ron"]);
+
+        #[cfg(feature = "json5")]
+        formats.insert(FileFormat::Json5, vec!["json5"]);
 
         formats
     };
@@ -115,6 +126,9 @@ impl FileFormat {
 
             #[cfg(feature = "ron")]
             FileFormat::Ron => ron::parse(uri, text),
+
+            #[cfg(feature = "json5")]
+            FileFormat::Json5 => json5::parse(uri, text),
         }
     }
 }
