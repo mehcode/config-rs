@@ -7,6 +7,10 @@ use serde::de::{Deserialize, Deserializer, Visitor};
 use crate::error::*;
 
 /// Underlying kind of the configuration value.
+///
+/// Standard operations on a `Value` by users of this crate do not require
+/// knowledge of `ValueKind`. Introspection of underlying kind is only required
+/// when the configuration values are unstructured or do not have known types.
 #[derive(Debug, Clone, PartialEq)]
 pub enum ValueKind {
     Nil,
