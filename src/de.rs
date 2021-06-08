@@ -281,7 +281,7 @@ impl<'de> de::EnumAccess<'de> for EnumAccess {
         let value = {
             let deserializer = match self.value.kind {
                 ValueKind::String(ref s) => self.variant_deserializer(s),
-                ValueKind::Table(ref t) => self.table_deserializer(&t),
+                ValueKind::Table(ref t) => self.table_deserializer(t),
                 _ => Err(self.structural_error()),
             }?;
             seed.deserialize(deserializer)?
