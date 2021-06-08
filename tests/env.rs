@@ -184,7 +184,7 @@ fn test_parse_bool() {
 
     assert!(matches!(
         config,
-        TestBoolEnum::Bool(TestBool { bool_val: true }),
+        TestBoolEnum::Bool(TestBool { bool_val: true })
     ));
 
     env::remove_var("BOOL_VAL");
