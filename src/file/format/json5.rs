@@ -20,7 +20,7 @@ pub fn parse(
     uri: Option<&String>,
     text: &str,
 ) -> Result<HashMap<String, Value>, Box<dyn Error + Send + Sync>> {
-    match json5_rs::from_str::<Val>(&text)? {
+    match json5_rs::from_str::<Val>(text)? {
         Val::String(ref value) => Err(Unexpected::Str(value.clone())),
         Val::Integer(value) => Err(Unexpected::Integer(value)),
         Val::Float(value) => Err(Unexpected::Float(value)),
