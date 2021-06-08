@@ -24,6 +24,14 @@ jobs:
           override: true
 
       - name: Run cargo check
+        if: matrix.rust != 'nightly'
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
+
+      - name: Run cargo check (nightly)
+        if: matrix.rust == 'nightly'
+        continue-on-error: true
         uses: actions-rs/cargo@v1
         with:
           command: check
@@ -49,6 +57,14 @@ jobs:
           override: true
 
       - name: Run cargo test
+        if: matrix.rust != 'nightly'
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+
+      - name: Run cargo test (nightly)
+        if: matrix.rust == 'nightly'
+        continue-on-error: true
         uses: actions-rs/cargo@v1
         with:
           command: test
