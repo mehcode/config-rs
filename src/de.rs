@@ -481,7 +481,7 @@ mod tests {
     #[test]
     fn test_unreachable_reachable_not_panicing_1() {
         let working_config = r#"
-            e.bar.filename = "blah"
+            e.Bar.filename = "blah"
         "#;
 
         let mut c = Config::default();
@@ -492,7 +492,7 @@ mod tests {
     #[test]
     fn test_unreachable_reachable_not_panicing_2() {
         let working_config = r#"
-            e = "foo"
+            e = "Foo"
         "#;
 
         let mut c = Config::default();
@@ -505,7 +505,7 @@ mod tests {
     #[should_panic]
     fn test_unreachable_reachable_panicing() {
         let panicing_config = r#"
-            e = "bar"
+            e = "Bar"
         "#;
 
         let mut c = Config::default();
