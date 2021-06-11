@@ -83,21 +83,14 @@ impl Source for Environment {
         let mut m = HashMap::new();
         let uri: String = "the environment".into();
 
-        let separator = match self.separator {
-            Some(ref separator) => separator,
-            _ => "",
-        };
-
-        let group_separator = match self.separator {
-            Some(ref separator) => separator,
-            _ => "_",
-        };
+        let separator = self.separator.as_deref().unwrap_or("");
+        let group_separator = self.separator.as_deref().unwrap_or("_");
 
         // Define a prefix pattern to test and exclude from keys
         let prefix_pattern = self
             .prefix
             .as_ref()
-            .map(|prefix| format!("{}{}", prefix.clone(), group_separator));
+            .map(|prefix| format!("{}{}", prefix, group_separator).to_lowercase());
 
         for (key, value) in env::vars() {
             // Treat empty environment variables as unset
@@ -105,14 +98,11 @@ impl Source for Environment {
                 continue;
             }
 
-            let mut key = key.to_string();
+            let mut key = key.to_lowercase();
 
             // Check for prefix
             if let Some(ref prefix_pattern) = prefix_pattern {
-                if key
-                    .to_lowercase()
-                    .starts_with(&prefix_pattern.to_lowercase())
-                {
+                if key.starts_with(prefix_pattern) {
                     // Remove this prefix from the key
                     key = key[prefix_pattern.len()..].to_string();
                 } else {
@@ -141,7 +131,7 @@ impl Source for Environment {
                 ValueKind::String(value)
             };
 
-            m.insert(key.to_lowercase(), Value::new(Some(&uri), value));
+            m.insert(key, Value::new(Some(&uri), value));
         }
 
         Ok(m)
