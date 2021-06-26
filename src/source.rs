@@ -14,6 +14,7 @@ pub trait Source: Debug {
     /// a HashMap.
     fn collect(&self) -> Result<HashMap<String, Value>>;
 
+    /// Collects all configuration properties to a provided cache.
     fn collect_to(&self, cache: &mut Value) -> Result<()> {
         self.collect()?
             .iter()
