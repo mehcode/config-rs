@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::fmt::Debug;
 
-use crate::builder::ConfigBuilder;
+use crate::builder::{ConfigBuilder, DefaultState};
 use serde::de::Deserialize;
 use serde::ser::Serialize;
 
@@ -44,8 +44,8 @@ impl Config {
     }
 
     /// Creates new [`ConfigBuilder`] instance
-    pub fn builder() -> ConfigBuilder {
-        ConfigBuilder::default()
+    pub fn builder() -> ConfigBuilder<DefaultState> {
+        ConfigBuilder::<DefaultState>::default()
     }
 
     /// Merge in a configuration property source.
