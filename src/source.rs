@@ -17,15 +17,19 @@ pub trait Source: Debug {
     fn collect_to(&self, cache: &mut Value) -> Result<()> {
         self.collect()?
             .iter()
-            .for_each(|(key, val)| match path::Expression::from_str(key) {
-                // Set using the path
-                Ok(expr) => expr.set(cache, val.clone()),
-
-                // Set diretly anyway
-                _ => path::Expression::Identifier(key.clone()).set(cache, val.clone()),
-            });
+            .for_each(|(key, val)| set_value(cache, key, val));
 
         Ok(())
+    }
+}
+
+fn set_value(cache: &mut Value, key: &String, value: &Value) {
+    match path::Expression::from_str(key) {
+        // Set using the path
+        Ok(expr) => expr.set(cache, value.clone()),
+
+        // Set diretly anyway
+        _ => path::Expression::Identifier(key.clone()).set(cache, value.clone()),
     }
 }
 
