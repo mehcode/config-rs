@@ -1,7 +1,8 @@
 use std::str::FromStr;
 use std::{collections::HashMap, iter::IntoIterator};
 
-use crate::{config::Config, error, path::Expression, source::Source, value::Value};
+use crate::error::Result;
+use crate::{config::Config, path::Expression, source::Source, value::Value};
 
 /// A configuration builder
 ///
@@ -72,7 +73,7 @@ impl ConfigBuilder {
     /// # Errors
     ///
     /// Fails if `Expression::from_str(key)` fails.
-    pub fn set_default<S, T>(mut self, key: S, value: T) -> error::Result<ConfigBuilder>
+    pub fn set_default<S, T>(mut self, key: S, value: T) -> Result<ConfigBuilder>
     where
         S: AsRef<str>,
         T: Into<Value>,
@@ -100,7 +101,7 @@ impl ConfigBuilder {
     /// # Errors
     ///
     /// Fails if `Expression::from_str(key)` fails.
-    pub fn set_override<S, T>(mut self, key: S, value: T) -> error::Result<ConfigBuilder>
+    pub fn set_override<S, T>(mut self, key: S, value: T) -> Result<ConfigBuilder>
     where
         S: AsRef<str>,
         T: Into<Value>,
@@ -118,7 +119,7 @@ impl ConfigBuilder {
     /// # Errors
     /// If source collection fails, be it technical reasons or related to inability to read data as `Config` for different reasons,
     /// this method returns error.
-    pub fn build(self) -> error::Result<Config> {
+    pub fn build(self) -> Result<Config> {
         Self::build_internal(self.defaults, self.overrides, &self.sources)
     }
 
@@ -130,7 +131,7 @@ impl ConfigBuilder {
     /// # Errors
     /// If source collection fails, be it technical reasons or related to inability to read data as `Config` for different reasons,
     /// this method returns error.
-    pub fn build_cloned(&self) -> error::Result<Config> {
+    pub fn build_cloned(&self) -> Result<Config> {
         Self::build_internal(self.defaults.clone(), self.overrides.clone(), &self.sources)
     }
 
@@ -138,7 +139,7 @@ impl ConfigBuilder {
         defaults: HashMap<Expression, Value>,
         overrides: HashMap<Expression, Value>,
         sources: &[Box<dyn Source + Send + Sync>],
-    ) -> error::Result<Config> {
+    ) -> Result<Config> {
         let mut cache: Value = HashMap::<String, Value>::new().into();
 
         // Add defaults
