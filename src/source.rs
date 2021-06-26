@@ -26,7 +26,7 @@ pub trait Source: Debug {
     }
 }
 
-fn set_value(cache: &mut Value, key: &String, value: &Value) {
+fn set_value(cache: &mut Value, key: &str, value: &Value) {
     match path::Expression::from_str(key) {
         // Set using the path
         Ok(expr) => expr.set(cache, value.clone()),
