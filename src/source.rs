@@ -2,6 +2,8 @@ use std::collections::HashMap;
 use std::fmt::Debug;
 use std::str::FromStr;
 
+use async_trait::async_trait;
+
 use crate::error::*;
 use crate::path;
 use crate::value::{Value, ValueKind};
@@ -31,6 +33,45 @@ fn set_value(cache: &mut Value, key: &String, value: &Value) {
 
         // Set diretly anyway
         _ => path::Expression::Identifier(key.clone()).set(cache, value.clone()),
+    }
+}
+
+/// Describes a generic _source_ of configuration properties capable of using an async runtime.
+///
+/// At the moment this library does not implement it, although it allows using its implementations
+/// within builders.  Due to the scattered landscape of asynchronous runtimes, it is impossible to
+/// cater to all needs with one implementation.  Also, this trait might be most useful with remote
+/// configuration sources, reachable via the network, probably using HTTP protocol.  Numerous HTTP
+/// libraries exist, making it even harder to find one implementation that rules them all.
+///
+/// For those reasons, it is left to other crates to implement runtime-specific or proprietary
+/// details.
+///
+/// It is advised to use `async_trait` crate while implementing this trait.
+///
+/// See examples for sample implementation.
+#[async_trait]
+pub trait AsyncSource: Debug + Sync {
+    // Sync is supertrait due to https://docs.rs/async-trait/0.1.50/async_trait/index.html#dyn-traits
+
+    /// Collects all configuration properties available from this source and return
+    /// a HashMap as an async operations.
+    async fn collect(&self) -> Result<HashMap<String, Value>>;
+
+    /// Collects all configuration properties to a provided cache.
+    async fn collect_to(&self, cache: &mut Value) -> Result<()> {
+        self.collect()
+            .await?
+            .iter()
+            .for_each(|(key, val)| set_value(cache, key, val));
+
+        Ok(())
+    }
+}
+
+impl Clone for Box<dyn AsyncSource + Send + Sync> {
+    fn clone(&self) -> Self {
+        self.to_owned()
     }
 }
 

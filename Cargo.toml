@@ -23,6 +23,7 @@ ini = ["rust-ini"]
 json5 = ["json5_rs"]
 
 [dependencies]
+async-trait = "0.1.50"
 lazy_static = "1.0"
 serde = "1.0.8"
 nom = "6"
