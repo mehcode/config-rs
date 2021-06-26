@@ -32,7 +32,7 @@ fn set_value(cache: &mut Value, key: &str, value: &Value) {
         Ok(expr) => expr.set(cache, value.clone()),
 
         // Set diretly anyway
-        _ => path::Expression::Identifier(key.clone()).set(cache, value.clone()),
+        _ => path::Expression::Identifier(key.to_string()).set(cache, value.clone()),
     }
 }
 
