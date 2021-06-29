@@ -54,16 +54,13 @@ struct HttpSource {
     format: FileFormat,
 }
 
-impl HttpSource {
-    async fn call(&self) -> Result<String, reqwest::Error> {
-        reqwest::get(&self.uri).await?.text().await
-    }
-}
-
 #[async_trait]
 impl AsyncSource for HttpSource {
     async fn collect(&self) -> Result<HashMap<String, config::Value>, ConfigError> {
-        self.call()
+        reqwest::get(&self.uri)
+            .await
+            .map_err(|e| ConfigError::Foreign(Box::new(e)))? // error conversion is possible from custom AsyncSource impls
+            .text()
             .await
             .map_err(|e| ConfigError::Foreign(Box::new(e)))
             .and_then(|text| {
