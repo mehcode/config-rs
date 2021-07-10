@@ -21,9 +21,10 @@ fn from_hjson_value(uri: Option<&String>, value: &serde_hjson::Value) -> Value {
     match *value {
         serde_hjson::Value::String(ref value) => Value::new(uri, ValueKind::String(value.clone())),
 
-        serde_hjson::Value::I64(value) => Value::new(uri, ValueKind::Integer(value)),
+        serde_hjson::Value::I64(value) => Value::new(uri, ValueKind::I64(value)),
 
-        serde_hjson::Value::U64(value) => Value::new(uri, ValueKind::Integer(value as i64)),
+        // FIXME this is bad
+        serde_hjson::Value::U64(value) => Value::new(uri, ValueKind::I64(value as i64)),
 
         serde_hjson::Value::F64(value) => Value::new(uri, ValueKind::Float(value)),
 

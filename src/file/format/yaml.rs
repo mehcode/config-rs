@@ -37,7 +37,7 @@ fn from_yaml_value(uri: Option<&String>, value: &yaml::Yaml) -> Value {
             // TODO: Figure out in what cases this can panic?
             Value::new(uri, ValueKind::Float(value.parse::<f64>().unwrap()))
         }
-        yaml::Yaml::Integer(value) => Value::new(uri, ValueKind::Integer(value)),
+        yaml::Yaml::Integer(value) => Value::new(uri, ValueKind::I64(value)),
         yaml::Yaml::Boolean(value) => Value::new(uri, ValueKind::Boolean(value)),
         yaml::Yaml::Hash(ref table) => {
             let mut m = HashMap::new();

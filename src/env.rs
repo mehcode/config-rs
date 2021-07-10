@@ -121,7 +121,7 @@ impl Source for Environment {
                 if let Ok(parsed) = value.to_lowercase().parse::<bool>() {
                     ValueKind::Boolean(parsed)
                 } else if let Ok(parsed) = value.parse::<i64>() {
-                    ValueKind::Integer(parsed)
+                    ValueKind::I64(parsed)
                 } else if let Ok(parsed) = value.parse::<f64>() {
                     ValueKind::Float(parsed)
                 } else {

@@ -31,7 +31,7 @@ fn from_ron_value(
 
         ron::Value::Number(value) => match value {
             ron::Number::Float(value) => ValueKind::Float(value.get()),
-            ron::Number::Integer(value) => ValueKind::Integer(value),
+            ron::Number::Integer(value) => ValueKind::I64(value),
         },
 
         ron::Value::Char(value) => ValueKind::String(value.to_string()),

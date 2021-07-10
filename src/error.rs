@@ -8,7 +8,10 @@ use serde::ser;
 #[derive(Debug)]
 pub enum Unexpected {
     Bool(bool),
-    Integer(i64),
+    I64(i64),
+    I128(i128),
+    U64(u64),
+    U128(u128),
     Float(f64),
     Str(String),
     Unit,
@@ -20,7 +23,10 @@ impl fmt::Display for Unexpected {
     fn fmt(&self, f: &mut fmt::Formatter) -> result::Result<(), fmt::Error> {
         match *self {
             Unexpected::Bool(b) => write!(f, "boolean `{}`", b),
-            Unexpected::Integer(i) => write!(f, "integer `{}`", i),
+            Unexpected::I64(i) => write!(f, "integer 64 bit `{}`", i),
+            Unexpected::I128(i) => write!(f, "integer 128 bit `{}`", i),
+            Unexpected::U64(i) => write!(f, "unsigned integer 64 bit `{}`", i),
+            Unexpected::U128(i) => write!(f, "unsigned integer 128 bit `{}`", i),
             Unexpected::Float(v) => write!(f, "floating point `{}`", v),
             Unexpected::Str(ref s) => write!(f, "string {:?}", s),
             Unexpected::Unit => write!(f, "unit value"),

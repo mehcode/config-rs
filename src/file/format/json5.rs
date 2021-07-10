@@ -22,7 +22,7 @@ pub fn parse(
 ) -> Result<HashMap<String, Value>, Box<dyn Error + Send + Sync>> {
     match json5_rs::from_str::<Val>(text)? {
         Val::String(ref value) => Err(Unexpected::Str(value.clone())),
-        Val::Integer(value) => Err(Unexpected::Integer(value)),
+        Val::Integer(value) => Err(Unexpected::I64(value)),
         Val::Float(value) => Err(Unexpected::Float(value)),
         Val::Boolean(value) => Err(Unexpected::Bool(value)),
         Val::Array(_) => Err(Unexpected::Seq),
@@ -40,7 +40,7 @@ fn from_json5_value(uri: Option<&String>, value: Val) -> Value {
     let vk = match value {
         Val::Null => ValueKind::Nil,
         Val::String(v) => ValueKind::String(v),
-        Val::Integer(v) => ValueKind::Integer(v),
+        Val::Integer(v) => ValueKind::I64(v),
         Val::Float(v) => ValueKind::Float(v),
         Val::Boolean(v) => ValueKind::Boolean(v),
         Val::Object(table) => {
