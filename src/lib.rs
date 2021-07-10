@@ -53,7 +53,7 @@ extern crate ron;
 #[cfg(feature = "json5")]
 extern crate json5_rs;
 
-mod builder;
+pub mod builder;
 mod config;
 mod de;
 mod env;
@@ -64,11 +64,13 @@ mod ser;
 mod source;
 mod value;
 
+pub use crate::builder::AsyncConfigBuilder;
 pub use crate::builder::ConfigBuilder;
 pub use crate::config::Config;
 pub use crate::env::Environment;
 pub use crate::error::ConfigError;
 pub use crate::file::{File, FileFormat, FileSourceFile, FileSourceString};
+pub use crate::source::AsyncSource;
 pub use crate::source::Source;
 pub use crate::value::Value;
 pub use crate::value::ValueKind;
