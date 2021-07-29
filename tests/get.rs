@@ -7,7 +7,8 @@ extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 
-use std::collections::{HashMap, HashSet};
+use linked_hash_map::LinkedHashMap;
+use std::collections::HashSet;
 
 use config::*;
 use float_cmp::ApproxEqUlps;
@@ -107,7 +108,7 @@ fn test_get_scalar_path_subscript() {
 #[test]
 fn test_map() {
     let c = make();
-    let m: HashMap<String, Value> = c.get("place").unwrap();
+    let m: LinkedHashMap<String, Value> = c.get("place").unwrap();
 
     assert_eq!(m.len(), 8);
     assert_eq!(
@@ -120,7 +121,7 @@ fn test_map() {
 #[test]
 fn test_map_str() {
     let c = make();
-    let m: HashMap<String, String> = c.get("place.creator").unwrap();
+    let m: LinkedHashMap<String, String> = c.get("place.creator").unwrap();
 
     assert_eq!(
         m.into_iter().collect::<Vec<(String, String)>>(),
@@ -136,7 +137,7 @@ fn test_map_str() {
 fn test_map_struct() {
     #[derive(Debug, Deserialize)]
     struct Settings {
-        place: HashMap<String, Value>,
+        place: LinkedHashMap<String, Value>,
     }
 
     let c = make();
@@ -221,7 +222,7 @@ fn test_enum() {
     }
     #[derive(Debug, Deserialize)]
     struct Settings {
-        diodes: HashMap<String, Diode>,
+        diodes: LinkedHashMap<String, Diode>,
     }
 
     let c = make();
@@ -254,7 +255,7 @@ fn test_enum_key() {
 
     #[derive(Debug, Deserialize)]
     struct Settings {
-        proton: HashMap<Quark, usize>,
+        proton: LinkedHashMap<Quark, usize>,
         // Just to make sure that set keys work too.
         quarks: HashSet<Quark>,
     }
@@ -270,7 +271,7 @@ fn test_enum_key() {
 fn test_int_key() {
     #[derive(Debug, Deserialize, PartialEq)]
     struct Settings {
-        divisors: HashMap<u32, u32>,
+        divisors: LinkedHashMap<u32, u32>,
     }
 
     let c = make();

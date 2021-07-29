@@ -2,7 +2,7 @@
 // BUG: ? For some reason this doesn't do anything if I try and function scope this
 #![allow(unused_mut)]
 
-use std::collections::HashMap;
+use linked_hash_map::LinkedHashMap;
 use std::error::Error;
 
 use crate::value::Value;
@@ -62,8 +62,8 @@ pub enum FileFormat {
 lazy_static! {
     #[doc(hidden)]
     // #[allow(unused_mut)] ?
-    pub static ref ALL_EXTENSIONS: HashMap<FileFormat, Vec<&'static str>> = {
-        let mut formats: HashMap<FileFormat, Vec<_>> = HashMap::new();
+    pub static ref ALL_EXTENSIONS: LinkedHashMap<FileFormat, Vec<&'static str>> = {
+        let mut formats: LinkedHashMap<FileFormat, Vec<_>> = LinkedHashMap::new();
 
         #[cfg(feature = "toml")]
         formats.insert(FileFormat::Toml, vec!["toml"]);
@@ -107,7 +107,7 @@ impl FileFormat {
         self,
         uri: Option<&String>,
         text: &str,
-    ) -> Result<HashMap<String, Value>, Box<dyn Error + Send + Sync>> {
+    ) -> Result<LinkedHashMap<String, Value>, Box<dyn Error + Send + Sync>> {
         match self {
             #[cfg(feature = "toml")]
             FileFormat::Toml => toml::parse(uri, text),

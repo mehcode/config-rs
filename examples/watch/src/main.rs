@@ -1,5 +1,5 @@
 use config::*;
-use std::collections::HashMap;
+use std::collections::LinkedHashMap;
 use std::sync::RwLock;
 use notify::{RecommendedWatcher, DebouncedEvent, Watcher, RecursiveMode};
 use std::sync::mpsc::channel;
@@ -20,7 +20,7 @@ fn show() {
                  .read()
                  .unwrap()
                  .clone()
-                 .try_into::<HashMap<String, String>>()
+                 .try_into::<LinkedHashMap<String, String>>()
                  .unwrap());
 }
 

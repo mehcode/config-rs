@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use linked_hash_map::LinkedHashMap;
 use std::error::Error;
 
 use crate::value::{Value, ValueKind};
@@ -6,12 +6,12 @@ use crate::value::{Value, ValueKind};
 pub fn parse(
     uri: Option<&String>,
     text: &str,
-) -> Result<HashMap<String, Value>, Box<dyn Error + Send + Sync>> {
+) -> Result<LinkedHashMap<String, Value>, Box<dyn Error + Send + Sync>> {
     let value = from_ron_value(uri, ron::from_str(text)?)?;
     match value.kind {
         ValueKind::Table(map) => Ok(map),
 
-        _ => Ok(HashMap::new()),
+        _ => Ok(LinkedHashMap::new()),
     }
 }
 
@@ -56,7 +56,7 @@ fn from_ron_value(
 
                     Ok((key, value))
                 })
-                .collect::<Result<HashMap<_, _>, _>>()?;
+                .collect::<Result<LinkedHashMap<_, _>, _>>()?;
 
             ValueKind::Table(map)
         }

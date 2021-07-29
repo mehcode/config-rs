@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use linked_hash_map::LinkedHashMap;
 use std::error::Error;
 
 use crate::value::{Value, ValueKind};
@@ -6,14 +6,14 @@ use crate::value::{Value, ValueKind};
 pub fn parse(
     uri: Option<&String>,
     text: &str,
-) -> Result<HashMap<String, Value>, Box<dyn Error + Send + Sync>> {
+) -> Result<LinkedHashMap<String, Value>, Box<dyn Error + Send + Sync>> {
     // Parse a JSON object value from the text
     // TODO: Have a proper error fire if the root of a file is ever not a Table
     let value = from_json_value(uri, &serde_json::from_str(text)?);
     match value.kind {
         ValueKind::Table(map) => Ok(map),
 
-        _ => Ok(HashMap::new()),
+        _ => Ok(LinkedHashMap::new()),
     }
 }
 
@@ -34,7 +34,7 @@ fn from_json_value(uri: Option<&String>, value: &serde_json::Value) -> Value {
         serde_json::Value::Bool(value) => Value::new(uri, ValueKind::Boolean(value)),
 
         serde_json::Value::Object(ref table) => {
-            let mut m = HashMap::new();
+            let mut m = LinkedHashMap::new();
 
             for (key, value) in table {
                 m.insert(key.clone(), from_json_value(uri, value));

@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use linked_hash_map::LinkedHashMap;
 use std::error::Error;
 
 use ini::Ini;
@@ -8,13 +8,13 @@ use crate::value::{Value, ValueKind};
 pub fn parse(
     uri: Option<&String>,
     text: &str,
-) -> Result<HashMap<String, Value>, Box<dyn Error + Send + Sync>> {
-    let mut map: HashMap<String, Value> = HashMap::new();
+) -> Result<LinkedHashMap<String, Value>, Box<dyn Error + Send + Sync>> {
+    let mut map: LinkedHashMap<String, Value> = LinkedHashMap::new();
     let i = Ini::load_from_str(text)?;
     for (sec, prop) in i.iter() {
         match sec {
             Some(sec) => {
-                let mut sec_map: HashMap<String, Value> = HashMap::new();
+                let mut sec_map: LinkedHashMap<String, Value> = LinkedHashMap::new();
                 for (k, v) in prop.iter() {
                     sec_map.insert(
                         k.to_owned(),

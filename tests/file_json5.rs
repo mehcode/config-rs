@@ -9,7 +9,7 @@ extern crate serde_derive;
 
 use config::*;
 use float_cmp::ApproxEqUlps;
-use std::collections::HashMap;
+use linked_hash_map::LinkedHashMap;
 use std::path::PathBuf;
 
 #[derive(Debug, Deserialize)]
@@ -20,7 +20,7 @@ struct Place {
     favorite: bool,
     telephone: Option<String>,
     reviews: u64,
-    creator: HashMap<String, Value>,
+    creator: LinkedHashMap<String, Value>,
     rating: Option<f32>,
 }
 

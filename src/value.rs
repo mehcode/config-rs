@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use linked_hash_map::LinkedHashMap;
 use std::fmt;
 use std::fmt::Display;
 
@@ -23,7 +23,7 @@ pub enum ValueKind {
 }
 
 pub type Array = Vec<Value>;
-pub type Table = HashMap<String, Value>;
+pub type Table = LinkedHashMap<String, Value>;
 
 impl Default for ValueKind {
     fn default() -> Self {
@@ -73,11 +73,11 @@ impl From<bool> for ValueKind {
     }
 }
 
-impl<T> From<HashMap<String, T>> for ValueKind
+impl<T> From<LinkedHashMap<String, T>> for ValueKind
 where
     T: Into<Value>,
 {
-    fn from(values: HashMap<String, T>) -> Self {
+    fn from(values: LinkedHashMap<String, T>) -> Self {
         let t = values.into_iter().map(|(k, v)| (k, v.into())).collect();
         ValueKind::Table(t)
     }
@@ -357,7 +357,7 @@ impl Value {
 
     /// If the `Value` is a Table, returns the associated Map.
     // FIXME: Should this not be `try_into_*` ?
-    pub fn into_table(self) -> Result<HashMap<String, Value>> {
+    pub fn into_table(self) -> Result<LinkedHashMap<String, Value>> {
         match self.kind {
             ValueKind::Table(value) => Ok(value),
 

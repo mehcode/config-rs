@@ -1,4 +1,5 @@
-use std::collections::{HashMap, VecDeque};
+use linked_hash_map::LinkedHashMap;
+use std::collections::VecDeque;
 use std::iter::Enumerate;
 
 use serde::de;
@@ -199,7 +200,7 @@ struct MapAccess {
 }
 
 impl MapAccess {
-    fn new(table: HashMap<String, Value>) -> Self {
+    fn new(table: LinkedHashMap<String, Value>) -> Self {
         MapAccess {
             elements: table.into_iter().collect(),
         }

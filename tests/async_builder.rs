@@ -1,5 +1,6 @@
 use async_trait::async_trait;
 use config::*;
+use linked_hash_map::LinkedHashMap;
 use std::{env, fs, path, str::FromStr};
 use tokio::{fs::File, io::AsyncReadExt};
 
@@ -18,7 +19,7 @@ impl AsyncFile {
 
 #[async_trait]
 impl AsyncSource for AsyncFile {
-    async fn collect(&self) -> Result<std::collections::HashMap<String, Value>, ConfigError> {
+    async fn collect(&self) -> Result<LinkedHashMap<String, Value>, ConfigError> {
         let mut path = env::current_dir().unwrap();
         let local = path::PathBuf::from_str(&self.path).unwrap();
 

@@ -1,4 +1,5 @@
-use std::{collections::HashMap, error::Error};
+use linked_hash_map::LinkedHashMap;
+use std::error::Error;
 
 use config::{builder::AsyncState, AsyncSource, ConfigBuilder, ConfigError, FileFormat};
 
@@ -56,7 +57,7 @@ struct HttpSource {
 
 #[async_trait]
 impl AsyncSource for HttpSource {
-    async fn collect(&self) -> Result<HashMap<String, config::Value>, ConfigError> {
+    async fn collect(&self) -> Result<LinkedHashMap<String, config::Value>, ConfigError> {
         reqwest::get(&self.uri)
             .await
             .map_err(|e| ConfigError::Foreign(Box::new(e)))? // error conversion is possible from custom AsyncSource impls

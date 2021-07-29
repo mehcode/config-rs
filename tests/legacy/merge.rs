@@ -2,9 +2,8 @@
 
 extern crate config;
 
-use std::collections::HashMap;
-
 use self::config::*;
+use linked_hash_map::LinkedHashMap;
 
 fn make() -> Config {
     let mut c = Config::default();
@@ -25,7 +24,7 @@ fn test_merge() {
     assert_eq!(c.get("production").ok(), Some(true));
     assert_eq!(c.get("place.rating").ok(), Some(4.9));
 
-    let m: HashMap<String, String> = c.get("place.creator").unwrap();
+    let m: LinkedHashMap<String, String> = c.get("place.creator").unwrap();
     assert_eq!(
         m.into_iter().collect::<Vec<(String, String)>>(),
         vec![

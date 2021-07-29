@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use linked_hash_map::LinkedHashMap;
 use std::fmt::Debug;
 
 use crate::builder::{ConfigBuilder, DefaultState};
@@ -16,8 +16,8 @@ use crate::value::{Table, Value};
 /// them according to the source's priority.
 #[derive(Clone, Debug)]
 pub struct Config {
-    defaults: HashMap<path::Expression, Value>,
-    overrides: HashMap<path::Expression, Value>,
+    defaults: LinkedHashMap<path::Expression, Value>,
+    overrides: LinkedHashMap<path::Expression, Value>,
     sources: Vec<Box<dyn Source + Send + Sync>>,
 
     /// Root of the cached configuration.
@@ -83,7 +83,7 @@ impl Config {
     #[deprecated(since = "0.12.0", note = "please use 'ConfigBuilder' instead")]
     pub fn refresh(&mut self) -> Result<&mut Config> {
         self.cache = {
-            let mut cache: Value = HashMap::<String, Value>::new().into();
+            let mut cache: Value = LinkedHashMap::<String, Value>::new().into();
 
             // Add defaults
             for (key, val) in self.defaults.iter() {
@@ -181,7 +181,7 @@ impl Config {
         self.get(key).and_then(Value::into_bool)
     }
 
-    pub fn get_table(&self, key: &str) -> Result<HashMap<String, Value>> {
+    pub fn get_table(&self, key: &str) -> Result<LinkedHashMap<String, Value>> {
         self.get(key).and_then(Value::into_table)
     }
 
@@ -212,7 +212,7 @@ impl Source for Config {
         Box::new((*self).clone())
     }
 
-    fn collect(&self) -> Result<HashMap<String, Value>> {
+    fn collect(&self) -> Result<LinkedHashMap<String, Value>> {
         self.cache.clone().into_table()
     }
 }

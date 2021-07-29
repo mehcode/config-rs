@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use linked_hash_map::LinkedHashMap;
 use std::error::Error;
 
 use crate::value::{Value, ValueKind};
@@ -6,14 +6,14 @@ use crate::value::{Value, ValueKind};
 pub fn parse(
     uri: Option<&String>,
     text: &str,
-) -> Result<HashMap<String, Value>, Box<dyn Error + Send + Sync>> {
+) -> Result<LinkedHashMap<String, Value>, Box<dyn Error + Send + Sync>> {
     // Parse a TOML value from the provided text
     // TODO: Have a proper error fire if the root of a file is ever not a Table
     let value = from_toml_value(uri, &toml::from_str(text)?);
     match value.kind {
         ValueKind::Table(map) => Ok(map),
 
-        _ => Ok(HashMap::new()),
+        _ => Ok(LinkedHashMap::new()),
     }
 }
 
@@ -25,7 +25,7 @@ fn from_toml_value(uri: Option<&String>, value: &toml::Value) -> Value {
         toml::Value::Boolean(value) => Value::new(uri, value),
 
         toml::Value::Table(ref table) => {
-            let mut m = HashMap::new();
+            let mut m = LinkedHashMap::new();
 
             for (key, value) in table {
                 m.insert(key.clone(), from_toml_value(uri, value));

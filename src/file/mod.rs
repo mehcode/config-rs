@@ -1,7 +1,7 @@
 mod format;
 pub mod source;
 
-use std::collections::HashMap;
+use linked_hash_map::LinkedHashMap;
 use std::path::{Path, PathBuf};
 
 use crate::error::*;
@@ -99,7 +99,7 @@ where
         Box::new((*self).clone())
     }
 
-    fn collect(&self) -> Result<HashMap<String, Value>> {
+    fn collect(&self) -> Result<LinkedHashMap<String, Value>> {
         // Coerce the file contents to a string
         let (uri, contents, format) = match self
             .source
@@ -110,7 +110,7 @@ where
 
             Err(error) => {
                 if !self.required {
-                    return Ok(HashMap::new());
+                    return Ok(LinkedHashMap::new());
                 }
 
                 return Err(error);

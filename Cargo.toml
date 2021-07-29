@@ -35,6 +35,7 @@ serde-hjson = { version = "0.9", default-features = false, optional = true }
 rust-ini = { version = "0.17", optional = true }
 ron = { version = "0.6", optional = true }
 json5_rs = { version = "0.3", optional = true, package = "json5" }
+linked-hash-map = { version = "0.5.4", features = ["serde_impl"] }
 
 [dev-dependencies]
 serde_derive = "1.0.8"
