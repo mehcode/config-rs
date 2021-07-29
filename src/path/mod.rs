@@ -209,7 +209,11 @@ impl Expression {
                     _ => {
                         if let ValueKind::Table(ref mut map) = root.kind {
                             // Just do a simple set
-                            map.insert(id.clone(), value);
+                            if let Some(existing) = map.get_mut(id) {
+                                *existing = value;
+                            } else {
+                                map.insert(id.clone(), value);
+                            }
                         }
                     }
                 }
