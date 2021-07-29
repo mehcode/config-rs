@@ -12,7 +12,9 @@
     rating: Some(4.5),
     telephone: None,
     creator: {
-      "name": "John Smith"
+      "name": "John Smith",
+      "username": "jsmith",
+      "email": "jsmith@localhost"
     }
   )
 )

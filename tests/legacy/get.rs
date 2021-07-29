@@ -120,8 +120,14 @@ fn test_map_str() {
     let c = make();
     let m: HashMap<String, String> = c.get("place.creator").unwrap();
 
-    assert_eq!(m.len(), 1);
-    assert_eq!(m["name"], "John Smith".to_string());
+    assert_eq!(
+        m.into_iter().collect::<Vec<(String, String)>>(),
+        vec![
+            ("name".to_string(), "John Smith".to_string()),
+            ("username".to_string(), "jsmith".to_string()),
+            ("email".to_string(), "jsmith@localhost".to_string()),
+        ]
+    );
 }
 
 #[test]

@@ -62,8 +62,15 @@ fn test_file() {
     assert_eq!(s.elements.len(), 10);
     assert_eq!(s.elements[3], "4".to_string());
     assert_eq!(
-        s.place.creator["name"].clone().into_string().unwrap(),
-        "John Smith".to_string()
+        s.place
+            .creator
+            .into_iter()
+            .collect::<Vec<(String, config::Value)>>(),
+        vec![
+            ("name".to_string(), "John Smith".into()),
+            ("username".into(), "jsmith".into()),
+            ("email".into(), "jsmith@localhost".into()),
+        ]
     );
 }
 
