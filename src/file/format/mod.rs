@@ -29,6 +29,9 @@ mod ron;
 #[cfg(feature = "json5")]
 mod json5;
 
+#[cfg(feature = "dhall")]
+mod dhall;
+
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
 pub enum FileFormat {
     /// TOML (parsed with toml)
@@ -58,6 +61,10 @@ pub enum FileFormat {
     /// JSON5 (parsed with json5)
     #[cfg(feature = "json5")]
     Json5,
+
+    /// Dhall (parsed with serde_dhall)
+    #[cfg(feature = "dhall")]
+    Dhall,
 }
 
 lazy_static! {
@@ -86,6 +93,9 @@ lazy_static! {
 
         #[cfg(feature = "json5")]
         formats.insert(FileFormat::Json5, vec!["json5"]);
+
+        #[cfg(feature = "dhall")]
+        formats.insert(FileFormat::Dhall, vec!["dhall"]);
 
         formats
     };
@@ -130,6 +140,9 @@ impl FileFormat {
 
             #[cfg(feature = "json5")]
             FileFormat::Json5 => json5::parse(uri, text),
+
+            #[cfg(feature = "dhall")]
+            FileFormat::Dhall => dhall::parse(uri, text),
         }
     }
 }

@@ -15,12 +15,13 @@ edition = "2018"
 maintenance = { status = "actively-developed" }
 
 [features]
-default = ["toml", "json", "yaml", "hjson", "ini", "ron", "json5"]
+default = ["toml", "json", "yaml", "hjson", "ini", "ron", "json5", "dhall"]
 json = ["serde_json"]
 yaml = ["yaml-rust"]
 hjson = ["serde-hjson"]
 ini = ["rust-ini"]
 json5 = ["json5_rs"]
+dhall = ["serde_dhall"]
 preserve_order = ["indexmap", "toml/preserve_order", "serde_json/preserve_order", "ron/indexmap"]
 
 [dependencies]
@@ -37,6 +38,7 @@ rust-ini = { version = "0.17", optional = true }
 ron = { version = "0.6", optional = true }
 json5_rs = { version = "0.3", optional = true, package = "json5" }
 indexmap = { version = "1.7.0", features = ["serde-1"], optional = true}
+serde_dhall = { version = "0.10", optional = true }
 
 [dev-dependencies]
 serde_derive = "1.0.8"
