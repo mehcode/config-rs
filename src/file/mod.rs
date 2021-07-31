@@ -18,6 +18,9 @@ pub use self::extension::FileExtensions;
 pub use self::source::file::FileSourceFile;
 pub use self::source::string::FileSourceString;
 
+/// A configuration source backed up by a file.
+///
+/// It supports optional automatic file format discovery.
 #[derive(Clone, Debug)]
 pub struct File<T, F>
 where

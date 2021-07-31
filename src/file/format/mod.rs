@@ -26,6 +26,9 @@ mod ron;
 #[cfg(feature = "json5")]
 mod json5;
 
+/// File formats provided by the library.
+///
+/// Although it is possible to define custom formats using [`Format`] trait it is recommended to use FileFormat if possible.
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
 pub enum FileFormat {
     /// TOML (parsed with toml)
