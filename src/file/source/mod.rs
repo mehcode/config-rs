@@ -14,5 +14,25 @@ where
     fn resolve(
         &self,
         format_hint: Option<T>,
-    ) -> Result<(Option<String>, String, Box<dyn Format>), Box<dyn Error + Send + Sync>>;
+    ) -> Result<FileSourceResult, Box<dyn Error + Send + Sync>>;
+}
+
+pub struct FileSourceResult {
+    pub(crate) uri: Option<String>,
+    pub(crate) content: String,
+    pub(crate) format: Box<dyn Format>,
+}
+
+impl FileSourceResult {
+    pub fn uri(&self) -> &Option<String> {
+        &self.uri
+    }
+
+    pub fn content(&self) -> &str {
+        self.content.as_str()
+    }
+
+    pub fn format(&self) -> &dyn Format {
+        self.format.as_ref()
+    }
 }

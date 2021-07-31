@@ -1,7 +1,10 @@
 use std::error::Error;
 
-use crate::file::{FileExtensions, FileSource};
-use crate::Format;
+use crate::{
+    file::source::FileSourceResult,
+    file::{FileExtensions, FileSource},
+    Format,
+};
 
 /// Describes a file sourced from a string
 #[derive(Clone, Debug)]
@@ -20,11 +23,11 @@ where
     fn resolve(
         &self,
         format_hint: Option<F>,
-    ) -> Result<(Option<String>, String, Box<dyn Format>), Box<dyn Error + Send + Sync>> {
-        Ok((
-            None,
-            self.0.clone(),
-            Box::new(format_hint.expect("from_str requires a set file format")),
-        ))
+    ) -> Result<FileSourceResult, Box<dyn Error + Send + Sync>> {
+        Ok(FileSourceResult {
+            uri: None,
+            content: self.0.clone(),
+            format: Box::new(format_hint.expect("from_str requires a set file format")),
+        })
     }
 }

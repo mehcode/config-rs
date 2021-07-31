@@ -5,9 +5,9 @@ use std::io::{self, Read};
 use std::iter::Iterator;
 use std::path::{Path, PathBuf};
 
-use crate::file::format::ALL_EXTENSIONS;
-use crate::file::{FileExtensions, FileSource};
-use crate::Format;
+use crate::file::{
+    format::ALL_EXTENSIONS, source::FileSourceResult, FileExtensions, FileSource, Format,
+};
 
 /// Describes a file sourced from a file
 #[derive(Clone, Debug)]
@@ -98,7 +98,7 @@ where
     fn resolve(
         &self,
         format_hint: Option<F>,
-    ) -> Result<(Option<String>, String, Box<dyn Format>), Box<dyn Error + Send + Sync>> {
+    ) -> Result<FileSourceResult, Box<dyn Error + Send + Sync>> {
         // Find file
         let (filename, format) = self.find_file(format_hint)?;
 
@@ -114,7 +114,11 @@ where
         let mut text = String::new();
         file.read_to_string(&mut text)?;
 
-        Ok((Some(uri.to_string_lossy().into_owned()), text, format))
+        Ok(FileSourceResult {
+            uri: Some(uri.to_string_lossy().into_owned()),
+            content: text,
+            format,
+        })
     }
 }
 

@@ -123,7 +123,7 @@ where
             .resolve(self.format.clone())
             .map_err(|err| ConfigError::Foreign(err))
         {
-            Ok((uri, contents, format)) => (uri, contents, format),
+            Ok(result) => (result.uri, result.content, result.format),
 
             Err(error) => {
                 if !self.required {
