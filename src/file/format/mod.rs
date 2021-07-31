@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use std::error::Error;
 
 use crate::map::Map;
-use crate::value::Value;
+use crate::{value::Value, Format};
 
 #[cfg(feature = "toml")]
 mod toml;
@@ -95,7 +95,7 @@ impl FileFormat {
     #[doc(hidden)]
     #[allow(unused_variables)]
     pub fn parse(
-        self,
+        &self,
         uri: Option<&String>,
         text: &str,
     ) -> Result<Map<String, Value>, Box<dyn Error + Send + Sync>> {
@@ -118,5 +118,21 @@ impl FileFormat {
             #[cfg(feature = "json5")]
             FileFormat::Json5 => json5::parse(uri, text),
         }
+    }
+}
+
+impl Format for FileFormat {
+    fn parse(
+        &self,
+        uri: Option<&String>,
+        text: &str,
+    ) -> Result<HashMap<String, Value>, Box<dyn Error + Send + Sync>> {
+        self.parse(uri, text)
+    }
+}
+
+impl FileExtensions for FileFormat {
+    fn extensions(&self) -> &Vec<&'static str> {
+        self.extensions()
     }
 }
