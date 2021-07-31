@@ -1,5 +1,6 @@
 mod format;
 pub mod source;
+pub mod extension;
 
 use std::path::{Path, PathBuf};
 
