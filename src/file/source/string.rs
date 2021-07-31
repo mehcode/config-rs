@@ -1,6 +1,7 @@
 use std::error::Error;
 
-use crate::file::{FileFormat, FileSource};
+use crate::file::{FileExtensions, FileSource};
+use crate::Format;
 
 /// Describes a file sourced from a string
 #[derive(Clone, Debug)]
@@ -12,15 +13,18 @@ impl<'a> From<&'a str> for FileSourceString {
     }
 }
 
-impl FileSource for FileSourceString {
+impl<F> FileSource<F> for FileSourceString
+where
+    F: Format + FileExtensions + 'static,
+{
     fn resolve(
         &self,
-        format_hint: Option<FileFormat>,
-    ) -> Result<(Option<String>, String, FileFormat), Box<dyn Error + Send + Sync>> {
+        format_hint: Option<F>,
+    ) -> Result<(Option<String>, String, Box<dyn Format>), Box<dyn Error + Send + Sync>> {
         Ok((
             None,
             self.0.clone(),
-            format_hint.expect("from_str requires a set file format"),
+            Box::new(format_hint.expect("from_str requires a set file format")),
         ))
     }
 }

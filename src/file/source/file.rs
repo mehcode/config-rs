@@ -6,7 +6,8 @@ use std::iter::Iterator;
 use std::path::{Path, PathBuf};
 
 use crate::file::format::ALL_EXTENSIONS;
-use crate::file::{FileFormat, FileSource};
+use crate::file::{FileExtensions, FileSource};
+use crate::Format;
 
 /// Describes a file sourced from a file
 #[derive(Clone, Debug)]
@@ -20,15 +21,18 @@ impl FileSourceFile {
         FileSourceFile { name }
     }
 
-    fn find_file(
+    fn find_file<F>(
         &self,
-        format_hint: Option<FileFormat>,
-    ) -> Result<(PathBuf, FileFormat), Box<dyn Error + Send + Sync>> {
+        format_hint: Option<F>,
+    ) -> Result<(PathBuf, Box<dyn Format>), Box<dyn Error + Send + Sync>>
+    where
+        F: FileExtensions + Format + 'static,
+    {
         // First check for an _exact_ match
         let mut filename = env::current_dir()?.as_path().join(self.name.clone());
         if filename.is_file() {
             return match format_hint {
-                Some(format) => Ok((filename, format)),
+                Some(format) => Ok((filename, Box::new(format))),
                 None => {
                     for (format, extensions) in ALL_EXTENSIONS.iter() {
                         if extensions.contains(
@@ -38,7 +42,7 @@ impl FileSourceFile {
                                 .to_string_lossy()
                                 .as_ref(),
                         ) {
-                            return Ok((filename, *format));
+                            return Ok((filename, Box::new(*format)));
                         }
                     }
 
@@ -59,7 +63,7 @@ impl FileSourceFile {
                     filename.set_extension(ext);
 
                     if filename.is_file() {
-                        return Ok((filename, format));
+                        return Ok((filename, Box::new(format)));
                     }
                 }
             }
@@ -70,7 +74,7 @@ impl FileSourceFile {
                         filename.set_extension(ext);
 
                         if filename.is_file() {
-                            return Ok((filename, *format));
+                            return Ok((filename, Box::new(*format)));
                         }
                     }
                 }
@@ -87,11 +91,14 @@ impl FileSourceFile {
     }
 }
 
-impl FileSource for FileSourceFile {
+impl<F> FileSource<F> for FileSourceFile
+where
+    F: Format + FileExtensions + 'static,
+{
     fn resolve(
         &self,
-        format_hint: Option<FileFormat>,
-    ) -> Result<(Option<String>, String, FileFormat), Box<dyn Error + Send + Sync>> {
+        format_hint: Option<F>,
+    ) -> Result<(Option<String>, String, Box<dyn Format>), Box<dyn Error + Send + Sync>> {
         // Find file
         let (filename, format) = self.find_file(format_hint)?;
 
