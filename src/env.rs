@@ -1,7 +1,7 @@
-use linked_hash_map::LinkedHashMap;
 use std::env;
 
 use crate::error::*;
+use crate::map::MapImpl;
 use crate::source::Source;
 use crate::value::{Value, ValueKind};
 
@@ -79,8 +79,8 @@ impl Source for Environment {
         Box::new((*self).clone())
     }
 
-    fn collect(&self) -> Result<LinkedHashMap<String, Value>> {
-        let mut m = LinkedHashMap::new();
+    fn collect(&self) -> Result<MapImpl<String, Value>> {
+        let mut m = MapImpl::new();
         let uri: String = "the environment".into();
 
         let separator = self.separator.as_deref().unwrap_or("");

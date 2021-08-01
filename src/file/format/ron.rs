@@ -1,17 +1,17 @@
-use linked_hash_map::LinkedHashMap;
 use std::error::Error;
 
+use crate::map::MapImpl;
 use crate::value::{Value, ValueKind};
 
 pub fn parse(
     uri: Option<&String>,
     text: &str,
-) -> Result<LinkedHashMap<String, Value>, Box<dyn Error + Send + Sync>> {
+) -> Result<MapImpl<String, Value>, Box<dyn Error + Send + Sync>> {
     let value = from_ron_value(uri, ron::from_str(text)?)?;
     match value.kind {
         ValueKind::Table(map) => Ok(map),
 
-        _ => Ok(LinkedHashMap::new()),
+        _ => Ok(MapImpl::new()),
     }
 }
 
@@ -56,7 +56,7 @@ fn from_ron_value(
 
                     Ok((key, value))
                 })
-                .collect::<Result<LinkedHashMap<_, _>, _>>()?;
+                .collect::<Result<MapImpl<_, _>, _>>()?;
 
             ValueKind::Table(map)
         }

@@ -1,4 +1,4 @@
-use std::collections::LinkedHashMap;
+use std::collections::MapImpl;
 
 fn main() {
     let mut settings = config::Config::default();
@@ -9,7 +9,7 @@ fn main() {
         // Eg.. `APP_DEBUG=1 ./target/app` would set the `debug` key
         .merge(config::Environment::with_prefix("APP")).unwrap();
 
-    // Print out our settings (as a LinkedHashMap)
+    // Print out our settings (as a MapImpl)
     println!("{:?}",
-             settings.try_into::<LinkedHashMap<String, String>>().unwrap());
+             settings.try_into::<MapImpl<String, String>>().unwrap());
 }

@@ -7,7 +7,6 @@ extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 
-use linked_hash_map::LinkedHashMap;
 use std::path::PathBuf;
 
 use config::*;
@@ -22,7 +21,7 @@ struct Place {
     favorite: bool,
     telephone: Option<String>,
     reviews: u64,
-    creator: LinkedHashMap<String, Value>,
+    creator: MapImpl<String, Value>,
     rating: Option<f32>,
 }
 
@@ -70,17 +69,24 @@ fn test_file() {
     assert_eq!(s.place.telephone, None);
     assert_eq!(s.elements.len(), 10);
     assert_eq!(s.elements[3], "4".to_string());
-    assert_eq!(
-        s.place
-            .creator
-            .into_iter()
-            .collect::<Vec<(String, config::Value)>>(),
-        vec![
-            ("name".to_string(), "John Smith".into()),
-            ("username".into(), "jsmith".into()),
-            ("email".into(), "jsmith@localhost".into()),
-        ]
-    );
+    if cfg!(feature = "preserve_order") {
+        assert_eq!(
+            s.place
+                .creator
+                .into_iter()
+                .collect::<Vec<(String, config::Value)>>(),
+            vec![
+                ("name".to_string(), "John Smith".into()),
+                ("username".into(), "jsmith".into()),
+                ("email".into(), "jsmith@localhost".into()),
+            ]
+        );
+    } else {
+        assert_eq!(
+            s.place.creator["name"].clone().into_string().unwrap(),
+            "John Smith".to_string()
+        );
+    }
 }
 
 #[test]

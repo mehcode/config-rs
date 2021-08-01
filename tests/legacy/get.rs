@@ -4,7 +4,6 @@ extern crate config;
 extern crate float_cmp;
 extern crate serde;
 
-use linked_hash_map::LinkedHashMap;
 use std::collections::HashSet;
 
 use self::config::*;
@@ -106,7 +105,7 @@ fn test_get_scalar_path_subscript() {
 #[test]
 fn test_map() {
     let c = make();
-    let m: LinkedHashMap<String, Value> = c.get("place").unwrap();
+    let m: MapImpl<String, Value> = c.get("place").unwrap();
 
     assert_eq!(m.len(), 8);
     assert_eq!(
@@ -119,23 +118,28 @@ fn test_map() {
 #[test]
 fn test_map_str() {
     let c = make();
-    let m: LinkedHashMap<String, String> = c.get("place.creator").unwrap();
+    let m: MapImpl<String, String> = c.get("place.creator").unwrap();
 
-    assert_eq!(
-        m.into_iter().collect::<Vec<(String, String)>>(),
-        vec![
-            ("name".to_string(), "John Smith".to_string()),
-            ("username".to_string(), "jsmith".to_string()),
-            ("email".to_string(), "jsmith@localhost".to_string()),
-        ]
-    );
+    if cfg!(feature = "preserve_order") {
+        assert_eq!(
+            m.into_iter().collect::<Vec<(String, String)>>(),
+            vec![
+                ("name".to_string(), "John Smith".to_string()),
+                ("username".to_string(), "jsmith".to_string()),
+                ("email".to_string(), "jsmith@localhost".to_string()),
+            ]
+        );
+    } else {
+        assert_eq!(m.len(), 3);
+        assert_eq!(m["name"], "John Smith".to_string());
+    }
 }
 
 #[test]
 fn test_map_struct() {
     #[derive(Debug, Deserialize)]
     struct Settings {
-        place: LinkedHashMap<String, Value>,
+        place: MapImpl<String, Value>,
     }
 
     let c = make();
@@ -220,7 +224,7 @@ fn test_enum() {
     }
     #[derive(Debug, Deserialize)]
     struct Settings {
-        diodes: LinkedHashMap<String, Diode>,
+        diodes: MapImpl<String, Diode>,
     }
 
     let c = make();
@@ -253,7 +257,7 @@ fn test_enum_key() {
 
     #[derive(Debug, Deserialize)]
     struct Settings {
-        proton: LinkedHashMap<Quark, usize>,
+        proton: MapImpl<Quark, usize>,
         // Just to make sure that set keys work too.
         quarks: HashSet<Quark>,
     }
@@ -269,7 +273,7 @@ fn test_enum_key() {
 fn test_int_key() {
     #[derive(Debug, Deserialize, PartialEq)]
     struct Settings {
-        divisors: LinkedHashMap<u32, u32>,
+        divisors: MapImpl<u32, u32>,
     }
 
     let c = make();

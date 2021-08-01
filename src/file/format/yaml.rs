@@ -1,16 +1,16 @@
-use linked_hash_map::LinkedHashMap;
 use std::error::Error;
 use std::fmt;
 use std::mem;
 
 use yaml_rust as yaml;
 
+use crate::map::MapImpl;
 use crate::value::{Value, ValueKind};
 
 pub fn parse(
     uri: Option<&String>,
     text: &str,
-) -> Result<LinkedHashMap<String, Value>, Box<dyn Error + Send + Sync>> {
+) -> Result<MapImpl<String, Value>, Box<dyn Error + Send + Sync>> {
     // Parse a YAML object from file
     let mut docs = yaml::YamlLoader::load_from_str(text)?;
     let root = match docs.len() {
@@ -26,7 +26,7 @@ pub fn parse(
     match value.kind {
         ValueKind::Table(map) => Ok(map),
 
-        _ => Ok(LinkedHashMap::new()),
+        _ => Ok(MapImpl::new()),
     }
 }
 
@@ -40,7 +40,7 @@ fn from_yaml_value(uri: Option<&String>, value: &yaml::Yaml) -> Value {
         yaml::Yaml::Integer(value) => Value::new(uri, ValueKind::Integer(value)),
         yaml::Yaml::Boolean(value) => Value::new(uri, ValueKind::Boolean(value)),
         yaml::Yaml::Hash(ref table) => {
-            let mut m = LinkedHashMap::new();
+            let mut m = MapImpl::new();
             for (key, value) in table {
                 if let Some(k) = key.as_str() {
                     m.insert(k.to_owned(), from_yaml_value(uri, value));

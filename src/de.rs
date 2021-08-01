@@ -1,4 +1,3 @@
-use linked_hash_map::LinkedHashMap;
 use std::collections::VecDeque;
 use std::iter::Enumerate;
 
@@ -6,6 +5,7 @@ use serde::de;
 
 use crate::config::Config;
 use crate::error::*;
+use crate::map::MapImpl;
 use crate::value::{Table, Value, ValueKind};
 
 impl<'de> de::Deserializer<'de> for Value {
@@ -200,7 +200,7 @@ struct MapAccess {
 }
 
 impl MapAccess {
-    fn new(table: LinkedHashMap<String, Value>) -> Self {
+    fn new(table: MapImpl<String, Value>) -> Self {
         MapAccess {
             elements: table.into_iter().collect(),
         }

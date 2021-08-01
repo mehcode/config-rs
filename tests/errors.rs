@@ -1,11 +1,10 @@
-#![cfg(feature = "toml")]
+#![cfg(all(feature = "toml", feature = "preserve_order"))]
 
 extern crate config;
 
 #[macro_use]
 extern crate serde_derive;
 
-use linked_hash_map::LinkedHashMap;
 use std::path::PathBuf;
 
 use config::*;
@@ -97,7 +96,7 @@ fn test_error_enum_de() {
     ]
     .iter()
     .cloned()
-    .collect::<LinkedHashMap<String, Value>>()
+    .collect::<MapImpl<String, Value>>()
     .into();
     let confused_d = confused_v.try_into::<Diode>();
     assert_eq!(

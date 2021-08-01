@@ -1,7 +1,7 @@
-use linked_hash_map::LinkedHashMap;
 use std::str::FromStr;
 
 use crate::error::*;
+use crate::map::MapImpl;
 use crate::value::{Value, ValueKind};
 
 mod parser;
@@ -135,7 +135,7 @@ impl Expression {
                     ),
 
                     _ => {
-                        *value = LinkedHashMap::<String, Value>::new().into();
+                        *value = MapImpl::<String, Value>::new().into();
 
                         if let ValueKind::Table(ref mut map) = value.kind {
                             Some(
@@ -186,7 +186,7 @@ impl Expression {
                     ValueKind::Table(_) => {}
 
                     _ => {
-                        *root = LinkedHashMap::<String, Value>::new().into();
+                        *root = MapImpl::<String, Value>::new().into();
                     }
                 }
 
@@ -195,7 +195,7 @@ impl Expression {
                         // Pull out another table
                         let mut target = if let ValueKind::Table(ref mut map) = root.kind {
                             map.entry(id.clone())
-                                .or_insert_with(|| LinkedHashMap::<String, Value>::new().into())
+                                .or_insert_with(|| MapImpl::<String, Value>::new().into())
                         } else {
                             unreachable!();
                         };
@@ -228,7 +228,7 @@ impl Expression {
 
                         _ => {
                             // Didn't find a table. Oh well. Make a table and do this anyway
-                            *parent = LinkedHashMap::<String, Value>::new().into();
+                            *parent = MapImpl::<String, Value>::new().into();
 
                             Expression::Identifier(key.clone()).set(parent, value);
                         }

@@ -1,10 +1,10 @@
-use linked_hash_map::LinkedHashMap;
 use std::fmt;
 use std::fmt::Display;
 
 use serde::de::{Deserialize, Deserializer, Visitor};
 
 use crate::error::*;
+use crate::map::MapImpl;
 
 /// Underlying kind of the configuration value.
 ///
@@ -23,7 +23,7 @@ pub enum ValueKind {
 }
 
 pub type Array = Vec<Value>;
-pub type Table = LinkedHashMap<String, Value>;
+pub type Table = MapImpl<String, Value>;
 
 impl Default for ValueKind {
     fn default() -> Self {
@@ -73,11 +73,11 @@ impl From<bool> for ValueKind {
     }
 }
 
-impl<T> From<LinkedHashMap<String, T>> for ValueKind
+impl<T> From<MapImpl<String, T>> for ValueKind
 where
     T: Into<Value>,
 {
-    fn from(values: LinkedHashMap<String, T>) -> Self {
+    fn from(values: MapImpl<String, T>) -> Self {
         let t = values.into_iter().map(|(k, v)| (k, v.into())).collect();
         ValueKind::Table(t)
     }
@@ -357,7 +357,7 @@ impl Value {
 
     /// If the `Value` is a Table, returns the associated Map.
     // FIXME: Should this not be `try_into_*` ?
-    pub fn into_table(self) -> Result<LinkedHashMap<String, Value>> {
+    pub fn into_table(self) -> Result<MapImpl<String, Value>> {
         match self.kind {
             ValueKind::Table(value) => Ok(value),
 

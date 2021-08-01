@@ -1,19 +1,19 @@
-use linked_hash_map::LinkedHashMap;
 use std::error::Error;
 
+use crate::map::MapImpl;
 use crate::value::{Value, ValueKind};
 
 pub fn parse(
     uri: Option<&String>,
     text: &str,
-) -> Result<LinkedHashMap<String, Value>, Box<dyn Error + Send + Sync>> {
+) -> Result<MapImpl<String, Value>, Box<dyn Error + Send + Sync>> {
     // Parse a JSON object value from the text
     // TODO: Have a proper error fire if the root of a file is ever not a Table
     let value = from_hjson_value(uri, &serde_hjson::from_str(text)?);
     match value.kind {
         ValueKind::Table(map) => Ok(map),
 
-        _ => Ok(LinkedHashMap::new()),
+        _ => Ok(MapImpl::new()),
     }
 }
 
@@ -30,7 +30,7 @@ fn from_hjson_value(uri: Option<&String>, value: &serde_hjson::Value) -> Value {
         serde_hjson::Value::Bool(value) => Value::new(uri, ValueKind::Boolean(value)),
 
         serde_hjson::Value::Object(ref table) => {
-            let mut m = LinkedHashMap::new();
+            let mut m = MapImpl::new();
 
             for (key, value) in table {
                 m.insert(key.clone(), from_hjson_value(uri, value));

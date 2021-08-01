@@ -4,7 +4,6 @@ extern crate config;
 extern crate float_cmp;
 extern crate serde;
 
-use linked_hash_map::LinkedHashMap;
 use std::path::PathBuf;
 
 use self::config::*;
@@ -18,7 +17,7 @@ struct Place {
     favorite: bool,
     telephone: Option<String>,
     reviews: u64,
-    creator: LinkedHashMap<String, Value>,
+    creator: MapImpl<String, Value>,
     rating: Option<f32>,
 }
 

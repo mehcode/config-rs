@@ -7,7 +7,6 @@ extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 
-use linked_hash_map::LinkedHashMap;
 use std::path::PathBuf;
 
 use config::*;
@@ -21,7 +20,7 @@ struct Place {
     favorite: bool,
     telephone: Option<String>,
     reviews: u64,
-    creator: LinkedHashMap<String, Value>,
+    creator: MapImpl<String, Value>,
     rating: Option<f32>,
 }
 
