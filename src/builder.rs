@@ -1,7 +1,6 @@
 use std::iter::IntoIterator;
 use std::str::FromStr;
 
-
 use crate::error::Result;
 use crate::map::MapImpl;
 use crate::source::AsyncSource;
