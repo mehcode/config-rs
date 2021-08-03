@@ -4,7 +4,7 @@ use std::str::FromStr;
 use async_trait::async_trait;
 
 use crate::error::*;
-use crate::map::MapImpl;
+use crate::map::Map;
 use crate::path;
 use crate::value::{Value, ValueKind};
 
@@ -13,8 +13,8 @@ pub trait Source: Debug {
     fn clone_into_box(&self) -> Box<dyn Source + Send + Sync>;
 
     /// Collect all configuration properties available from this source and return
-    /// a MapImpl.
-    fn collect(&self) -> Result<MapImpl<String, Value>>;
+    /// a Map.
+    fn collect(&self) -> Result<Map<String, Value>>;
 
     /// Collects all configuration properties to a provided cache.
     fn collect_to(&self, cache: &mut Value) -> Result<()> {
@@ -55,8 +55,8 @@ pub trait AsyncSource: Debug + Sync {
     // Sync is supertrait due to https://docs.rs/async-trait/0.1.50/async_trait/index.html#dyn-traits
 
     /// Collects all configuration properties available from this source and return
-    /// a MapImpl as an async operations.
-    async fn collect(&self) -> Result<MapImpl<String, Value>>;
+    /// a Map as an async operations.
+    async fn collect(&self) -> Result<Map<String, Value>>;
 
     /// Collects all configuration properties to a provided cache.
     async fn collect_to(&self, cache: &mut Value) -> Result<()> {
@@ -86,8 +86,8 @@ impl Source for Vec<Box<dyn Source + Send + Sync>> {
         Box::new((*self).clone())
     }
 
-    fn collect(&self) -> Result<MapImpl<String, Value>> {
-        let mut cache: Value = MapImpl::<String, Value>::new().into();
+    fn collect(&self) -> Result<Map<String, Value>> {
+        let mut cache: Value = Map::<String, Value>::new().into();
 
         for source in self {
             source.collect_to(&mut cache)?;
@@ -106,8 +106,8 @@ impl Source for [Box<dyn Source + Send + Sync>] {
         Box::new(self.to_owned())
     }
 
-    fn collect(&self) -> Result<MapImpl<String, Value>> {
-        let mut cache: Value = MapImpl::<String, Value>::new().into();
+    fn collect(&self) -> Result<Map<String, Value>> {
+        let mut cache: Value = Map::<String, Value>::new().into();
 
         for source in self {
             source.collect_to(&mut cache)?;
@@ -131,8 +131,8 @@ where
         Box::new((*self).clone())
     }
 
-    fn collect(&self) -> Result<MapImpl<String, Value>> {
-        let mut cache: Value = MapImpl::<String, Value>::new().into();
+    fn collect(&self) -> Result<Map<String, Value>> {
+        let mut cache: Value = Map::<String, Value>::new().into();
 
         for source in self {
             source.collect_to(&mut cache)?;

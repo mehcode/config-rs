@@ -1,6 +1,6 @@
 use std::error::Error;
 
-use config::{builder::AsyncState, AsyncSource, ConfigBuilder, ConfigError, FileFormat, MapImpl};
+use config::{builder::AsyncState, AsyncSource, ConfigBuilder, ConfigError, FileFormat, Map};
 
 use async_trait::async_trait;
 use futures::{select, FutureExt};
@@ -56,7 +56,7 @@ struct HttpSource {
 
 #[async_trait]
 impl AsyncSource for HttpSource {
-    async fn collect(&self) -> Result<MapImpl<String, config::Value>, ConfigError> {
+    async fn collect(&self) -> Result<Map<String, config::Value>, ConfigError> {
         reqwest::get(&self.uri)
             .await
             .map_err(|e| ConfigError::Foreign(Box::new(e)))? // error conversion is possible from custom AsyncSource impls

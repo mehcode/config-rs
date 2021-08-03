@@ -71,7 +71,7 @@ pub use crate::config::Config;
 pub use crate::env::Environment;
 pub use crate::error::ConfigError;
 pub use crate::file::{File, FileFormat, FileSourceFile, FileSourceString};
-pub use crate::map::MapImpl;
+pub use crate::map::Map;
 pub use crate::source::AsyncSource;
 pub use crate::source::Source;
 pub use crate::value::Value;

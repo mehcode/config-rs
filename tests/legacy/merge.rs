@@ -24,7 +24,7 @@ fn test_merge() {
     assert_eq!(c.get("place.rating").ok(), Some(4.9));
 
     if cfg!(feature = "preserve_order") {
-        let m: MapImpl<String, String> = c.get("place.creator").unwrap();
+        let m: Map<String, String> = c.get("place.creator").unwrap();
         assert_eq!(
             m.into_iter().collect::<Vec<(String, String)>>(),
             vec![

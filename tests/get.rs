@@ -107,7 +107,7 @@ fn test_get_scalar_path_subscript() {
 #[test]
 fn test_map() {
     let c = make();
-    let m: MapImpl<String, Value> = c.get("place").unwrap();
+    let m: Map<String, Value> = c.get("place").unwrap();
 
     assert_eq!(m.len(), 8);
     assert_eq!(
@@ -120,7 +120,7 @@ fn test_map() {
 #[test]
 fn test_map_str() {
     let c = make();
-    let m: MapImpl<String, String> = c.get("place.creator").unwrap();
+    let m: Map<String, String> = c.get("place.creator").unwrap();
 
     if cfg!(feature = "preserve_order") {
         assert_eq!(
@@ -141,7 +141,7 @@ fn test_map_str() {
 fn test_map_struct() {
     #[derive(Debug, Deserialize)]
     struct Settings {
-        place: MapImpl<String, Value>,
+        place: Map<String, Value>,
     }
 
     let c = make();
@@ -226,7 +226,7 @@ fn test_enum() {
     }
     #[derive(Debug, Deserialize)]
     struct Settings {
-        diodes: MapImpl<String, Diode>,
+        diodes: Map<String, Diode>,
     }
 
     let c = make();
@@ -259,7 +259,7 @@ fn test_enum_key() {
 
     #[derive(Debug, Deserialize)]
     struct Settings {
-        proton: MapImpl<Quark, usize>,
+        proton: Map<Quark, usize>,
         // Just to make sure that set keys work too.
         quarks: HashSet<Quark>,
     }
@@ -275,7 +275,7 @@ fn test_enum_key() {
 fn test_int_key() {
     #[derive(Debug, Deserialize, PartialEq)]
     struct Settings {
-        divisors: MapImpl<u32, u32>,
+        divisors: Map<u32, u32>,
     }
 
     let c = make();

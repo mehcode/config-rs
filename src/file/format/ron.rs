@@ -1,17 +1,17 @@
 use std::error::Error;
 
-use crate::map::MapImpl;
+use crate::map::Map;
 use crate::value::{Value, ValueKind};
 
 pub fn parse(
     uri: Option<&String>,
     text: &str,
-) -> Result<MapImpl<String, Value>, Box<dyn Error + Send + Sync>> {
+) -> Result<Map<String, Value>, Box<dyn Error + Send + Sync>> {
     let value = from_ron_value(uri, ron::from_str(text)?)?;
     match value.kind {
         ValueKind::Table(map) => Ok(map),
 
-        _ => Ok(MapImpl::new()),
+        _ => Ok(Map::new()),
     }
 }
 
@@ -56,7 +56,7 @@ fn from_ron_value(
 
                     Ok((key, value))
                 })
-                .collect::<Result<MapImpl<_, _>, _>>()?;
+                .collect::<Result<Map<_, _>, _>>()?;
 
             ValueKind::Table(map)
         }

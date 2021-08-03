@@ -5,7 +5,7 @@
 use std::collections::HashMap;
 use std::error::Error;
 
-use crate::map::MapImpl;
+use crate::map::Map;
 use crate::value::Value;
 
 #[cfg(feature = "toml")]
@@ -108,7 +108,7 @@ impl FileFormat {
         self,
         uri: Option<&String>,
         text: &str,
-    ) -> Result<MapImpl<String, Value>, Box<dyn Error + Send + Sync>> {
+    ) -> Result<Map<String, Value>, Box<dyn Error + Send + Sync>> {
         match self {
             #[cfg(feature = "toml")]
             FileFormat::Toml => toml::parse(uri, text),

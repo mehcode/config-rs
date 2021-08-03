@@ -18,7 +18,7 @@ struct Place {
     favorite: bool,
     telephone: Option<String>,
     reviews: u64,
-    creator: MapImpl<String, Value>,
+    creator: Map<String, Value>,
     rating: Option<f32>,
 }
 

@@ -1,5 +1,5 @@
 use config::*;
-use std::collections::MapImpl;
+use std::collections::Map;
 use std::sync::RwLock;
 use notify::{RecommendedWatcher, DebouncedEvent, Watcher, RecursiveMode};
 use std::sync::mpsc::channel;
@@ -20,7 +20,7 @@ fn show() {
                  .read()
                  .unwrap()
                  .clone()
-                 .try_into::<MapImpl<String, String>>()
+                 .try_into::<Map<String, String>>()
                  .unwrap());
 }
 

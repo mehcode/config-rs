@@ -1,4 +1,4 @@
-use std::collections::MapImpl;
+use std::collections::Map;
 
 fn main() {
     let mut settings = config::Config::default();
@@ -9,7 +9,7 @@ fn main() {
         // Eg.. `APP_DEBUG=1 ./target/app` would set the `debug` key
         .merge(config::Environment::with_prefix("APP")).unwrap();
 
-    // Print out our settings (as a MapImpl)
+    // Print out our settings (as a Map)
     println!("{:?}",
-             settings.try_into::<MapImpl<String, String>>().unwrap());
+             settings.try_into::<Map<String, String>>().unwrap());
 }

@@ -5,7 +5,7 @@ use serde::de;
 
 use crate::config::Config;
 use crate::error::*;
-use crate::map::MapImpl;
+use crate::map::Map;
 use crate::value::{Table, Value, ValueKind};
 
 impl<'de> de::Deserializer<'de> for Value {
@@ -200,7 +200,7 @@ struct MapAccess {
 }
 
 impl MapAccess {
-    fn new(table: MapImpl<String, Value>) -> Self {
+    fn new(table: Map<String, Value>) -> Self {
         MapAccess {
             elements: table.into_iter().collect(),
         }
