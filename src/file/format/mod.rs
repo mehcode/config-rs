@@ -2,6 +2,7 @@
 // BUG: ? For some reason this doesn't do anything if I try and function scope this
 #![allow(unused_mut)]
 
+use std::collections::HashMap;
 use std::error::Error;
 
 use crate::map::MapImpl;
@@ -62,8 +63,8 @@ pub enum FileFormat {
 lazy_static! {
     #[doc(hidden)]
     // #[allow(unused_mut)] ?
-    pub static ref ALL_EXTENSIONS: MapImpl<FileFormat, Vec<&'static str>> = {
-        let mut formats: MapImpl<FileFormat, Vec<_>> = MapImpl::new();
+    pub static ref ALL_EXTENSIONS: HashMap<FileFormat, Vec<&'static str>> = {
+        let mut formats: HashMap<FileFormat, Vec<_>> = HashMap::new();
 
         #[cfg(feature = "toml")]
         formats.insert(FileFormat::Toml, vec!["toml"]);

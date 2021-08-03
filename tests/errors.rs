@@ -1,4 +1,4 @@
-#![cfg(all(feature = "toml", feature = "preserve_order"))]
+#![cfg(feature = "toml")]
 
 extern crate config;
 

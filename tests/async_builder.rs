@@ -1,5 +1,3 @@
-#![cfg(feature = "preserve_order")]
-
 use async_trait::async_trait;
 use config::*;
 use std::{env, fs, path, str::FromStr};
