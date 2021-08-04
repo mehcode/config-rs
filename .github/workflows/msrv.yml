@@ -63,6 +63,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
+          args: --all-features
 
       - name: Run cargo test (nightly)
         if: matrix.rust == '1.46.0'
@@ -70,7 +71,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --tests
+          args: --tests --all-features
 
       - name: Run cargo test (nightly)
         if: matrix.rust == 'nightly'
@@ -78,6 +79,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
+          args: --all-features
 
   fmt:
     needs: [check]

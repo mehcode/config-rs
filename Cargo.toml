@@ -46,6 +46,3 @@ tokio = { version = "1", features = ["rt-multi-thread", "macros", "fs", "io-util
 warp = "0.3.1"
 futures = "0.3.15"
 reqwest = "0.11.3"
-# Workaround to activate non-default features for tests:
-# https://github.com/rust-lang/cargo/issues/2911
-config = { path = ".", features = ["preserve_order"] }
