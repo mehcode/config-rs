@@ -1,7 +1,7 @@
-use std::collections::HashMap;
 use std::error::Error;
 
 use crate::error::{ConfigError, Unexpected};
+use crate::map::Map;
 use crate::value::{Value, ValueKind};
 
 #[derive(serde::Deserialize, Debug)]
@@ -13,13 +13,13 @@ pub enum Val {
     Float(f64),
     String(String),
     Array(Vec<Val>),
-    Object(HashMap<String, Val>),
+    Object(Map<String, Val>),
 }
 
 pub fn parse(
     uri: Option<&String>,
     text: &str,
-) -> Result<HashMap<String, Value>, Box<dyn Error + Send + Sync>> {
+) -> Result<Map<String, Value>, Box<dyn Error + Send + Sync>> {
     match json5_rs::from_str::<Val>(text)? {
         Val::String(ref value) => Err(Unexpected::Str(value.clone())),
         Val::Integer(value) => Err(Unexpected::Integer(value)),
@@ -29,7 +29,7 @@ pub fn parse(
         Val::Null => Err(Unexpected::Unit),
         Val::Object(o) => match from_json5_value(uri, Val::Object(o)).kind {
             ValueKind::Table(map) => Ok(map),
-            _ => Ok(HashMap::new()),
+            _ => Ok(Map::new()),
         },
     }
     .map_err(|err| ConfigError::invalid_root(uri, err))

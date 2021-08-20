@@ -1,7 +1,7 @@
-use std::collections::HashMap;
 use std::env;
 
 use crate::error::*;
+use crate::map::Map;
 use crate::source::Source;
 use crate::value::{Value, ValueKind};
 
@@ -79,8 +79,8 @@ impl Source for Environment {
         Box::new((*self).clone())
     }
 
-    fn collect(&self) -> Result<HashMap<String, Value>> {
-        let mut m = HashMap::new();
+    fn collect(&self) -> Result<Map<String, Value>> {
+        let mut m = Map::new();
         let uri: String = "the environment".into();
 
         let separator = self.separator.as_deref().unwrap_or("");

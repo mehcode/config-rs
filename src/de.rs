@@ -1,10 +1,11 @@
-use std::collections::{HashMap, VecDeque};
+use std::collections::VecDeque;
 use std::iter::Enumerate;
 
 use serde::de;
 
 use crate::config::Config;
 use crate::error::*;
+use crate::map::Map;
 use crate::value::{Table, Value, ValueKind};
 
 impl<'de> de::Deserializer<'de> for Value {
@@ -199,7 +200,7 @@ struct MapAccess {
 }
 
 impl MapAccess {
-    fn new(table: HashMap<String, Value>) -> Self {
+    fn new(table: Map<String, Value>) -> Self {
         MapAccess {
             elements: table.into_iter().collect(),
         }

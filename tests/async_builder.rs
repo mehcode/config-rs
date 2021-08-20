@@ -18,7 +18,7 @@ impl AsyncFile {
 
 #[async_trait]
 impl AsyncSource for AsyncFile {
-    async fn collect(&self) -> Result<std::collections::HashMap<String, Value>, ConfigError> {
+    async fn collect(&self) -> Result<Map<String, Value>, ConfigError> {
         let mut path = env::current_dir().unwrap();
         let local = path::PathBuf::from_str(&self.path).unwrap();
 

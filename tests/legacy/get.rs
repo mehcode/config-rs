@@ -4,7 +4,7 @@ extern crate config;
 extern crate float_cmp;
 extern crate serde;
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
 use self::config::*;
 use self::float_cmp::ApproxEqUlps;
@@ -105,7 +105,7 @@ fn test_get_scalar_path_subscript() {
 #[test]
 fn test_map() {
     let c = make();
-    let m: HashMap<String, Value> = c.get("place").unwrap();
+    let m: Map<String, Value> = c.get("place").unwrap();
 
     assert_eq!(m.len(), 8);
     assert_eq!(
@@ -118,17 +118,28 @@ fn test_map() {
 #[test]
 fn test_map_str() {
     let c = make();
-    let m: HashMap<String, String> = c.get("place.creator").unwrap();
+    let m: Map<String, String> = c.get("place.creator").unwrap();
 
-    assert_eq!(m.len(), 1);
-    assert_eq!(m["name"], "John Smith".to_string());
+    if cfg!(feature = "preserve_order") {
+        assert_eq!(
+            m.into_iter().collect::<Vec<(String, String)>>(),
+            vec![
+                ("name".to_string(), "John Smith".to_string()),
+                ("username".to_string(), "jsmith".to_string()),
+                ("email".to_string(), "jsmith@localhost".to_string()),
+            ]
+        );
+    } else {
+        assert_eq!(m.len(), 3);
+        assert_eq!(m["name"], "John Smith".to_string());
+    }
 }
 
 #[test]
 fn test_map_struct() {
     #[derive(Debug, Deserialize)]
     struct Settings {
-        place: HashMap<String, Value>,
+        place: Map<String, Value>,
     }
 
     let c = make();
@@ -213,7 +224,7 @@ fn test_enum() {
     }
     #[derive(Debug, Deserialize)]
     struct Settings {
-        diodes: HashMap<String, Diode>,
+        diodes: Map<String, Diode>,
     }
 
     let c = make();
@@ -246,7 +257,7 @@ fn test_enum_key() {
 
     #[derive(Debug, Deserialize)]
     struct Settings {
-        proton: HashMap<Quark, usize>,
+        proton: Map<Quark, usize>,
         // Just to make sure that set keys work too.
         quarks: HashSet<Quark>,
     }
@@ -262,7 +273,7 @@ fn test_enum_key() {
 fn test_int_key() {
     #[derive(Debug, Deserialize, PartialEq)]
     struct Settings {
-        divisors: HashMap<u32, u32>,
+        divisors: Map<u32, u32>,
     }
 
     let c = make();

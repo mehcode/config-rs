@@ -21,11 +21,24 @@ fn test_merge() {
 
     assert_eq!(c.get("debug").ok(), Some(false));
     assert_eq!(c.get("production").ok(), Some(true));
-    assert_eq!(
-        c.get("place.creator.name").ok(),
-        Some("Somebody New".to_string())
-    );
     assert_eq!(c.get("place.rating").ok(), Some(4.9));
+
+    if cfg!(feature = "preserve_order") {
+        let m: Map<String, String> = c.get("place.creator").unwrap();
+        assert_eq!(
+            m.into_iter().collect::<Vec<(String, String)>>(),
+            vec![
+                ("name".to_string(), "Somebody New".to_string()),
+                ("username".to_string(), "jsmith".to_string()),
+                ("email".to_string(), "jsmith@localhost".to_string()),
+            ]
+        );
+    } else {
+        assert_eq!(
+            c.get("place.creator.name").ok(),
+            Some("Somebody New".to_string())
+        );
+    }
 }
 
 #[test]

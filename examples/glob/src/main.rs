@@ -1,5 +1,5 @@
 use std::path::Path;
-use std::collections::HashMap;
+use std::collections::Map;
 use config::*;
 use glob::glob;
 
@@ -14,9 +14,9 @@ fn main() {
         .merge(File::from(Path::new("conf/05-some.yml"))).unwrap()
         .merge(File::from(Path::new("conf/99-extra.json"))).unwrap();
 
-    // Print out our settings (as a HashMap)
+    // Print out our settings (as a Map)
     println!("\n{:?} \n\n-----------",
-             settings.try_into::<HashMap<String, String>>().unwrap());
+             settings.try_into::<Map<String, String>>().unwrap());
 
     // Option 2
     // --------
@@ -28,9 +28,9 @@ fn main() {
                     File::from(Path::new("conf/99-extra.json"))])
         .unwrap();
 
-    // Print out our settings (as a HashMap)
+    // Print out our settings (as a Map)
     println!("\n{:?} \n\n-----------",
-             settings.try_into::<HashMap<String, String>>().unwrap());
+             settings.try_into::<Map<String, String>>().unwrap());
 
     // Option 3
     // --------
@@ -43,7 +43,7 @@ fn main() {
                    .collect::<Vec<_>>())
         .unwrap();
 
-    // Print out our settings (as a HashMap)
+    // Print out our settings (as a Map)
     println!("\n{:?} \n\n-----------",
-             settings.try_into::<HashMap<String, String>>().unwrap());
+             settings.try_into::<Map<String, String>>().unwrap());
 }

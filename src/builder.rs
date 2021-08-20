@@ -1,7 +1,8 @@
+use std::iter::IntoIterator;
 use std::str::FromStr;
-use std::{collections::HashMap, iter::IntoIterator};
 
 use crate::error::Result;
+use crate::map::Map;
 use crate::source::AsyncSource;
 use crate::{config::Config, path::Expression, source::Source, value::Value};
 
@@ -87,8 +88,8 @@ use crate::{config::Config, path::Expression, source::Source, value::Value};
 /// ```
 #[derive(Debug, Clone, Default)]
 pub struct ConfigBuilder<St: BuilderState> {
-    defaults: HashMap<Expression, Value>,
-    overrides: HashMap<Expression, Value>,
+    defaults: Map<Expression, Value>,
+    overrides: Map<Expression, Value>,
     state: St,
 }
 
@@ -120,8 +121,8 @@ pub struct DefaultState {
 /// Refer to [`ConfigBuilder`] for similar API sample usage or to the examples folder of the crate, where such a source is implemented.
 #[derive(Debug, Clone, Default)]
 pub struct AsyncConfigBuilder {
-    defaults: HashMap<Expression, Value>,
-    overrides: HashMap<Expression, Value>,
+    defaults: Map<Expression, Value>,
+    overrides: Map<Expression, Value>,
     sources: Vec<SourceType>,
 }
 
@@ -244,11 +245,11 @@ impl ConfigBuilder<DefaultState> {
     }
 
     fn build_internal(
-        defaults: HashMap<Expression, Value>,
-        overrides: HashMap<Expression, Value>,
+        defaults: Map<Expression, Value>,
+        overrides: Map<Expression, Value>,
         sources: &[Box<dyn Source + Send + Sync>],
     ) -> Result<Config> {
-        let mut cache: Value = HashMap::<String, Value>::new().into();
+        let mut cache: Value = Map::<String, Value>::new().into();
 
         // Add defaults
         for (key, val) in defaults.into_iter() {
@@ -322,11 +323,11 @@ impl ConfigBuilder<AsyncState> {
     }
 
     async fn build_internal(
-        defaults: HashMap<Expression, Value>,
-        overrides: HashMap<Expression, Value>,
+        defaults: Map<Expression, Value>,
+        overrides: Map<Expression, Value>,
         sources: &[SourceType],
     ) -> Result<Config> {
-        let mut cache: Value = HashMap::<String, Value>::new().into();
+        let mut cache: Value = Map::<String, Value>::new().into();
 
         // Add defaults
         for (key, val) in defaults.into_iter() {

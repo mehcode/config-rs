@@ -9,7 +9,6 @@ extern crate serde_derive;
 
 use config::*;
 use float_cmp::ApproxEqUlps;
-use std::collections::HashMap;
 use std::path::PathBuf;
 
 #[derive(Debug, Deserialize)]
@@ -20,7 +19,7 @@ struct Place {
     favorite: bool,
     telephone: Option<String>,
     reviews: u64,
-    creator: HashMap<String, Value>,
+    creator: Map<String, Value>,
     rating: Option<f32>,
 }
 
@@ -58,10 +57,24 @@ fn test_file() {
     assert_eq!(s.place.telephone, None);
     assert_eq!(s.elements.len(), 10);
     assert_eq!(s.elements[3], "4".to_string());
-    assert_eq!(
-        s.place.creator["name"].clone().into_string().unwrap(),
-        "John Smith".to_string()
-    );
+    if cfg!(feature = "preserve_order") {
+        assert_eq!(
+            s.place
+                .creator
+                .into_iter()
+                .collect::<Vec<(String, config::Value)>>(),
+            vec![
+                ("name".to_string(), "John Smith".into()),
+                ("username".into(), "jsmith".into()),
+                ("email".into(), "jsmith@localhost".into()),
+            ]
+        );
+    } else {
+        assert_eq!(
+            s.place.creator["name"].clone().into_string().unwrap(),
+            "John Smith".to_string()
+        );
+    }
 }
 
 #[test]

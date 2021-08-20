@@ -93,7 +93,7 @@ fn test_error_enum_de() {
     ]
     .iter()
     .cloned()
-    .collect::<std::collections::HashMap<String, Value>>()
+    .collect::<Map<String, Value>>()
     .into();
     let confused_d = confused_v.try_into::<Diode>();
     assert_eq!(
