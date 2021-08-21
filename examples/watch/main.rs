@@ -1,27 +1,28 @@
+use config::builder::DefaultState;
 use config::*;
+use notify::{DebouncedEvent, RecommendedWatcher, RecursiveMode, Watcher};
 use std::collections::HashMap;
-use std::sync::RwLock;
-use notify::{RecommendedWatcher, DebouncedEvent, Watcher, RecursiveMode};
 use std::sync::mpsc::channel;
+use std::sync::RwLock;
 use std::time::Duration;
 
 lazy_static::lazy_static! {
-    static ref SETTINGS: RwLock<Config> = RwLock::new({
-        let mut settings = Config::default();
-        settings.merge(File::with_name("Settings.toml")).unwrap();
+    static ref SETTINGS_BUILDER: ConfigBuilder<DefaultState> = ConfigBuilder::<DefaultState>::default()
+        .add_source(File::with_name("Settings.toml"));
 
-        settings
-    });
+    static ref SETTINGS: RwLock<Config> = RwLock::new(SETTINGS_BUILDER.build_cloned().unwrap());
 }
 
 fn show() {
-    println!(" * Settings :: \n\x1b[31m{:?}\x1b[0m",
-             SETTINGS
-                 .read()
-                 .unwrap()
-                 .clone()
-                 .try_into::<HashMap<String, String>>()
-                 .unwrap());
+    println!(
+        " * Settings :: \n\x1b[31m{:?}\x1b[0m",
+        SETTINGS
+            .read()
+            .unwrap()
+            .clone()
+            .try_into::<HashMap<String, String>>()
+            .unwrap()
+    );
 }
 
 fn watch() {
@@ -44,7 +45,7 @@ fn watch() {
         match rx.recv() {
             Ok(DebouncedEvent::Write(_)) => {
                 println!(" * Settings.toml written; refreshing configuration ...");
-                SETTINGS.write().unwrap().refresh().unwrap();
+                *SETTINGS.write().unwrap() = SETTINGS_BUILDER.build_cloned().unwrap();
                 show();
             }
 
