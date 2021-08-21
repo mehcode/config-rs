@@ -1,4 +1,4 @@
-use std::collections::Map;
+use std::collections::HashMap;
 
 fn main() {
     let mut settings = config::Config::default();
@@ -9,7 +9,7 @@ fn main() {
         // Eg.. `APP_DEBUG=1 ./target/app` would set the `debug` key
         .merge(config::Environment::with_prefix("APP")).unwrap();
 
-    // Print out our settings (as a Map)
+    // Print out our settings (as a HashMap)
     println!("{:?}",
-             settings.try_into::<Map<String, String>>().unwrap());
+             settings.try_into::<HashMap<String, String>>().unwrap());
 }
