@@ -11,7 +11,7 @@
 
  - Set defaults
  - Set explicit values (to programmatically override)
- - Read from [JSON], [TOML], [YAML], [HJSON], [INI], [RON], [JSON5] files
+ - Read from [JSON], [TOML], [YAML], [INI], [RON], [JSON5] files
  - Read from environment
  - Loosely typed — Configuration values may be read in any supported type, as long as there exists a reasonable conversion
  - Access nested fields using a formatted path — Uses a subset of JSONPath; currently supports the child ( `redis.port` ) and subscript operators ( `databases[0].name` )
@@ -19,7 +19,6 @@
 [JSON]: https://github.com/serde-rs/json
 [TOML]: https://github.com/toml-lang/toml
 [YAML]: https://github.com/chyh1990/yaml-rust
-[HJSON]: https://github.com/hjson/hjson-rust
 [INI]: https://github.com/zonyitoo/rust-ini
 [RON]: https://github.com/ron-rs/ron
 [JSON5]: https://github.com/callum-oakley/json5-rs
@@ -33,7 +32,6 @@ config = "0.11"
 
  - `ini` - Adds support for reading INI files
  - `json` - Adds support for reading JSON files
- - `hjson` - Adds support for reading HJSON files
  - `yaml` - Adds support for reading YAML files
  - `toml` - Adds support for reading TOML files
  - `ron` - Adds support for reading RON files

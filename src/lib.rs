@@ -6,7 +6,7 @@
 //!  - Environment variables
 //!  - Another Config instance
 //!  - Remote configuration: etcd, Consul
-//!  - Files: TOML, JSON, YAML, HJSON, INI, RON, JSON5
+//!  - Files: TOML, JSON, YAML, INI, RON, JSON5
 //!  - Manual, programmatic override (via a `.set` method on the Config instance)
 //!
 //! Additionally, Config supports:
@@ -40,9 +40,6 @@ extern crate serde_json;
 
 #[cfg(feature = "yaml")]
 extern crate yaml_rust;
-
-#[cfg(feature = "hjson")]
-extern crate serde_hjson;
 
 #[cfg(feature = "ini")]
 extern crate ini;
