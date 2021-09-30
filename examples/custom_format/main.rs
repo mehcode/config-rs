@@ -49,7 +49,7 @@ impl Format for MyFormat {
 // It is only required for File source, custom sources can use Format without caring for extensions
 static MY_FORMAT_EXT: Vec<&'static str> = vec![];
 impl FileExtensions for MyFormat {
-    fn extensions(&self) -> &Vec<&'static str> {
+    fn extensions(&self) -> &'static [&'static str] {
         &MY_FORMAT_EXT
     }
 }

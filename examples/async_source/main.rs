@@ -1,6 +1,6 @@
-use std::error::Error;
+use std::{collections::HashMap, error::Error, fmt::Debug};
 
-use config::{builder::AsyncState, AsyncSource, ConfigBuilder, ConfigError, FileFormat, Map};
+use config::{AsyncSource, ConfigBuilder, ConfigError, FileFormat, Format, builder::AsyncState, Map};
 
 use async_trait::async_trait;
 use futures::{select, FutureExt};
@@ -49,13 +49,13 @@ async fn run_client() -> Result<(), Box<dyn Error>> {
 // Actual implementation of AsyncSource can be found below
 
 #[derive(Debug)]
-struct HttpSource {
+struct HttpSource<F : Format> {
     uri: String,
-    format: FileFormat,
+    format: F,
 }
 
 #[async_trait]
-impl AsyncSource for HttpSource {
+impl<F : Format + Send + Sync + Debug> AsyncSource for HttpSource<F> {
     async fn collect(&self) -> Result<Map<String, config::Value>, ConfigError> {
         reqwest::get(&self.uri)
             .await
