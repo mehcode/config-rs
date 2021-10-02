@@ -5,7 +5,7 @@ use crate::map::Map;
 use crate::source::Source;
 use crate::value::{Value, ValueKind};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct Environment {
     /// Optional prefix that will limit access to the environment to only keys that
     /// begin with the defined prefix.
@@ -60,17 +60,6 @@ impl Environment {
     pub fn try_parsing(mut self, try_parsing: bool) -> Self {
         self.try_parsing = try_parsing;
         self
-    }
-}
-
-impl Default for Environment {
-    fn default() -> Environment {
-        Environment {
-            prefix: None,
-            separator: None,
-            ignore_empty: false,
-            try_parsing: false,
-        }
     }
 }
 
