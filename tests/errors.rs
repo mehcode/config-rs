@@ -136,10 +136,7 @@ fn error_with_path() {
 
 #[test]
 fn test_error_root_not_table() {
-    match Config::builder()
-        .add_source(File::from_str(r#"false"#, FileFormat::Json5))
-        .build()
-    {
+    match Config::builder().add_source(File::from_str("false", FileFormat::Toml)).build() {
         Ok(_) => panic!("Should not merge if root is not a table"),
         Err(e) => match e {
             ConfigError::FileParse { cause, .. } => assert_eq!(
