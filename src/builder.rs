@@ -123,7 +123,6 @@ pub struct DefaultState {
 pub struct AsyncConfigBuilder {
     defaults: Map<Expression, Value>,
     overrides: Map<Expression, Value>,
-    sources: Vec<SourceType>,
 }
 
 /// Represents data specific to builder in asychronous state, with support for async.
