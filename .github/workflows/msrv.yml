@@ -81,6 +81,37 @@ jobs:
           command: test
           args: --all-features
 
+  test-feature:
+    needs: [check]
+    name: Test Suite, only some features enabled
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rust:
+          - stable
+        feature:
+          - json
+          - yaml
+          - hjson
+          - ini
+          - json5
+          - preserve_order
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          override: true
+
+      - name: Run cargo test ${{ matrix.feature }}
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --no-default-features --features ${{ matrix.feature }}
+
   fmt:
     needs: [check]
     name: Rustfmt
