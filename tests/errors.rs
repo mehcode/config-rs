@@ -117,21 +117,17 @@ fn error_with_path() {
         inner: Inner,
     }
     const CFG: &str = r#"
-inner:
-    test: ABC
-"#;
+        inner.test = "ABC"
+    "#;
 
     let e = Config::builder()
-        .add_source(File::from_str(CFG, FileFormat::Yaml))
+        .add_source(File::from_str(CFG, FileFormat::Toml))
         .build()
         .unwrap()
         .try_into::<Outer>()
         .unwrap_err();
 
-    if let ConfigError::Type {
-        key: Some(path), ..
-    } = e
-    {
+    if let ConfigError::Type { key: Some(path), ..  } = e {
         assert_eq!(path, "inner.test");
     } else {
         panic!("Wrong error {:?}", e);
