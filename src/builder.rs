@@ -120,9 +120,7 @@ pub struct DefaultState {
 ///
 /// Refer to [`ConfigBuilder`] for similar API sample usage or to the examples folder of the crate, where such a source is implemented.
 #[derive(Debug, Clone, Default)]
-pub struct AsyncConfigBuilder {
-    defaults: Map<Expression, Value>,
-}
+pub struct AsyncConfigBuilder {}
 
 /// Represents data specific to builder in asychronous state, with support for async.
 #[derive(Debug, Default)]
