@@ -29,6 +29,7 @@ pub struct Environment {
 }
 
 impl Environment {
+    #[deprecated(since = "0.12.0", note = "please use 'Environment::default' instead")]
     pub fn new() -> Self {
         Environment::default()
     }
