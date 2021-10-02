@@ -22,7 +22,7 @@ pub fn parse(
     };
 
     // TODO: Have a proper error fire if the root of a file is ever not a Table
-    let value = from_yaml_value(uri, &root);
+    let value = from_yaml_value(uri, &root)?;
     match value.kind {
         ValueKind::Table(map) => Ok(map),
 
@@ -30,33 +30,42 @@ pub fn parse(
     }
 }
 
-fn from_yaml_value(uri: Option<&String>, value: &yaml::Yaml) -> Value {
+fn from_yaml_value(
+    uri: Option<&String>,
+    value: &yaml::Yaml,
+) -> Result<Value, Box<dyn Error + Send + Sync>> {
     match *value {
-        yaml::Yaml::String(ref value) => Value::new(uri, ValueKind::String(value.clone())),
+        yaml::Yaml::String(ref value) => Ok(Value::new(uri, ValueKind::String(value.clone()))),
         yaml::Yaml::Real(ref value) => {
             // TODO: Figure out in what cases this can panic?
-            Value::new(uri, ValueKind::Float(value.parse::<f64>().unwrap()))
+            value
+                .parse::<f64>()
+                .map_err(|_| {
+                    Box::new(FloatParsingError(value.to_string())) as Box<(dyn Error + Send + Sync)>
+                })
+                .map(ValueKind::Float)
+                .map(|f| Value::new(uri, f))
         }
-        yaml::Yaml::Integer(value) => Value::new(uri, ValueKind::Integer(value)),
-        yaml::Yaml::Boolean(value) => Value::new(uri, ValueKind::Boolean(value)),
+        yaml::Yaml::Integer(value) => Ok(Value::new(uri, ValueKind::Integer(value))),
+        yaml::Yaml::Boolean(value) => Ok(Value::new(uri, ValueKind::Boolean(value))),
         yaml::Yaml::Hash(ref table) => {
             let mut m = Map::new();
             for (key, value) in table {
                 if let Some(k) = key.as_str() {
-                    m.insert(k.to_owned(), from_yaml_value(uri, value));
+                    m.insert(k.to_owned(), from_yaml_value(uri, value)?);
                 }
                 // TODO: should we do anything for non-string keys?
             }
-            Value::new(uri, ValueKind::Table(m))
+            Ok(Value::new(uri, ValueKind::Table(m)))
         }
         yaml::Yaml::Array(ref array) => {
             let mut l = Vec::new();
 
             for value in array {
-                l.push(from_yaml_value(uri, value));
+                l.push(from_yaml_value(uri, value)?);
             }
 
-            Value::new(uri, ValueKind::Array(l))
+            Ok(Value::new(uri, ValueKind::Array(l)))
         }
 
         // 1. Yaml NULL
@@ -64,7 +73,7 @@ fn from_yaml_value(uri: Option<&String>, value: &yaml::Yaml) -> Value {
         //               using the index trait badly or on a type error but we send back nil.
         // 3. Alias – No idea what to do with this and there is a note in the lib that its
         //            not fully supported yet anyway
-        _ => Value::new(uri, ValueKind::Nil),
+        _ => Ok(Value::new(uri, ValueKind::Nil)),
     }
 }
 
@@ -80,5 +89,20 @@ impl fmt::Display for MultipleDocumentsError {
 impl Error for MultipleDocumentsError {
     fn description(&self) -> &str {
         "More than one YAML document provided"
+    }
+}
+
+#[derive(Debug, Clone)]
+struct FloatParsingError(String);
+
+impl fmt::Display for FloatParsingError {
+    fn fmt(&self, format: &mut fmt::Formatter) -> fmt::Result {
+        write!(format, "Parsing {} as floating point number failed", self.0)
+    }
+}
+
+impl Error for FloatParsingError {
+    fn description(&self) -> &str {
+        "Floating point number parsing failed"
     }
 }
