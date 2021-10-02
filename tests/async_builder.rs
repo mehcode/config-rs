@@ -46,6 +46,7 @@ impl AsyncSource for AsyncFile {
     }
 }
 
+#[cfg(feature = "json")]
 #[tokio::test]
 async fn test_single_async_file_source() {
     let config = Config::builder()
@@ -60,6 +61,7 @@ async fn test_single_async_file_source() {
     assert_eq!(true, config.get::<bool>("debug").unwrap());
 }
 
+#[cfg(all(feature = "json", feature = "toml"))]
 #[tokio::test]
 async fn test_two_async_file_sources() {
     let config = Config::builder()
@@ -80,6 +82,7 @@ async fn test_two_async_file_sources() {
     assert_eq!(1, config.get::<i32>("place.number").unwrap());
 }
 
+#[cfg(all(feature = "toml", feature = "json"))]
 #[tokio::test]
 async fn test_sync_to_async_file_sources() {
     let config = Config::builder()
@@ -96,6 +99,7 @@ async fn test_sync_to_async_file_sources() {
     assert_eq!(1, config.get::<i32>("place.number").unwrap());
 }
 
+#[cfg(all(feature = "toml", feature = "json"))]
 #[tokio::test]
 async fn test_async_to_sync_file_sources() {
     let config = Config::builder()
@@ -112,6 +116,7 @@ async fn test_async_to_sync_file_sources() {
     assert_eq!(1, config.get::<i32>("place.number").unwrap());
 }
 
+#[cfg(feature = "toml")]
 #[tokio::test]
 async fn test_async_file_sources_with_defaults() {
     let config = Config::builder()
@@ -132,6 +137,7 @@ async fn test_async_file_sources_with_defaults() {
     assert_eq!(1, config.get::<i32>("place.number").unwrap());
 }
 
+#[cfg(feature = "toml")]
 #[tokio::test]
 async fn test_async_file_sources_with_overrides() {
     let config = Config::builder()
