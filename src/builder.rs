@@ -122,7 +122,6 @@ pub struct DefaultState {
 #[derive(Debug, Clone, Default)]
 pub struct AsyncConfigBuilder {
     defaults: Map<Expression, Value>,
-    overrides: Map<Expression, Value>,
 }
 
 /// Represents data specific to builder in asychronous state, with support for async.
