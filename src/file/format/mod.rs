@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use std::error::Error;
 
 use crate::map::Map;
-use crate::{value::Value, Format, file::extension::FileExtensions};
+use crate::{file::extension::FileExtensions, value::Value, Format};
 
 #[cfg(feature = "toml")]
 mod toml;
@@ -85,14 +85,14 @@ lazy_static! {
 }
 
 impl FileFormat {
-    pub (crate) fn extensions(&self) -> &'static [&'static str] {
+    pub(crate) fn extensions(&self) -> &'static [&'static str] {
         // It should not be possible for this to fail
         // A FileFormat would need to be declared without being added to the
         // ALL_EXTENSIONS map.
         ALL_EXTENSIONS.get(self).unwrap()
     }
 
-    pub (crate) fn parse(
+    pub(crate) fn parse(
         &self,
         uri: Option<&String>,
         text: &str,

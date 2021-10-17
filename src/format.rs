@@ -1,7 +1,6 @@
-use std::{collections::HashMap, error::Error};
+use std::error::Error;
 
-use crate::value::Value;
-use crate::map::Map;
+use crate::{map::Map, value::Value};
 
 /// Describes a format of configuration source data
 ///

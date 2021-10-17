@@ -1,6 +1,4 @@
-use std::collections::HashMap;
-
-use config::{Config, File, FileExtensions, Format, Value, ValueKind};
+use config::{Config, File, FileExtensions, Format, Map, Value, ValueKind};
 
 fn main() {
     let config = Config::builder()
@@ -22,15 +20,12 @@ impl Format for MyFormat {
         &self,
         uri: Option<&String>,
         text: &str,
-    ) -> Result<
-        std::collections::HashMap<String, config::Value>,
-        Box<dyn std::error::Error + Send + Sync>,
-    > {
+    ) -> Result<Map<String, config::Value>, Box<dyn std::error::Error + Send + Sync>> {
         // Let's assume our format is somewhat crippled, but this is fine
         // In real life anything can be used here - nom, serde or other.
         //
         // For some more real-life examples refer to format implementation within the library code
-        let mut result = HashMap::new();
+        let mut result = Map::new();
 
         if text == "good" {
             result.insert(
