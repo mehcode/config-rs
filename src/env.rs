@@ -26,6 +26,42 @@ pub struct Environment {
 
     /// Parses booleans, integers and floats if they're detected (can be safely parsed).
     try_parsing: bool,
+
+    /// Alternate source for the environment. This can be used when you want to test your own code
+    /// using this source, without the need to change the actual system environment variables.
+    ///
+    /// ## Example
+    ///
+    /// ```rust
+    /// # use config::{Environment, Config};
+    /// # use serde::Deserialize;
+    /// # use std::collections::HashMap;
+    /// # use std::convert::TryInto;
+    /// #
+    /// #[test]
+    /// fn test_config() -> Result<(), config::ConfigError> {
+    ///   #[derive(Clone, Debug, Deserialize)]
+    ///   struct MyConfig {
+    ///     pub my_string: String,
+    ///   }
+    ///
+    ///   let source = Environment::default()
+    ///     .source(Some({
+    ///       let mut env = HashMap::new();
+    ///       env.insert("MY_STRING".into(), "my-value".into());
+    ///       env
+    ///   }));
+    ///
+    ///   let config: MyConfig = Config::builder()
+    ///     .add_source(source)
+    ///     .build()?
+    ///     .try_into()?;
+    ///   assert_eq!(config.my_string, "my-value");
+    ///
+    ///   Ok(())
+    /// }
+    /// ```
+    source: Option<Map<String, String>>,
 }
 
 impl Environment {
@@ -62,6 +98,11 @@ impl Environment {
         self.try_parsing = try_parsing;
         self
     }
+
+    pub fn source(mut self, source: Option<Map<String, String>>) -> Self {
+        self.source = source;
+        self
+    }
 }
 
 impl Source for Environment {
@@ -82,10 +123,10 @@ impl Source for Environment {
             .as_ref()
             .map(|prefix| format!("{}{}", prefix, group_separator).to_lowercase());
 
-        for (key, value) in env::vars() {
+        let collector = |(key, value): (String, String)| {
             // Treat empty environment variables as unset
             if self.ignore_empty && value.is_empty() {
-                continue;
+                return;
             }
 
             let mut key = key.to_lowercase();
@@ -97,7 +138,7 @@ impl Source for Environment {
                     key = key[prefix_pattern.len()..].to_string();
                 } else {
                     // Skip this key
-                    continue;
+                    return;
                 }
             }
 
@@ -122,6 +163,11 @@ impl Source for Environment {
             };
 
             m.insert(key, Value::new(Some(&uri), value));
+        };
+
+        match &self.source {
+            Some(source) => source.clone().into_iter().for_each(collector),
+            None => env::vars().for_each(collector),
         }
 
         Ok(m)
