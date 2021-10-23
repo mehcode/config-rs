@@ -1,4 +1,3 @@
-pub mod extension;
 mod format;
 pub mod source;
 
@@ -14,7 +13,6 @@ use crate::Format;
 pub use self::format::FileFormat;
 use self::source::FileSource;
 
-pub use self::extension::FileExtensions;
 pub use self::source::file::FileSourceFile;
 pub use self::source::string::FileSourceString;
 
@@ -22,11 +20,7 @@ pub use self::source::string::FileSourceString;
 ///
 /// It supports optional automatic file format discovery.
 #[derive(Clone, Debug)]
-pub struct File<T, F>
-where
-    F: Format + FileExtensions,
-    T: FileSource<F>,
-{
+pub struct File<T, F> {
     source: T,
 
     /// Format of file (which dictates what driver to use).
@@ -36,9 +30,17 @@ where
     required: bool,
 }
 
+/// An extension of [`Format`](crate::Format) trait.
+///
+/// Associates format with file extensions, therefore linking storage-agnostic notion of format to a file system.
+pub trait FileStoredFormat: Format {
+    /// Returns a vector of file extensions, for instance `[yml, yaml]`.
+    fn file_extensions(&self) -> &'static [&'static str];
+}
+
 impl<F> File<source::string::FileSourceString, F>
 where
-    F: Format + FileExtensions + 'static,
+    F: FileStoredFormat + 'static,
 {
     pub fn from_str(s: &str, format: F) -> Self {
         File {
@@ -51,7 +53,7 @@ where
 
 impl<F> File<source::file::FileSourceFile, F>
 where
-    F: Format + FileExtensions + 'static,
+    F: FileStoredFormat + 'static,
 {
     pub fn new(name: &str, format: F) -> Self {
         File {
@@ -96,7 +98,7 @@ impl From<PathBuf> for File<source::file::FileSourceFile, FileFormat> {
 
 impl<T, F> File<T, F>
 where
-    F: Format + FileExtensions + 'static,
+    F: FileStoredFormat + 'static,
     T: FileSource<F>,
 {
     pub fn format(mut self, format: F) -> Self {
@@ -112,7 +114,7 @@ where
 
 impl<T, F> Source for File<T, F>
 where
-    F: Format + FileExtensions + Debug + Clone + Send + Sync + 'static,
+    F: FileStoredFormat + Debug + Clone + Send + Sync + 'static,
     T: Sync + Send + FileSource<F> + 'static,
 {
     fn clone_into_box(&self) -> Box<dyn Source + Send + Sync> {

@@ -6,7 +6,7 @@ use std::iter::Iterator;
 use std::path::{Path, PathBuf};
 
 use crate::file::{
-    format::ALL_EXTENSIONS, source::FileSourceResult, FileExtensions, FileSource, Format,
+    format::ALL_EXTENSIONS, source::FileSourceResult, FileSource, FileStoredFormat, Format,
 };
 
 /// Describes a file sourced from a file
@@ -26,7 +26,7 @@ impl FileSourceFile {
         format_hint: Option<F>,
     ) -> Result<(PathBuf, Box<dyn Format>), Box<dyn Error + Send + Sync>>
     where
-        F: FileExtensions + Format + 'static,
+        F: FileStoredFormat + Format + 'static,
     {
         // First check for an _exact_ match
         let mut filename = env::current_dir()?.as_path().join(self.name.clone());
@@ -59,7 +59,7 @@ impl FileSourceFile {
 
         match format_hint {
             Some(format) => {
-                for ext in format.extensions() {
+                for ext in format.file_extensions() {
                     filename.set_extension(ext);
 
                     if filename.is_file() {
@@ -93,7 +93,7 @@ impl FileSourceFile {
 
 impl<F> FileSource<F> for FileSourceFile
 where
-    F: Format + FileExtensions + 'static,
+    F: Format + FileStoredFormat + 'static,
 {
     fn resolve(
         &self,

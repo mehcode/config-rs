@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use std::error::Error;
 
 use crate::map::Map;
-use crate::{file::extension::FileExtensions, value::Value, Format};
+use crate::{file::FileStoredFormat, value::Value, Format};
 
 #[cfg(feature = "toml")]
 mod toml;
@@ -129,8 +129,8 @@ impl Format for FileFormat {
     }
 }
 
-impl FileExtensions for FileFormat {
-    fn extensions(&self) -> &'static [&'static str] {
+impl FileStoredFormat for FileFormat {
+    fn file_extensions(&self) -> &'static [&'static str] {
         self.extensions()
     }
 }

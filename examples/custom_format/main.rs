@@ -1,4 +1,4 @@
-use config::{Config, File, FileExtensions, Format, Map, Value, ValueKind};
+use config::{Config, File, FileStoredFormat, Format, Map, Value, ValueKind};
 
 fn main() {
     let config = Config::builder()
@@ -43,8 +43,8 @@ impl Format for MyFormat {
 // As crazy as it seems for config sourced from a string, legacy demands its sacrifice
 // It is only required for File source, custom sources can use Format without caring for extensions
 static MY_FORMAT_EXT: Vec<&'static str> = vec![];
-impl FileExtensions for MyFormat {
-    fn extensions(&self) -> &'static [&'static str] {
+impl FileStoredFormat for MyFormat {
+    fn file_extensions(&self) -> &'static [&'static str] {
         &MY_FORMAT_EXT
     }
 }

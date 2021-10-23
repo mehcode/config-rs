@@ -2,7 +2,7 @@ use std::error::Error;
 
 use crate::{
     file::source::FileSourceResult,
-    file::{FileExtensions, FileSource},
+    file::{FileSource, FileStoredFormat},
     Format,
 };
 
@@ -18,7 +18,7 @@ impl<'a> From<&'a str> for FileSourceString {
 
 impl<F> FileSource<F> for FileSourceString
 where
-    F: Format + FileExtensions + 'static,
+    F: Format + FileStoredFormat + 'static,
 {
     fn resolve(
         &self,
