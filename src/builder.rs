@@ -34,44 +34,46 @@ use crate::{config::Config, path::Expression, source::Source, value::Value};
 ///
 /// # Examples
 ///
-/// ```rust
-/// # use config::*;
-/// # use std::error::Error;
-/// # fn main() -> Result<(), Box<dyn Error>> {
-/// let mut builder = Config::builder()
-///     .set_default("default", "1")?
-///     .add_source(File::new("config/settings", FileFormat::Json))
-/// //  .add_async_source(...)
-///     .set_override("override", "1")?;
-///
-/// match builder.build() {
-///     Ok(config) => {
-///         // use your config
-///     },
-///     Err(e) => {
-///         // something went wrong
-///     }
-/// }
-/// # Ok(())
-/// # }
-/// ```
-///
-/// If any [`AsyncSource`] is used, the builder will transition to [`AsyncState`].
-/// In such case, it is required to _await_ calls to [`build`](Self::build) and its non-consuming sibling.
-///
-/// Calls can be not chained as well
-/// ```rust
-/// # use std::error::Error;
-/// # use config::*;
-/// # fn main() -> Result<(), Box<dyn Error>> {
-/// let mut builder = Config::builder();
-/// builder = builder.set_default("default", "1")?;
-/// builder = builder.add_source(File::new("config/settings", FileFormat::Json));
-/// builder = builder.add_source(File::new("config/settings.prod", FileFormat::Json));
-/// builder = builder.set_override("override", "1")?;
-/// # Ok(())
-/// # }
-/// ```
+#[cfg_attr(feature = "feature", doc = r##"
+```rust
+# use config::*;
+# use std::error::Error;
+# fn main() -> Result<(), Box<dyn Error>> {
+let mut builder = Config::builder()
+    .set_default("default", "1")?
+    .add_source(File::new("config/settings", FileFormat::Json))
+//  .add_async_source(...)
+    .set_override("override", "1")?;
+
+match builder.build() {
+    Ok(config) => {
+        // use your config
+    },
+    Err(e) => {
+        // something went wrong
+    }
+}
+# Ok(())
+# }
+```
+
+If any [`AsyncSource`] is used, the builder will transition to [`AsyncState`].
+In such case, it is required to _await_ calls to [`build`](Self::build) and its non-consuming sibling.
+
+Calls can be not chained as well
+```rust
+# use std::error::Error;
+# use config::*;
+# fn main() -> Result<(), Box<dyn Error>> {
+let mut builder = Config::builder();
+builder = builder.set_default("default", "1")?;
+builder = builder.add_source(File::new("config/settings", FileFormat::Json));
+builder = builder.add_source(File::new("config/settings.prod", FileFormat::Json));
+builder = builder.set_override("override", "1")?;
+# Ok(())
+# }
+```
+"##)]
 ///
 /// Calling [`Config::builder`](Config::builder) yields builder in the default state.
 /// If having an asynchronous state as the initial state is desired, _turbofish_ notation needs to be used.

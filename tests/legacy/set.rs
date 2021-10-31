@@ -77,7 +77,7 @@ fn test_set_arr_path() {
     assert_eq!(c.get("items[2]").ok(), Some("George".to_string()));
 }
 
-#[cfg(feature = "toml")]
+#[cfg(feature = "json")]
 #[test]
 fn test_set_capital() {
     let mut c = Config::default();

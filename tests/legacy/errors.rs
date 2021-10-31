@@ -113,18 +113,15 @@ fn error_with_path() {
     struct Outer {
         inner: Inner,
     }
+
     const CFG: &str = r#"
-inner:
-    test: ABC
-"#;
+        inner.test = "ABC"
+    "#;
 
     let mut cfg = Config::default();
-    cfg.merge(File::from_str(CFG, FileFormat::Yaml)).unwrap();
+    cfg.merge(File::from_str(CFG, FileFormat::Toml)).unwrap();
     let e = cfg.try_into::<Outer>().unwrap_err();
-    if let ConfigError::Type {
-        key: Some(path), ..
-    } = e
-    {
+    if let ConfigError::Type { key: Some(path), ..  } = e {
         assert_eq!(path, "inner.test");
     } else {
         panic!("Wrong error {:?}", e);

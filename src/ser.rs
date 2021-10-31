@@ -699,6 +699,9 @@ impl ser::SerializeStructVariant for StringKeySerializer {
 mod test {
     use super::*;
 
+    use serde_derive::Serialize;
+    use serde_derive::Deserialize;
+
     #[test]
     fn test_struct() {
         #[derive(Debug, Serialize, Deserialize, PartialEq)]

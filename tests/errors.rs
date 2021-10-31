@@ -117,40 +117,20 @@ fn error_with_path() {
         inner: Inner,
     }
     const CFG: &str = r#"
-inner:
-    test: ABC
-"#;
+        inner.test = "ABC"
+    "#;
 
     let e = Config::builder()
-        .add_source(File::from_str(CFG, FileFormat::Yaml))
+        .add_source(File::from_str(CFG, FileFormat::Toml))
         .build()
         .unwrap()
         .try_into::<Outer>()
         .unwrap_err();
 
-    if let ConfigError::Type {
-        key: Some(path), ..
-    } = e
-    {
+    if let ConfigError::Type { key: Some(path), ..  } = e {
         assert_eq!(path, "inner.test");
     } else {
         panic!("Wrong error {:?}", e);
     }
 }
 
-#[test]
-fn test_error_root_not_table() {
-    match Config::builder()
-        .add_source(File::from_str(r#"false"#, FileFormat::Json5))
-        .build()
-    {
-        Ok(_) => panic!("Should not merge if root is not a table"),
-        Err(e) => match e {
-            ConfigError::FileParse { cause, .. } => assert_eq!(
-                "invalid type: boolean `false`, expected a map",
-                format!("{}", cause)
-            ),
-            _ => panic!("Wrong error: {:?}", e),
-        },
-    }
-}
