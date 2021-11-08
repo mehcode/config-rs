@@ -30,12 +30,22 @@
 config = "0.11"
 ```
 
+### Feature flags
+
  - `ini` - Adds support for reading INI files
  - `json` - Adds support for reading JSON files
  - `yaml` - Adds support for reading YAML files
  - `toml` - Adds support for reading TOML files
  - `ron` - Adds support for reading RON files
  - `json5` - Adds support for reading JSON5 files
+
+### Support for custom formats
+
+Library provides out of the box support for most renowned data formats such as JSON or Yaml. Nonetheless, it contains an extensibility point - a `Format` trait that, once implemented, allows seamless integration with library's APIs using custom, less popular or proprietary data formats.
+
+See [custom_format](https://github.com/mehcode/config-rs/tree/master/examples/custom_format) example for more information.
+
+### More
 
 See the [documentation](https://docs.rs/config) or [examples](https://github.com/mehcode/config-rs/tree/master/examples) for
 more usage information.

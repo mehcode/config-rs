@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use std::error::Error;
 
 use crate::map::Map;
-use crate::value::Value;
+use crate::{file::FileStoredFormat, value::Value, Format};
 
 #[cfg(feature = "toml")]
 mod toml;
@@ -26,6 +26,9 @@ mod ron;
 #[cfg(feature = "json5")]
 mod json5;
 
+/// File formats provided by the library.
+///
+/// Although it is possible to define custom formats using [`Format`] trait it is recommended to use FileFormat if possible.
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
 pub enum FileFormat {
     /// TOML (parsed with toml)
@@ -82,20 +85,15 @@ lazy_static! {
 }
 
 impl FileFormat {
-    // TODO: pub(crate)
-    #[doc(hidden)]
-    pub fn extensions(self) -> &'static Vec<&'static str> {
+    pub(crate) fn extensions(&self) -> &'static [&'static str] {
         // It should not be possible for this to fail
         // A FileFormat would need to be declared without being added to the
         // ALL_EXTENSIONS map.
-        ALL_EXTENSIONS.get(&self).unwrap()
+        ALL_EXTENSIONS.get(self).unwrap()
     }
 
-    // TODO: pub(crate)
-    #[doc(hidden)]
-    #[allow(unused_variables)]
-    pub fn parse(
-        self,
+    pub(crate) fn parse(
+        &self,
         uri: Option<&String>,
         text: &str,
     ) -> Result<Map<String, Value>, Box<dyn Error + Send + Sync>> {
@@ -118,5 +116,21 @@ impl FileFormat {
             #[cfg(feature = "json5")]
             FileFormat::Json5 => json5::parse(uri, text),
         }
+    }
+}
+
+impl Format for FileFormat {
+    fn parse(
+        &self,
+        uri: Option<&String>,
+        text: &str,
+    ) -> Result<Map<String, Value>, Box<dyn Error + Send + Sync>> {
+        self.parse(uri, text)
+    }
+}
+
+impl FileStoredFormat for FileFormat {
+    fn file_extensions(&self) -> &'static [&'static str] {
+        self.extensions()
     }
 }

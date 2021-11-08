@@ -4,9 +4,9 @@
 //! configuration from a variety of sources:
 //!
 //!  - Environment variables
+//!  - String literals in well-known formats
 //!  - Another Config instance
-//!  - Remote configuration: etcd, Consul
-//!  - Files: TOML, JSON, YAML, INI, RON, JSON5
+//!  - Files: TOML, JSON, YAML, INI, RON, JSON5 and custom ones defined with Format trait
 //!  - Manual, programmatic override (via a `.set` method on the Config instance)
 //!
 //! Additionally, Config supports:
@@ -56,20 +56,19 @@ mod de;
 mod env;
 mod error;
 mod file;
+mod format;
 mod map;
 mod path;
 mod ser;
 mod source;
 mod value;
 
-pub use crate::builder::AsyncConfigBuilder;
-pub use crate::builder::ConfigBuilder;
+pub use crate::builder::{AsyncConfigBuilder, ConfigBuilder};
 pub use crate::config::Config;
 pub use crate::env::Environment;
 pub use crate::error::ConfigError;
-pub use crate::file::{File, FileFormat, FileSourceFile, FileSourceString};
+pub use crate::file::{File, FileFormat, FileSourceFile, FileSourceString, FileStoredFormat};
+pub use crate::format::Format;
 pub use crate::map::Map;
-pub use crate::source::AsyncSource;
-pub use crate::source::Source;
-pub use crate::value::Value;
-pub use crate::value::ValueKind;
+pub use crate::source::{AsyncSource, Source};
+pub use crate::value::{Value, ValueKind};

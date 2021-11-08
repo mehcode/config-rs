@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.12.0
+ - Introduce `Format` trait [#219]
+
 ## 0.11.0 - 2021-03-17
  - The `Config` type got a builder-pattern `with_merged()` method [#166].
  - A `Config::set_once()` function was added, to set an value that can be
@@ -16,6 +19,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 [#172]: https://github.com/mehcode/config-rs/pull/172
 [#169]: https://github.com/mehcode/config-rs/pull/169
 [#175]: https://github.com/mehcode/config-rs/pull/169
+[#219]: https://github.com/mehcode/config-rs/pull/219
 
 ## 0.10.1 - 2019-12-07
  - Allow enums as configuration keys [#119]
