@@ -103,11 +103,10 @@ where
         let (filename, format) = self.find_file(format_hint)?;
 
         // Attempt to use a relative path for the URI
-        let base = env::current_dir()?;
-        let uri = match path_relative_from(&filename, &base) {
-            Some(value) => value,
-            None => filename.clone(),
-        };
+        let uri = env::current_dir()
+            .ok()
+            .and_then(|base| path_relative_from(&filename, &base))
+            .unwrap_or_else(|| filename.clone());
 
         // Read contents from file
         let mut file = fs::File::open(filename)?;
