@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use config::*;
 use std::{env, fs, path, str::FromStr};
-use tokio::{fs::File, io::AsyncReadExt};
+use tokio::fs::read_to_string;
 
 #[derive(Debug)]
 struct AsyncFile {
@@ -22,23 +22,12 @@ impl AsyncSource for AsyncFile {
         let mut path = env::current_dir().unwrap();
         let local = path::PathBuf::from_str(&self.path).unwrap();
 
-        path.extend(local.into_iter());
+        path.extend(local.iter());
+        let path = fs::canonicalize(path).map_err(|e| ConfigError::Foreign(Box::new(e)))?;
 
-        let path = match fs::canonicalize(path) {
-            Ok(path) => path,
-            Err(e) => return Err(ConfigError::Foreign(Box::new(e))),
-        };
-
-        let text = match File::open(path).await {
-            Ok(mut file) => {
-                let mut buffer = String::default();
-                match file.read_to_string(&mut buffer).await {
-                    Ok(_read) => buffer,
-                    Err(e) => return Err(ConfigError::Foreign(Box::new(e))),
-                }
-            }
-            Err(e) => return Err(ConfigError::Foreign(Box::new(e))),
-        };
+        let text = read_to_string(path)
+            .await
+            .map_err(|e| ConfigError::Foreign(Box::new(e)))?;
 
         self.format
             .parse(Some(&self.path), &text)

@@ -1,7 +1,7 @@
 use std::env;
 use std::error::Error;
 use std::fs;
-use std::io::{self, Read};
+use std::io;
 use std::iter::Iterator;
 use std::path::{Path, PathBuf};
 
@@ -114,9 +114,7 @@ where
             .unwrap_or_else(|| filename.clone());
 
         // Read contents from file
-        let mut file = fs::File::open(filename)?;
-        let mut text = String::new();
-        file.read_to_string(&mut text)?;
+        let text = fs::read_to_string(filename)?;
 
         Ok(FileSourceResult {
             uri: Some(uri.to_string_lossy().into_owned()),
