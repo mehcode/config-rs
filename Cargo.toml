@@ -41,6 +41,6 @@ serde_derive = "1.0.8"
 float-cmp = "0.8"
 chrono = { version = "0.4", features = ["serde"] }
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "fs", "io-util", "time"]}
-warp = "0.3.1"
+warp = "=0.3.1"
 futures = "0.3.15"
 reqwest = "=0.11.3" # version is forced to allow examples compile on rust 1.46, remove "=" as soon as possible
