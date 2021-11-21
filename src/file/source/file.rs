@@ -28,8 +28,13 @@ impl FileSourceFile {
     where
         F: FileStoredFormat + Format + 'static,
     {
+        let mut filename = if self.name.is_absolute() {
+            self.name.clone()
+        } else {
+            env::current_dir()?.as_path().join(&self.name)
+        };
+
         // First check for an _exact_ match
-        let mut filename = env::current_dir()?.as_path().join(self.name.clone());
         if filename.is_file() {
             return match format_hint {
                 Some(format) => Ok((filename, Box::new(format))),
@@ -103,11 +108,10 @@ where
         let (filename, format) = self.find_file(format_hint)?;
 
         // Attempt to use a relative path for the URI
-        let base = env::current_dir()?;
-        let uri = match path_relative_from(&filename, &base) {
-            Some(value) => value,
-            None => filename.clone(),
-        };
+        let uri = env::current_dir()
+            .ok()
+            .and_then(|base| path_relative_from(&filename, &base))
+            .unwrap_or_else(|| filename.clone());
 
         // Read contents from file
         let mut file = fs::File::open(filename)?;
