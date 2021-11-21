@@ -28,8 +28,13 @@ impl FileSourceFile {
     where
         F: FileStoredFormat + Format + 'static,
     {
+        let mut filename = if self.name.is_absolute() {
+            self.name.clone()
+        } else {
+            env::current_dir()?.as_path().join(&self.name)
+        };
+
         // First check for an _exact_ match
-        let mut filename = env::current_dir()?.as_path().join(self.name.clone());
         if filename.is_file() {
             return match format_hint {
                 Some(format) => Ok((filename, Box::new(format))),
