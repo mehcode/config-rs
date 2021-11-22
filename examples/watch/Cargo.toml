@@ -1,9 +1,0 @@
-[package]
-name = "watch"
-version = "0.1.0"
-edition = "2018"
-
-[dependencies]
-config = { path = "../../" }
-lazy_static = "1"
-notify = "^4.0.0"
