@@ -4,12 +4,18 @@ fn main() {
     let mut settings = config::Config::default();
     settings
         // Add in `./Settings.toml`
-        .merge(config::File::with_name("examples/simple/Settings")).unwrap()
+        .merge(config::File::with_name("examples/simple/Settings"))
+        .unwrap()
         // Add in settings from the environment (with a prefix of APP)
         // Eg.. `APP_DEBUG=1 ./target/app` would set the `debug` key
-        .merge(config::Environment::with_prefix("APP")).unwrap();
+        .merge(config::Environment::with_prefix("APP"))
+        .unwrap();
 
     // Print out our settings (as a HashMap)
-    println!("{:?}",
-             settings.try_deserialize::<HashMap<String, String>>().unwrap());
+    println!(
+        "{:?}",
+        settings
+            .try_deserialize::<HashMap<String, String>>()
+            .unwrap()
+    );
 }

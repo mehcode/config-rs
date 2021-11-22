@@ -1,5 +1,5 @@
+use config::{Config, ConfigError, Environment, File};
 use std::env;
-use config::{ConfigError, Config, File, Environment};
 
 #[derive(Debug, Deserialize)]
 struct Database {
@@ -47,7 +47,9 @@ impl Settings {
         // Default to 'development' env
         // Note that this file is _optional_
         let env = env::var("RUN_MODE").unwrap_or_else(|_| "development".into());
-        s.merge(File::with_name(&format!("examples/hierarchical-env/config/{}", env)).required(false))?;
+        s.merge(
+            File::with_name(&format!("examples/hierarchical-env/config/{}", env)).required(false),
+        )?;
 
         // Add in a local configuration file
         // This file shouldn't be checked in to git
