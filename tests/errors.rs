@@ -57,7 +57,7 @@ fn test_error_type_detached() {
     let c = make();
 
     let value = c.get::<Value>("boolean_s_parse").unwrap();
-    let res = value.try_into::<bool>();
+    let res = value.try_deserialize::<bool>();
 
     assert!(res.is_err());
     assert_eq!(
@@ -77,14 +77,14 @@ fn test_error_enum_de() {
     }
 
     let on_v: Value = "on".into();
-    let on_d = on_v.try_into::<Diode>();
+    let on_d = on_v.try_deserialize::<Diode>();
     assert_eq!(
         on_d.unwrap_err().to_string(),
         "enum Diode does not have variant constructor on".to_string()
     );
 
     let array_v: Value = vec![100, 100].into();
-    let array_d = array_v.try_into::<Diode>();
+    let array_d = array_v.try_deserialize::<Diode>();
     assert_eq!(
         array_d.unwrap_err().to_string(),
         "value of enum Diode should be represented by either string or table with exactly one key"
@@ -98,7 +98,7 @@ fn test_error_enum_de() {
     .cloned()
     .collect::<Map<String, Value>>()
     .into();
-    let confused_d = confused_v.try_into::<Diode>();
+    let confused_d = confused_v.try_deserialize::<Diode>();
     assert_eq!(
         confused_d.unwrap_err().to_string(),
         "value of enum Diode should be represented by either string or table with exactly one key"
@@ -125,7 +125,7 @@ inner:
         .add_source(File::from_str(CFG, FileFormat::Yaml))
         .build()
         .unwrap()
-        .try_into::<Outer>()
+        .try_deserialize::<Outer>()
         .unwrap_err();
 
     if let ConfigError::Type {

@@ -22,7 +22,7 @@ where
         .build();
 
     assert!(cfg.is_ok(), "Config could not be built: {:?}", cfg);
-    let cfg = cfg.unwrap().try_into();
+    let cfg = cfg.unwrap().try_deserialize();
 
     assert!(cfg.is_ok(), "Config could not be transformed: {:?}", cfg);
     let cfg: T = cfg.unwrap();

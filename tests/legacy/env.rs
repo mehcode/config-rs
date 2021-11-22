@@ -32,7 +32,7 @@ fn test_parse_int() {
 
     config.merge(environment).unwrap();
 
-    let config: TestIntEnum = config.try_into().unwrap();
+    let config: TestIntEnum = config.try_deserialize().unwrap();
 
     assert!(matches!(config, TestIntEnum::Int(TestInt { int_val: 42 })));
 
@@ -62,7 +62,7 @@ fn test_parse_float() {
 
     config.merge(environment).unwrap();
 
-    let config: TestFloatEnum = config.try_into().unwrap();
+    let config: TestFloatEnum = config.try_deserialize().unwrap();
 
     // can't use `matches!` because of float value
     match config {
@@ -95,7 +95,7 @@ fn test_parse_bool() {
 
     config.merge(environment).unwrap();
 
-    let config: TestBoolEnum = config.try_into().unwrap();
+    let config: TestBoolEnum = config.try_deserialize().unwrap();
 
     assert!(matches!(
         config,
@@ -131,7 +131,7 @@ fn test_parse_off_int() {
 
     env::remove_var("INT_VAL_1");
 
-    config.try_into::<TestIntEnum>().unwrap();
+    config.try_deserialize::<TestIntEnum>().unwrap();
 }
 
 #[test]
@@ -160,7 +160,7 @@ fn test_parse_off_float() {
 
     env::remove_var("FLOAT_VAL_1");
 
-    config.try_into::<TestFloatEnum>().unwrap();
+    config.try_deserialize::<TestFloatEnum>().unwrap();
 }
 
 #[test]
@@ -189,7 +189,7 @@ fn test_parse_off_bool() {
 
     env::remove_var("BOOL_VAL_1");
 
-    config.try_into::<TestBoolEnum>().unwrap();
+    config.try_deserialize::<TestBoolEnum>().unwrap();
 }
 
 #[test]
@@ -218,7 +218,7 @@ fn test_parse_int_fail() {
 
     env::remove_var("INT_VAL_2");
 
-    config.try_into::<TestIntEnum>().unwrap();
+    config.try_deserialize::<TestIntEnum>().unwrap();
 }
 
 #[test]
@@ -247,7 +247,7 @@ fn test_parse_float_fail() {
 
     env::remove_var("FLOAT_VAL_2");
 
-    config.try_into::<TestFloatEnum>().unwrap();
+    config.try_deserialize::<TestFloatEnum>().unwrap();
 }
 
 #[test]
@@ -276,7 +276,7 @@ fn test_parse_bool_fail() {
 
     env::remove_var("BOOL_VAL_2");
 
-    config.try_into::<TestBoolEnum>().unwrap();
+    config.try_deserialize::<TestBoolEnum>().unwrap();
 }
 
 #[test]
@@ -302,7 +302,7 @@ fn test_parse_string() {
 
     config.merge(environment).unwrap();
 
-    let config: TestStringEnum = config.try_into().unwrap();
+    let config: TestStringEnum = config.try_deserialize().unwrap();
 
     let test_string = String::from("test string");
 
@@ -336,7 +336,7 @@ fn test_parse_off_string() {
 
     config.merge(environment).unwrap();
 
-    let config: TestStringEnum = config.try_into().unwrap();
+    let config: TestStringEnum = config.try_deserialize().unwrap();
 
     let test_string = String::from("test string");
 

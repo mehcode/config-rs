@@ -37,7 +37,7 @@ fn make() -> Config {
 #[test]
 fn test_file() {
     let c = make();
-    let s: Settings = c.try_into().unwrap();
+    let s: Settings = c.try_deserialize().unwrap();
     assert_eq!(
         s,
         Settings {

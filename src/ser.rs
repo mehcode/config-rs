@@ -713,7 +713,7 @@ mod test {
         };
         let config = Config::try_from(&test).unwrap();
 
-        let actual: Test = config.try_into().unwrap();
+        let actual: Test = config.try_deserialize().unwrap();
         assert_eq!(test, actual);
     }
 }
