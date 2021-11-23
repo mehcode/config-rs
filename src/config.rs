@@ -190,7 +190,7 @@ impl Config {
     }
 
     /// Attempt to deserialize the entire configuration into the requested type.
-    pub fn try_into<'de, T: Deserialize<'de>>(self) -> Result<T> {
+    pub fn try_deserialize<'de, T: Deserialize<'de>>(self) -> Result<T> {
         T::deserialize(self)
     }
 
@@ -201,9 +201,9 @@ impl Config {
         Ok(serializer.output)
     }
 
-    #[deprecated(since = "0.7.0", note = "please use 'try_into' instead")]
+    #[deprecated(since = "0.7.0", note = "please use 'try_deserialize' instead")]
     pub fn deserialize<'de, T: Deserialize<'de>>(self) -> Result<T> {
-        self.try_into()
+        self.try_deserialize()
     }
 }
 

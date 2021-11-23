@@ -16,7 +16,7 @@ struct Settings {
 #[test]
 fn empty_deserializes() {
     let s: Settings = Config::default()
-        .try_into()
+        .try_deserialize()
         .expect("Deserialization failed");
     assert_eq!(s.foo, 0);
     assert_eq!(s.bar, 0);

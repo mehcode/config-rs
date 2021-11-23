@@ -143,7 +143,7 @@ fn test_map_struct() {
     }
 
     let c = make();
-    let s: Settings = c.try_into().unwrap();
+    let s: Settings = c.try_deserialize().unwrap();
 
     assert_eq!(s.place.len(), 8);
     assert_eq!(
@@ -158,7 +158,7 @@ fn test_file_struct() {
     let c = make();
 
     // Deserialize the entire file as single struct
-    let s: Settings = c.try_into().unwrap();
+    let s: Settings = c.try_deserialize().unwrap();
 
     assert!(s.debug.approx_eq_ulps(&1.0, 2));
     assert_eq!(s.production, Some("false".to_string()));
@@ -206,7 +206,7 @@ fn test_struct_array() {
     }
 
     let c = make();
-    let s: Settings = c.try_into().unwrap();
+    let s: Settings = c.try_deserialize().unwrap();
 
     assert_eq!(s.elements.len(), 10);
     assert_eq!(s.elements[3], "4".to_string());
@@ -228,7 +228,7 @@ fn test_enum() {
     }
 
     let c = make();
-    let s: Settings = c.try_into().unwrap();
+    let s: Settings = c.try_deserialize().unwrap();
 
     assert_eq!(s.diodes["green"], Diode::Off);
     assert_eq!(s.diodes["red"], Diode::Brightness(100));
@@ -263,7 +263,7 @@ fn test_enum_key() {
     }
 
     let c = make();
-    let s: Settings = c.try_into().unwrap();
+    let s: Settings = c.try_deserialize().unwrap();
 
     assert_eq!(s.proton[&Quark::Up], 2);
     assert_eq!(s.quarks.len(), 6);
@@ -277,7 +277,7 @@ fn test_int_key() {
     }
 
     let c = make();
-    let s: Settings = c.try_into().unwrap();
+    let s: Settings = c.try_deserialize().unwrap();
     assert_eq!(s.divisors[&4], 3);
     assert_eq!(s.divisors.len(), 4);
 }

@@ -211,7 +211,7 @@ impl Value {
     }
 
     /// Attempt to deserialize this value into the requested type.
-    pub fn try_into<'de, T: Deserialize<'de>>(self) -> Result<T> {
+    pub fn try_deserialize<'de, T: Deserialize<'de>>(self) -> Result<T> {
         T::deserialize(self)
     }
 
