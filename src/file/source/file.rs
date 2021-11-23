@@ -2,8 +2,7 @@ use std::env;
 use std::error::Error;
 use std::fs;
 use std::io;
-use std::iter::Iterator;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use crate::file::{
     format::ALL_EXTENSIONS, source::FileSourceResult, FileSource, FileStoredFormat, Format,
@@ -110,7 +109,7 @@ where
         // Attempt to use a relative path for the URI
         let uri = env::current_dir()
             .ok()
-            .and_then(|base| path_relative_from(&filename, &base))
+            .and_then(|base| pathdiff::diff_paths(&filename, base))
             .unwrap_or_else(|| filename.clone());
 
         // Read contents from file
@@ -121,47 +120,5 @@ where
             content: text,
             format,
         })
-    }
-}
-
-// TODO: This should probably be a crate
-// https://github.com/rust-lang/rust/blob/master/src/librustc_trans/back/rpath.rs#L128
-fn path_relative_from(path: &Path, base: &Path) -> Option<PathBuf> {
-    use std::path::Component;
-
-    if path.is_absolute() != base.is_absolute() {
-        if path.is_absolute() {
-            Some(PathBuf::from(path))
-        } else {
-            None
-        }
-    } else {
-        let mut ita = path.components();
-        let mut itb = base.components();
-        let mut comps: Vec<Component> = vec![];
-        loop {
-            match (ita.next(), itb.next()) {
-                (None, None) => break,
-                (Some(a), None) => {
-                    comps.push(a);
-                    comps.extend(ita.by_ref());
-                    break;
-                }
-                (None, _) => comps.push(Component::ParentDir),
-                (Some(a), Some(b)) if comps.is_empty() && a == b => (),
-                (Some(a), Some(b)) if b == Component::CurDir => comps.push(a),
-                (Some(_), Some(b)) if b == Component::ParentDir => return None,
-                (Some(a), Some(_)) => {
-                    comps.push(Component::ParentDir);
-                    for _ in itb {
-                        comps.push(Component::ParentDir);
-                    }
-                    comps.push(a);
-                    comps.extend(ita.by_ref());
-                    break;
-                }
-            }
-        }
-        Some(comps.iter().map(|c| c.as_os_str()).collect())
     }
 }
