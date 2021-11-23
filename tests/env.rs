@@ -12,7 +12,7 @@ use std::env;
 fn test_default() {
     env::set_var("A_B_C", "abc");
 
-    let environment = Environment::new();
+    let environment = Environment::default();
 
     assert!(environment.collect().unwrap().contains_key("a_b_c"));
 
@@ -70,7 +70,7 @@ fn test_separator_behavior() {
 fn test_empty_value_is_ignored() {
     env::set_var("C_A_B", "");
 
-    let environment = Environment::new().ignore_empty(true);
+    let environment = Environment::default().ignore_empty(true);
 
     assert!(!environment.collect().unwrap().contains_key("c_a_b"));
 
@@ -104,7 +104,7 @@ fn test_parse_int() {
 
     env::set_var("INT_VAL", "42");
 
-    let environment = Environment::new().try_parsing(true);
+    let environment = Environment::default().try_parsing(true);
 
     let config = Config::builder()
         .set_default("tag", "Int")
@@ -136,7 +136,7 @@ fn test_parse_float() {
 
     env::set_var("FLOAT_VAL", "42.3");
 
-    let environment = Environment::new().try_parsing(true);
+    let environment = Environment::default().try_parsing(true);
 
     let config = Config::builder()
         .set_default("tag", "Float")
@@ -171,7 +171,7 @@ fn test_parse_bool() {
 
     env::set_var("BOOL_VAL", "true");
 
-    let environment = Environment::new().try_parsing(true);
+    let environment = Environment::default().try_parsing(true);
 
     let config = Config::builder()
         .set_default("tag", "Bool")
@@ -207,7 +207,7 @@ fn test_parse_off_int() {
 
     env::set_var("INT_VAL_1", "42");
 
-    let environment = Environment::new().try_parsing(false);
+    let environment = Environment::default().try_parsing(false);
 
     let config = Config::builder()
         .set_default("tag", "Int")
@@ -238,7 +238,7 @@ fn test_parse_off_float() {
 
     env::set_var("FLOAT_VAL_1", "42.3");
 
-    let environment = Environment::new().try_parsing(false);
+    let environment = Environment::default().try_parsing(false);
 
     let config = Config::builder()
         .set_default("tag", "Float")
@@ -269,7 +269,7 @@ fn test_parse_off_bool() {
 
     env::set_var("BOOL_VAL_1", "true");
 
-    let environment = Environment::new().try_parsing(false);
+    let environment = Environment::default().try_parsing(false);
 
     let config = Config::builder()
         .set_default("tag", "Bool")
@@ -300,7 +300,7 @@ fn test_parse_int_fail() {
 
     env::set_var("INT_VAL_2", "not an int");
 
-    let environment = Environment::new().try_parsing(true);
+    let environment = Environment::default().try_parsing(true);
 
     let config = Config::builder()
         .set_default("tag", "Int")
@@ -331,7 +331,7 @@ fn test_parse_float_fail() {
 
     env::set_var("FLOAT_VAL_2", "not a float");
 
-    let environment = Environment::new().try_parsing(true);
+    let environment = Environment::default().try_parsing(true);
 
     let config = Config::builder()
         .set_default("tag", "Float")
@@ -362,7 +362,7 @@ fn test_parse_bool_fail() {
 
     env::set_var("BOOL_VAL_2", "not a bool");
 
-    let environment = Environment::new().try_parsing(true);
+    let environment = Environment::default().try_parsing(true);
 
     let config = Config::builder()
         .set_default("tag", "Bool")
@@ -392,7 +392,7 @@ fn test_parse_string() {
 
     env::set_var("STRING_VAL", "test string");
 
-    let environment = Environment::new().try_parsing(true);
+    let environment = Environment::default().try_parsing(true);
 
     let config = Config::builder()
         .set_default("tag", "String")
@@ -428,7 +428,7 @@ fn test_parse_off_string() {
 
     env::set_var("STRING_VAL_1", "test string");
 
-    let environment = Environment::new().try_parsing(false);
+    let environment = Environment::default().try_parsing(false);
 
     let config = Config::builder()
         .set_default("tag", "String")

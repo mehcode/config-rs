@@ -836,7 +836,6 @@ impl Display for Value {
 
 #[cfg(test)]
 mod tests {
-    use super::Value;
     use super::ValueKind;
     use crate::Config;
     use crate::File;
@@ -844,8 +843,9 @@ mod tests {
 
     #[test]
     fn test_i64() {
-        let mut c = Config::default();
-        c.merge(File::new("tests/types/i64.toml", FileFormat::Toml))
+        let c = Config::builder()
+            .add_source(File::new("tests/types/i64.toml", FileFormat::Toml))
+            .build()
             .unwrap();
 
         assert!(std::matches!(c.cache.kind, ValueKind::Table(_)));
