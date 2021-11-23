@@ -8,7 +8,7 @@ use std::time::Duration;
 lazy_static::lazy_static! {
     static ref SETTINGS: RwLock<Config> = RwLock::new({
         let mut settings = Config::default();
-        settings.merge(File::with_name("Settings.toml")).unwrap();
+        settings.merge(File::with_name("examples/watch/Settings.toml")).unwrap();
 
         settings
     });
@@ -35,7 +35,7 @@ fn watch() {
     // Add a path to be watched. All files and directories at that path and
     // below will be monitored for changes.
     watcher
-        .watch("./Settings.toml", RecursiveMode::NonRecursive)
+        .watch("examples/watch/Settings.toml", RecursiveMode::NonRecursive)
         .unwrap();
 
     // This is a simple loop, but you may want to use more complex logic here,

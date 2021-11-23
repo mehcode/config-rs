@@ -4,7 +4,7 @@ fn main() {
     let mut settings = config::Config::default();
     settings
         // Add in `./Settings.toml`
-        .merge(config::File::with_name("Settings")).unwrap()
+        .merge(config::File::with_name("examples/simple/Settings")).unwrap()
         // Add in settings from the environment (with a prefix of APP)
         // Eg.. `APP_DEBUG=1 ./target/app` would set the `debug` key
         .merge(config::Environment::with_prefix("APP")).unwrap();
