@@ -21,7 +21,7 @@ impl Format for MyFormat {
         uri: Option<&String>,
         text: &str,
     ) -> Result<Map<String, config::Value>, Box<dyn std::error::Error + Send + Sync>> {
-        // Let's assume our format is somewhat crippled, but this is fine
+        // Let's assume our format is somewhat malformed, but this is fine
         // In real life anything can be used here - nom, serde or other.
         //
         // For some more real-life examples refer to format implementation within the library code
@@ -40,7 +40,7 @@ impl Format for MyFormat {
     }
 }
 
-// As crazy as it seems for config sourced from a string, legacy demands its sacrifice
+// As strange as it seems for config sourced from a string, legacy demands its sacrifice
 // It is only required for File source, custom sources can use Format without caring for extensions
 static MY_FORMAT_EXT: Vec<&'static str> = vec![];
 impl FileStoredFormat for MyFormat {
