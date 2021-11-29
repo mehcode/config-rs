@@ -23,6 +23,9 @@
 [RON]: https://github.com/ron-rs/ron
 [JSON5]: https://github.com/callum-oakley/json5-rs
 
+Please note that this library can not be used to write changed configuration
+values back to the configuration file(s)!
+
 ## Usage
 
 ```toml
