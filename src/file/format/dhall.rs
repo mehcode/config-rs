@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use crate::map::Map;
 use std::error::Error;
 
 use crate::{
@@ -10,7 +10,7 @@ use crate::{
 pub fn parse(
     uri: Option<&String>,
     text: &str,
-) -> Result<HashMap<String, Value>, Box<dyn Error + Send + Sync>> {
+) -> Result<Map<String, Value>, Box<dyn Error + Send + Sync>> {
     let value = from_dhall_value(uri, serde_dhall::from_str(text).parse()?);
     match value.kind {
         ValueKind::Table(map) => Ok(map),
