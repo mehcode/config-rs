@@ -23,25 +23,25 @@ json5 = ["json5_rs"]
 preserve_order = ["indexmap", "toml/preserve_order", "serde_json/preserve_order", "ron/indexmap"]
 
 [dependencies]
-async-trait = "0.1.50"
-lazy_static = "1.0"
-serde = "1.0.8"
-nom = "7"
+async-trait = "0.1.52"
+lazy_static = "1.4.0"
+serde = "1.0.132"
+nom = "7.1.0"
 
-toml = { version = "0.5", optional = true }
-serde_json = { version = "1.0.2", optional = true }
-yaml-rust = { version = "0.4", optional = true }
-rust-ini = { version = "0.17", optional = true }
-ron = { version = "0.6", optional = true }
-json5_rs = { version = "0.3", optional = true, package = "json5" }
-indexmap = { version = "1.7.0", features = ["serde-1"], optional = true}
-pathdiff = "0.2"
+toml = { version = "0.5.8", optional = true }
+serde_json = { version = "1.0.73", optional = true }
+yaml-rust = { version = "0.4.5", optional = true }
+rust-ini = { version = "0.17.0", optional = true }
+ron = { version = "0.7.0", optional = true }
+json5_rs = { version = "0.4.1", optional = true, package = "json5" }
+indexmap = { version = "1.7.0", features = ["serde-1"], optional = true }
+pathdiff = "0.2.1"
 
 [dev-dependencies]
-serde_derive = "1.0.8"
-float-cmp = "0.8"
-chrono = { version = "0.4", features = ["serde"] }
-tokio = { version = "1", features = ["rt-multi-thread", "macros", "fs", "io-util", "time"]}
-warp = "=0.3.1"
-futures = "0.3.15"
-reqwest = "=0.11.3" # version is forced to allow examples compile on rust 1.46, remove "=" as soon as possible
+serde_derive = "1.0.132"
+float-cmp = "0.9.0"
+chrono = { version = "0.4.19", features = ["serde"] }
+tokio = { version = "1.15.0", features = ["rt-multi-thread", "macros", "fs", "io-util", "time"] }
+warp = "0.3.2"
+futures = "0.3.19"
+reqwest = "0.11.8"
