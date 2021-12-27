@@ -232,7 +232,7 @@ impl<'de> de::MapAccess<'de> for MapAccess {
         V: de::DeserializeSeed<'de>,
     {
         let (key, value) = self.elements.pop_front().unwrap();
-        de::DeserializeSeed::deserialize(seed, value).map_err(|e| e.prepend_key(key))
+        de::DeserializeSeed::deserialize(seed, value).map_err(|e| e.prepend_key(&key))
     }
 }
 
