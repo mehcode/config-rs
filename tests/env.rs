@@ -199,6 +199,7 @@ fn test_parse_off_int() {
 
     #[derive(Deserialize, Debug)]
     struct TestInt {
+        #[allow(dead_code)]
         int_val_1: i32,
     }
 
@@ -230,6 +231,7 @@ fn test_parse_off_float() {
 
     #[derive(Deserialize, Debug)]
     struct TestFloat {
+        #[allow(dead_code)]
         float_val_1: f64,
     }
 
@@ -261,6 +263,7 @@ fn test_parse_off_bool() {
 
     #[derive(Deserialize, Debug)]
     struct TestBool {
+        #[allow(dead_code)]
         bool_val_1: bool,
     }
 
@@ -292,6 +295,7 @@ fn test_parse_int_fail() {
 
     #[derive(Deserialize, Debug)]
     struct TestInt {
+        #[allow(dead_code)]
         int_val_2: i32,
     }
 
@@ -323,6 +327,7 @@ fn test_parse_float_fail() {
 
     #[derive(Deserialize, Debug)]
     struct TestFloat {
+        #[allow(dead_code)]
         float_val_2: f64,
     }
 
@@ -354,6 +359,7 @@ fn test_parse_bool_fail() {
 
     #[derive(Deserialize, Debug)]
     struct TestBool {
+        #[allow(dead_code)]
         bool_val_2: bool,
     }
 

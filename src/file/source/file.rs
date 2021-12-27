@@ -73,7 +73,7 @@ impl FileSourceFile {
             }
 
             None => {
-                for (format, extensions) in ALL_EXTENSIONS.iter() {
+                for format in ALL_EXTENSIONS.keys() {
                     for ext in format.extensions() {
                         filename.set_extension(ext);
 
