@@ -698,6 +698,7 @@ impl ser::SerializeStructVariant for StringKeySerializer {
 #[cfg(test)]
 mod test {
     use super::*;
+    use serde::{Deserialize, Serialize};
 
     #[test]
     fn test_struct() {

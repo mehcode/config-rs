@@ -138,7 +138,7 @@ impl<'de> de::Deserializer<'de> for Value {
         })
     }
 
-    forward_to_deserialize_any! {
+    serde::forward_to_deserialize_any! {
         char seq
         bytes byte_buf map struct unit
         identifier ignored_any unit_struct tuple_struct tuple
@@ -155,7 +155,7 @@ impl<'de, 'a> de::Deserializer<'de> for StrDeserializer<'a> {
         visitor.visit_str(self.0)
     }
 
-    forward_to_deserialize_any! {
+    serde::forward_to_deserialize_any! {
         bool u8 u16 u32 u64 i8 i16 i32 i64 f32 f64 char str string seq
         bytes byte_buf map struct unit enum newtype_struct
         identifier ignored_any unit_struct tuple_struct tuple option
@@ -460,7 +460,7 @@ impl<'de> de::Deserializer<'de> for Config {
         })
     }
 
-    forward_to_deserialize_any! {
+    serde::forward_to_deserialize_any! {
         char seq
         bytes byte_buf map struct unit newtype_struct
         identifier ignored_any unit_struct tuple_struct tuple

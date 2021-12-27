@@ -21,7 +21,6 @@
 #![allow(unknown_lints)]
 // #![warn(missing_docs)]
 
-#[macro_use]
 extern crate serde;
 
 #[cfg(test)]
@@ -29,7 +28,6 @@ extern crate serde_derive;
 
 extern crate nom;
 
-#[macro_use]
 extern crate lazy_static;
 
 #[cfg(feature = "toml")]
