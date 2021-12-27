@@ -20,7 +20,7 @@ fn raw_ident(i: &str) -> IResult<&str, String> {
          0123456789 \
          _-",
         ),
-        |s: &str| s.to_string(),
+        ToString::to_string,
     )(i)
 }
 
