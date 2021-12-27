@@ -86,7 +86,7 @@ impl Config {
             let mut cache: Value = Map::<String, Value>::new().into();
 
             // Add defaults
-            for (key, val) in self.defaults.iter() {
+            for (key, val) in &self.defaults {
                 key.set(&mut cache, val.clone());
             }
 
@@ -94,7 +94,7 @@ impl Config {
             self.sources.collect_to(&mut cache)?;
 
             // Add overrides
-            for (key, val) in self.overrides.iter() {
+            for (key, val) in &self.overrides {
                 key.set(&mut cache, val.clone());
             }
 
