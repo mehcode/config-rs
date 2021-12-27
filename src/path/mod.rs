@@ -128,13 +128,13 @@ impl Expression {
             },
 
             Expression::Child(ref expr, ref key) => match expr.get_mut_forcibly(root) {
-                Some(value) => match value.kind {
-                    ValueKind::Table(ref mut map) => Some(
-                        map.entry(key.clone())
-                            .or_insert_with(|| Value::new(None, ValueKind::Nil)),
-                    ),
-
-                    _ => {
+                Some(value) => {
+                    if let ValueKind::Table(ref mut map) = value.kind {
+                        Some(
+                            map.entry(key.clone())
+                                .or_insert_with(|| Value::new(None, ValueKind::Nil)),
+                        )
+                    } else {
                         *value = Map::<String, Value>::new().into();
 
                         if let ValueKind::Table(ref mut map) = value.kind {
@@ -146,7 +146,7 @@ impl Expression {
                             unreachable!();
                         }
                     }
-                },
+                }
 
                 _ => None,
             },
@@ -221,17 +221,13 @@ impl Expression {
 
             Expression::Child(ref expr, ref key) => {
                 if let Some(parent) = expr.get_mut_forcibly(root) {
-                    match parent.kind {
-                        ValueKind::Table(_) => {
-                            Expression::Identifier(key.clone()).set(parent, value);
-                        }
+                    if let ValueKind::Table(_) = parent.kind {
+                        Expression::Identifier(key.clone()).set(parent, value);
+                    } else {
+                        // Didn't find a table. Oh well. Make a table and do this anyway
+                        *parent = Map::<String, Value>::new().into();
 
-                        _ => {
-                            // Didn't find a table. Oh well. Make a table and do this anyway
-                            *parent = Map::<String, Value>::new().into();
-
-                            Expression::Identifier(key.clone()).set(parent, value);
-                        }
+                        Expression::Identifier(key.clone()).set(parent, value);
                     }
                 }
             }
