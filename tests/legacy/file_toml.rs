@@ -58,7 +58,7 @@ fn test_file() {
     assert_eq!(s.place.name, "Torre di Pisa");
     assert!(s.place.longitude.approx_eq_ulps(&43.7224985, 2));
     assert!(s.place.latitude.approx_eq_ulps(&10.3970522, 2));
-    assert_eq!(s.place.favorite, false);
+    assert!(!s.place.favorite);
     assert_eq!(s.place.reviews, 3866);
     assert_eq!(s.place.rating, Some(4.5));
     assert_eq!(s.place.telephone, None);
