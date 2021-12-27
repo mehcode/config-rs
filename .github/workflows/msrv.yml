@@ -100,10 +100,9 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ matrix.rust }}
+          minimal: true
           override: true
-
-      - name: Install rustfmt
-        run: rustup component add rustfmt
+          components: rustfmt
 
       - name: Run cargo fmt
         uses: actions-rs/cargo@v1
@@ -129,10 +128,9 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ matrix.rust }}
+          minimal: true
           override: true
-
-      - name: Install clippy
-        run: rustup component add clippy
+          components: clippy
 
       - name: Run cargo clippy
         uses: actions-rs/cargo@v1
