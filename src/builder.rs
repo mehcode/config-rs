@@ -272,7 +272,7 @@ impl ConfigBuilder<AsyncState> {
     ///
     /// Calling this method does not invoke any I/O. [`Source`] is only saved in internal register for later use.
     #[must_use]
-    pub fn add_source<T>(mut self, source: T) -> ConfigBuilder<AsyncState>
+    pub fn add_source<T>(mut self, source: T) -> Self
     where
         T: Source + Send + Sync + 'static,
     {
@@ -284,7 +284,7 @@ impl ConfigBuilder<AsyncState> {
     ///
     /// Calling this method does not invoke any I/O. [`AsyncSource`] is only saved in internal register for later use.
     #[must_use]
-    pub fn add_async_source<T>(mut self, source: T) -> ConfigBuilder<AsyncState>
+    pub fn add_async_source<T>(mut self, source: T) -> Self
     where
         T: AsyncSource + Send + Sync + 'static,
     {
