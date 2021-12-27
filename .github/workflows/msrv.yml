@@ -22,6 +22,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ matrix.rust }}
+          minimal: true
           override: true
 
       - name: Run cargo check
@@ -56,6 +57,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ matrix.rust }}
+          minimal: true
           override: true
 
       - name: Run cargo test
@@ -156,6 +158,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ matrix.rust }}
+          minimal: true
           override: true
 
       - name: Run cargo check
