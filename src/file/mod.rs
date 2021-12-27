@@ -4,7 +4,7 @@ pub mod source;
 use std::fmt::Debug;
 use std::path::{Path, PathBuf};
 
-use crate::error::*;
+use crate::error::{ConfigError, Result};
 use crate::map::Map;
 use crate::source::Source;
 use crate::value::Value;

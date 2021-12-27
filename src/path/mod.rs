@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use crate::error::*;
+use crate::error::{ConfigError, Result};
 use crate::map::Map;
 use crate::value::{Value, ValueKind};
 

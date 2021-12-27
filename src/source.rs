@@ -3,7 +3,7 @@ use std::str::FromStr;
 
 use async_trait::async_trait;
 
-use crate::error::*;
+use crate::error::Result;
 use crate::map::Map;
 use crate::path;
 use crate::value::{Value, ValueKind};

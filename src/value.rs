@@ -3,7 +3,7 @@ use std::fmt::Display;
 
 use serde::de::{Deserialize, Deserializer, Visitor};
 
-use crate::error::*;
+use crate::error::{ConfigError, Result, Unexpected};
 use crate::map::Map;
 
 /// Underlying kind of the configuration value.

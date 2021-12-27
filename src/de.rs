@@ -4,7 +4,7 @@ use std::iter::Enumerate;
 use serde::de;
 
 use crate::config::Config;
-use crate::error::*;
+use crate::error::{ConfigError, Result};
 use crate::map::Map;
 use crate::value::{Table, Value, ValueKind};
 
