@@ -1,27 +1,29 @@
 use config::*;
+use notify::{DebouncedEvent, RecommendedWatcher, RecursiveMode, Watcher};
 use std::collections::HashMap;
-use std::sync::RwLock;
-use notify::{RecommendedWatcher, DebouncedEvent, Watcher, RecursiveMode};
 use std::sync::mpsc::channel;
+use std::sync::RwLock;
 use std::time::Duration;
 
 lazy_static::lazy_static! {
     static ref SETTINGS: RwLock<Config> = RwLock::new({
         let mut settings = Config::default();
-        settings.merge(File::with_name("Settings.toml")).unwrap();
+        settings.merge(File::with_name("examples/watch/Settings.toml")).unwrap();
 
         settings
     });
 }
 
 fn show() {
-    println!(" * Settings :: \n\x1b[31m{:?}\x1b[0m",
-             SETTINGS
-                 .read()
-                 .unwrap()
-                 .clone()
-                 .try_deserialize::<HashMap<String, String>>()
-                 .unwrap());
+    println!(
+        " * Settings :: \n\x1b[31m{:?}\x1b[0m",
+        SETTINGS
+            .read()
+            .unwrap()
+            .clone()
+            .try_deserialize::<HashMap<String, String>>()
+            .unwrap()
+    );
 }
 
 fn watch() {
@@ -35,7 +37,7 @@ fn watch() {
     // Add a path to be watched. All files and directories at that path and
     // below will be monitored for changes.
     watcher
-        .watch("./Settings.toml", RecursiveMode::NonRecursive)
+        .watch("examples/watch/Settings.toml", RecursiveMode::NonRecursive)
         .unwrap();
 
     // This is a simple loop, but you may want to use more complex logic here,
