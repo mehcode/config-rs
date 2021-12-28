@@ -114,6 +114,7 @@ impl ConfigError {
 
     // FIXME: pub(crate)
     #[doc(hidden)]
+    #[must_use]
     pub fn extend_with_key(self, key: &str) -> Self {
         match self {
             ConfigError::Type {
@@ -132,6 +133,7 @@ impl ConfigError {
         }
     }
 
+    #[must_use]
     fn prepend(self, segment: String, add_dot: bool) -> Self {
         let concat = |key: Option<String>| {
             let key = key.unwrap_or_else(String::new);
@@ -159,10 +161,12 @@ impl ConfigError {
         }
     }
 
+    #[must_use]
     pub(crate) fn prepend_key(self, key: String) -> Self {
         self.prepend(key, true)
     }
 
+    #[must_use]
     pub(crate) fn prepend_index(self, idx: usize) -> Self {
         self.prepend(format!("[{}]", idx), false)
     }
