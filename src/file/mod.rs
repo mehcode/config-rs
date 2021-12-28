@@ -101,11 +101,13 @@ where
     F: FileStoredFormat + 'static,
     T: FileSource<F>,
 {
+    #[must_use]
     pub fn format(mut self, format: F) -> Self {
         self.format = Some(format);
         self
     }
 
+    #[must_use]
     pub fn required(mut self, required: bool) -> Self {
         self.required = required;
         self

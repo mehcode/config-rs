@@ -77,16 +77,19 @@ impl Environment {
         }
     }
 
+    #[must_use]
     pub fn prefix(mut self, s: &str) -> Self {
         self.prefix = Some(s.into());
         self
     }
 
+    #[must_use]
     pub fn separator(mut self, s: &str) -> Self {
         self.separator = Some(s.into());
         self
     }
 
+    #[must_use]
     pub fn ignore_empty(mut self, ignore: bool) -> Self {
         self.ignore_empty = ignore;
         self
@@ -94,11 +97,13 @@ impl Environment {
 
     /// Note: enabling `try_parsing` can reduce performance it will try and parse
     /// each environment variable 3 times (bool, i64, f64)
+    #[must_use]
     pub fn try_parsing(mut self, try_parsing: bool) -> Self {
         self.try_parsing = try_parsing;
         self
     }
 
+    #[must_use]
     pub fn source(mut self, source: Option<Map<String, String>>) -> Self {
         self.source = source;
         self
