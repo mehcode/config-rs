@@ -1,13 +1,10 @@
 #![cfg(feature = "ron")]
 
-extern crate config;
-extern crate float_cmp;
-extern crate serde;
-
+use serde_derive::Deserialize;
 use std::path::PathBuf;
 
-use self::config::*;
-use self::float_cmp::ApproxEqUlps;
+use config::{Config, File, FileFormat, Map, Value};
+use float_cmp::ApproxEqUlps;
 
 #[derive(Debug, Deserialize)]
 struct Place {

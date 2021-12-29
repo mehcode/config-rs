@@ -1,9 +1,5 @@
-#[macro_use]
-extern crate lazy_static;
-
-extern crate config;
-
 use config::Config;
+use lazy_static::lazy_static;
 use std::error::Error;
 use std::sync::RwLock;
 

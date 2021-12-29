@@ -1,13 +1,8 @@
 #![cfg(feature = "json5")]
 
-extern crate config;
-extern crate float_cmp;
-extern crate serde;
+use serde_derive::Deserialize;
 
-#[macro_use]
-extern crate serde_derive;
-
-use config::*;
+use config::{Config, File, FileFormat, Map, Value};
 use float_cmp::ApproxEqUlps;
 use std::path::PathBuf;
 

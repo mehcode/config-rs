@@ -4,13 +4,9 @@
 // Please don't be offended!
 //
 
-extern crate config;
+use serde_derive::{Deserialize, Serialize};
 
-#[macro_use]
-extern crate serde_derive;
-extern crate serde;
-
-use config::*;
+use config::{File, FileFormat};
 
 /// Helper fn to test the different deserializations
 fn test_config_as<'a, T>(config: &str, format: FileFormat) -> T

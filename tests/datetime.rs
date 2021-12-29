@@ -6,11 +6,8 @@
     feature = "ron",
 ))]
 
-extern crate chrono;
-extern crate config;
-
 use chrono::{DateTime, TimeZone, Utc};
-use config::*;
+use config::{Config, File, FileFormat};
 
 fn make() -> Config {
     Config::builder()

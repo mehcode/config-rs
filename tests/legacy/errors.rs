@@ -1,10 +1,10 @@
 #![cfg(feature = "toml")]
 
-extern crate config;
-
 use std::path::PathBuf;
 
-use self::config::*;
+use serde_derive::Deserialize;
+
+use config::{Config, ConfigError, File, FileFormat, Map, Value};
 
 fn make() -> Config {
     let mut c = Config::default();

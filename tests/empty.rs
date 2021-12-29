@@ -1,9 +1,6 @@
-extern crate config;
+use serde_derive::{Deserialize, Serialize};
 
-#[macro_use]
-extern crate serde_derive;
-
-use config::*;
+use config::Config;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Settings {

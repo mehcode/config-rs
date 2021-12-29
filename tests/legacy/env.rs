@@ -1,7 +1,5 @@
-extern crate config;
-extern crate serde_derive;
 
-use config::*;
+use config::{Config};
 use serde_derive::Deserialize;
 use std::env;
 

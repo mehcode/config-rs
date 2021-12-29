@@ -1,7 +1,4 @@
-extern crate config;
-extern crate serde_derive;
-
-use config::*;
+use config::{Config, Environment, Source};
 use serde_derive::Deserialize;
 use std::env;
 
