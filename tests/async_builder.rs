@@ -46,7 +46,7 @@ async fn test_single_async_file_source() {
         .await
         .unwrap();
 
-    assert_eq!(true, config.get::<bool>("debug").unwrap());
+    assert!(config.get::<bool>("debug").unwrap());
 }
 
 #[tokio::test]
@@ -65,7 +65,7 @@ async fn test_two_async_file_sources() {
         .unwrap();
 
     assert_eq!("Torre di Pisa", config.get::<String>("place.name").unwrap());
-    assert_eq!(true, config.get::<bool>("debug_json").unwrap());
+    assert!(config.get::<bool>("debug_json").unwrap());
     assert_eq!(1, config.get::<i32>("place.number").unwrap());
 }
 

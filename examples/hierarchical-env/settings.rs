@@ -3,11 +3,13 @@ use serde_derive::Deserialize;
 use std::env;
 
 #[derive(Debug, Deserialize)]
+#[allow(unused)]
 struct Database {
     url: String,
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(unused)]
 struct Sparkpost {
     key: String,
     token: String,
@@ -16,12 +18,14 @@ struct Sparkpost {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(unused)]
 struct Twitter {
     consumer_token: String,
     consumer_secret: String,
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(unused)]
 struct Braintree {
     merchant_id: String,
     public_key: String,
@@ -29,6 +33,7 @@ struct Braintree {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(unused)]
 pub struct Settings {
     debug: bool,
     database: Database,
@@ -39,29 +44,27 @@ pub struct Settings {
 
 impl Settings {
     pub fn new() -> Result<Self, ConfigError> {
-        let mut s = Config::default();
+        let run_mode = env::var("RUN_MODE").unwrap_or_else(|_| "development".into());
 
-        // Start off by merging in the "default" configuration file
-        s.merge(File::with_name("examples/hierarchical-env/config/default"))?;
-
-        // Add in the current environment file
-        // Default to 'development' env
-        // Note that this file is _optional_
-        let env = env::var("RUN_MODE").unwrap_or_else(|_| "development".into());
-        s.merge(
-            File::with_name(&format!("examples/hierarchical-env/config/{}", env)).required(false),
-        )?;
-
-        // Add in a local configuration file
-        // This file shouldn't be checked in to git
-        s.merge(File::with_name("examples/hierarchical-env/config/local").required(false))?;
-
-        // Add in settings from the environment (with a prefix of APP)
-        // Eg.. `APP_DEBUG=1 ./target/app` would set the `debug` key
-        s.merge(Environment::with_prefix("app"))?;
-
-        // You may also programmatically change settings
-        s.set("database.url", "postgres://")?;
+        let s = Config::builder()
+            // Start off by merging in the "default" configuration file
+            .add_source(File::with_name("examples/hierarchical-env/config/default"))
+            // Add in the current environment file
+            // Default to 'development' env
+            // Note that this file is _optional_
+            .add_source(
+                File::with_name(&format!("examples/hierarchical-env/config/{}", run_mode))
+                    .required(false),
+            )
+            // Add in a local configuration file
+            // This file shouldn't be checked in to git
+            .add_source(File::with_name("examples/hierarchical-env/config/local").required(false))
+            // Add in settings from the environment (with a prefix of APP)
+            // Eg.. `APP_DEBUG=1 ./target/app` would set the `debug` key
+            .add_source(Environment::with_prefix("app"))
+            // You may also programmatically change settings
+            .set_override("database.url", "postgres://")?
+            .build()?;
 
         // Now that we're done, let's access our configuration
         println!("debug: {:?}", s.get_bool("debug"));

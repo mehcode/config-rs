@@ -1,3 +1,4 @@
+#![allow(deprecated)]
 use config::{Config, File};
 use notify::{DebouncedEvent, RecommendedWatcher, RecursiveMode, Watcher};
 use std::collections::HashMap;

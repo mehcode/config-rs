@@ -106,11 +106,13 @@ fn test_error_enum_de() {
 fn error_with_path() {
     #[derive(Debug, Deserialize)]
     struct Inner {
+        #[allow(dead_code)]
         test: i32,
     }
 
     #[derive(Debug, Deserialize)]
     struct Outer {
+        #[allow(dead_code)]
         inner: Inner,
     }
     const CFG: &str = r#"

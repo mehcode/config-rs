@@ -231,7 +231,7 @@ impl<'a> ser::Serializer for &'a mut ConfigSerializer {
 
     fn serialize_tuple_variant(
         self,
-        name: &'static str,
+        _name: &'static str,
         _variant_index: u32,
         variant: &'static str,
         _len: usize,
@@ -253,7 +253,7 @@ impl<'a> ser::Serializer for &'a mut ConfigSerializer {
         _name: &'static str,
         _variant_index: u32,
         variant: &'static str,
-        len: usize,
+        _len: usize,
     ) -> Result<Self::SerializeStructVariant> {
         self.push_key(variant);
         Ok(self)
@@ -580,7 +580,7 @@ impl ser::SerializeSeq for StringKeySerializer {
     type Ok = String;
     type Error = ConfigError;
 
-    fn serialize_element<T>(&mut self, value: &T) -> Result<()>
+    fn serialize_element<T>(&mut self, _value: &T) -> Result<()>
     where
         T: ?Sized + ser::Serialize,
     {
@@ -596,7 +596,7 @@ impl ser::SerializeTuple for StringKeySerializer {
     type Ok = String;
     type Error = ConfigError;
 
-    fn serialize_element<T>(&mut self, value: &T) -> Result<()>
+    fn serialize_element<T>(&mut self, _value: &T) -> Result<()>
     where
         T: ?Sized + ser::Serialize,
     {
@@ -612,7 +612,7 @@ impl ser::SerializeTupleStruct for StringKeySerializer {
     type Ok = String;
     type Error = ConfigError;
 
-    fn serialize_field<T>(&mut self, value: &T) -> Result<()>
+    fn serialize_field<T>(&mut self, _value: &T) -> Result<()>
     where
         T: ?Sized + ser::Serialize,
     {
@@ -628,7 +628,7 @@ impl ser::SerializeTupleVariant for StringKeySerializer {
     type Ok = String;
     type Error = ConfigError;
 
-    fn serialize_field<T>(&mut self, value: &T) -> Result<()>
+    fn serialize_field<T>(&mut self, _value: &T) -> Result<()>
     where
         T: ?Sized + ser::Serialize,
     {
@@ -644,14 +644,14 @@ impl ser::SerializeMap for StringKeySerializer {
     type Ok = String;
     type Error = ConfigError;
 
-    fn serialize_key<T>(&mut self, key: &T) -> Result<()>
+    fn serialize_key<T>(&mut self, _key: &T) -> Result<()>
     where
         T: ?Sized + ser::Serialize,
     {
         unreachable!()
     }
 
-    fn serialize_value<T>(&mut self, value: &T) -> Result<()>
+    fn serialize_value<T>(&mut self, _value: &T) -> Result<()>
     where
         T: ?Sized + ser::Serialize,
     {
@@ -667,7 +667,7 @@ impl ser::SerializeStruct for StringKeySerializer {
     type Ok = String;
     type Error = ConfigError;
 
-    fn serialize_field<T>(&mut self, key: &'static str, value: &T) -> Result<()>
+    fn serialize_field<T>(&mut self, _key: &'static str, _value: &T) -> Result<()>
     where
         T: ?Sized + ser::Serialize,
     {
@@ -683,7 +683,7 @@ impl ser::SerializeStructVariant for StringKeySerializer {
     type Ok = String;
     type Error = ConfigError;
 
-    fn serialize_field<T>(&mut self, key: &'static str, value: &T) -> Result<()>
+    fn serialize_field<T>(&mut self, _key: &'static str, _value: &T) -> Result<()>
     where
         T: ?Sized + ser::Serialize,
     {
