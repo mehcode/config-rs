@@ -1,6 +1,6 @@
 #![cfg(feature = "yaml")]
 
-use config::*;
+use config::{Config, File, FileFormat};
 
 #[test]
 fn test_file_not_required() {

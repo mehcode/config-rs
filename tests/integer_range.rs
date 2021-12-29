@@ -1,4 +1,4 @@
-use config::*;
+use config::Config;
 
 #[test]
 fn wrapping_u16() {

@@ -2,7 +2,7 @@
 
 use serde_derive::Deserialize;
 
-use config::*;
+use config::{Config, File, FileFormat, Map, Value};
 use float_cmp::ApproxEqUlps;
 use std::path::PathBuf;
 

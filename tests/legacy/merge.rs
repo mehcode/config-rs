@@ -1,6 +1,6 @@
 #![cfg(feature = "toml")]
 
-use config::*;
+use config::{Config, File, FileFormat, Map};
 
 fn make() -> Config {
     let mut c = Config::default();

@@ -4,7 +4,7 @@ use serde_derive::Deserialize;
 
 use std::path::PathBuf;
 
-use config::*;
+use config::{Config, ConfigError, File, FileFormat, Map, Value};
 
 fn make() -> Config {
     Config::builder()

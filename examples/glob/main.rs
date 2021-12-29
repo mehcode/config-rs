@@ -1,4 +1,4 @@
-use config::*;
+use config::{Config, File};
 use glob::glob;
 use std::collections::HashMap;
 use std::path::Path;

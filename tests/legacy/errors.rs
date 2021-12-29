@@ -4,7 +4,7 @@ use std::path::PathBuf;
 
 use serde_derive::Deserialize;
 
-use config::*;
+use config::{Config, ConfigError, File, FileFormat, Map, Value};
 
 fn make() -> Config {
     let mut c = Config::default();

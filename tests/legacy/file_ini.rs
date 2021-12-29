@@ -3,7 +3,7 @@
 use serde_derive::Deserialize;
 use std::path::PathBuf;
 
-use config::*;
+use config::{Config, File, FileFormat};
 
 #[derive(Debug, Deserialize, PartialEq)]
 struct Place {

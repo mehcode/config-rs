@@ -1,4 +1,4 @@
-use config::*;
+use config::{Config, File};
 use notify::{DebouncedEvent, RecommendedWatcher, RecursiveMode, Watcher};
 use std::collections::HashMap;
 use std::sync::mpsc::channel;

@@ -1,4 +1,4 @@
-use config::*;
+use config::{Config, File, FileFormat};
 
 #[test]
 fn test_set_scalar() {
