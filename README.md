@@ -53,6 +53,12 @@ See [custom_format](https://github.com/mehcode/config-rs/tree/master/examples/cu
 See the [documentation](https://docs.rs/config) or [examples](https://github.com/mehcode/config-rs/tree/master/examples) for
 more usage information.
 
+
+## MSRV
+
+We currently support Rust 1.46.0 and newer.
+
+
 ## License
 
 config-rs is primarily distributed under the terms of both the MIT license and the Apache License (Version 2.0).
