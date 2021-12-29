@@ -20,6 +20,7 @@ pub use self::source::string::FileSourceString;
 ///
 /// It supports optional automatic file format discovery.
 #[derive(Clone, Debug)]
+#[must_use]
 pub struct File<T, F> {
     source: T,
 
@@ -101,13 +102,11 @@ where
     F: FileStoredFormat + 'static,
     T: FileSource<F>,
 {
-    #[must_use]
     pub fn format(mut self, format: F) -> Self {
         self.format = Some(format);
         self
     }
 
-    #[must_use]
     pub fn required(mut self, required: bool) -> Self {
         self.required = required;
         self
