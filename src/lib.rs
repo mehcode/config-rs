@@ -21,35 +21,6 @@
 #![allow(unknown_lints)]
 // #![warn(missing_docs)]
 
-#[macro_use]
-extern crate serde;
-
-#[cfg(test)]
-extern crate serde_derive;
-
-extern crate nom;
-
-#[macro_use]
-extern crate lazy_static;
-
-#[cfg(feature = "toml")]
-extern crate toml;
-
-#[cfg(feature = "json")]
-extern crate serde_json;
-
-#[cfg(feature = "yaml")]
-extern crate yaml_rust;
-
-#[cfg(feature = "ini")]
-extern crate ini;
-
-#[cfg(feature = "ron")]
-extern crate ron;
-
-#[cfg(feature = "json5")]
-extern crate json5_rs;
-
 pub mod builder;
 mod config;
 mod de;

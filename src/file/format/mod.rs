@@ -2,6 +2,7 @@
 // BUG: ? For some reason this doesn't do anything if I try and function scope this
 #![allow(unused_mut)]
 
+use lazy_static::lazy_static;
 use std::collections::HashMap;
 use std::error::Error;
 
