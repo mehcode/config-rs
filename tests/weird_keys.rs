@@ -4,9 +4,7 @@
 // Please don't be offended!
 //
 
-extern crate config;
 use serde_derive::{Deserialize, Serialize};
-extern crate serde;
 
 use config::*;
 

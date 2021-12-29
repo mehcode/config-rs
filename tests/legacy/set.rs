@@ -1,6 +1,4 @@
-extern crate config;
-
-use self::config::*;
+use config::*;
 
 #[test]
 fn test_set_scalar() {

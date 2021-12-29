@@ -1,12 +1,9 @@
 #![cfg(feature = "ini")]
 
-extern crate config;
-extern crate float_cmp;
-extern crate serde;
-
+use serde_derive::Deserialize;
 use std::path::PathBuf;
 
-use self::config::*;
+use config::*;
 
 #[derive(Debug, Deserialize, PartialEq)]
 struct Place {

@@ -1,9 +1,5 @@
 #![cfg(feature = "ini")]
 
-extern crate config;
-extern crate float_cmp;
-extern crate serde;
-
 use serde_derive::Deserialize;
 
 use std::path::PathBuf;

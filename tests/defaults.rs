@@ -1,5 +1,3 @@
-extern crate config;
-
 use serde_derive::{Deserialize, Serialize};
 
 use config::*;

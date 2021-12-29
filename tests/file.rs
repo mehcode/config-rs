@@ -1,7 +1,5 @@
 #![cfg(feature = "yaml")]
 
-extern crate config;
-
 use config::*;
 
 #[test]

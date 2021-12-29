@@ -1,9 +1,5 @@
 #![cfg(feature = "json")]
 
-extern crate config;
-extern crate float_cmp;
-extern crate serde;
-
 use serde_derive::Deserialize;
 
 use std::path::PathBuf;

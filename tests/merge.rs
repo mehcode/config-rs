@@ -1,7 +1,5 @@
 #![cfg(feature = "toml")]
 
-extern crate config;
-
 use config::*;
 
 fn make() -> Config {

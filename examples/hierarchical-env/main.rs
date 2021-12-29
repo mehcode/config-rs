@@ -1,6 +1,3 @@
-extern crate config;
-extern crate serde;
-
 mod settings;
 
 use settings::Settings;

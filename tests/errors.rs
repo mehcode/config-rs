@@ -1,7 +1,5 @@
 #![cfg(feature = "toml")]
 
-extern crate config;
-
 use serde_derive::Deserialize;
 
 use std::path::PathBuf;

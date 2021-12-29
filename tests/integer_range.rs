@@ -1,5 +1,3 @@
-extern crate config;
-
 use config::*;
 
 #[test]

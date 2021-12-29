@@ -6,9 +6,6 @@
     feature = "ron",
 ))]
 
-extern crate chrono;
-extern crate config;
-
 use chrono::{DateTime, TimeZone, Utc};
 use config::*;
 
