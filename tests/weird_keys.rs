@@ -5,9 +5,7 @@
 //
 
 extern crate config;
-
-#[macro_use]
-extern crate serde_derive;
+use serde_derive::{Deserialize, Serialize};
 extern crate serde;
 
 use config::*;

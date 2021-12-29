@@ -1,11 +1,6 @@
 #![cfg(feature = "json5")]
 
-extern crate config;
-extern crate float_cmp;
-extern crate serde;
-
-#[macro_use]
-extern crate serde_derive;
+use serde_derive::Deserialize;
 
 use config::*;
 use float_cmp::ApproxEqUlps;
