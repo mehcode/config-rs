@@ -35,29 +35,28 @@ impl FileSourceFile {
 
         // First check for an _exact_ match
         if filename.is_file() {
-            return match format_hint {
-                Some(format) => Ok((filename, Box::new(format))),
-                None => {
-                    for (format, extensions) in ALL_EXTENSIONS.iter() {
-                        if extensions.contains(
-                            &filename
-                                .extension()
-                                .unwrap_or_default()
-                                .to_string_lossy()
-                                .as_ref(),
-                        ) {
-                            return Ok((filename, Box::new(*format)));
-                        }
+            return if let Some(format) = format_hint {
+                Ok((filename, Box::new(format)))
+            } else {
+                for (format, extensions) in ALL_EXTENSIONS.iter() {
+                    if extensions.contains(
+                        &filename
+                            .extension()
+                            .unwrap_or_default()
+                            .to_string_lossy()
+                            .as_ref(),
+                    ) {
+                        return Ok((filename, Box::new(*format)));
                     }
-
-                    Err(Box::new(io::Error::new(
-                        io::ErrorKind::NotFound,
-                        format!(
-                            "configuration file \"{}\" is not of a registered file format",
-                            filename.to_string_lossy()
-                        ),
-                    )))
                 }
+
+                Err(Box::new(io::Error::new(
+                    io::ErrorKind::NotFound,
+                    format!(
+                        "configuration file \"{}\" is not of a registered file format",
+                        filename.to_string_lossy()
+                    ),
+                )))
             };
         }
 

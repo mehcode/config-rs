@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use serde::ser;
 
-use crate::error::*;
+use crate::error::{ConfigError, Result};
 use crate::value::{Value, ValueKind};
 use crate::Config;
 

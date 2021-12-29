@@ -4,7 +4,7 @@ use std::iter::Enumerate;
 use serde::de;
 
 use crate::config::Config;
-use crate::error::*;
+use crate::error::{ConfigError, Result};
 use crate::map::Map;
 use crate::value::{Table, Value, ValueKind};
 
@@ -232,7 +232,7 @@ impl<'de> de::MapAccess<'de> for MapAccess {
         V: de::DeserializeSeed<'de>,
     {
         let (key, value) = self.elements.pop_front().unwrap();
-        de::DeserializeSeed::deserialize(seed, value).map_err(|e| e.prepend_key(key))
+        de::DeserializeSeed::deserialize(seed, value).map_err(|e| e.prepend_key(&key))
     }
 }
 

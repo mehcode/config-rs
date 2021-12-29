@@ -1,6 +1,6 @@
 use std::env;
 
-use crate::error::*;
+use crate::error::Result;
 use crate::map::Map;
 use crate::source::Source;
 use crate::value::{Value, ValueKind};

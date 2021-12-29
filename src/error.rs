@@ -134,7 +134,7 @@ impl ConfigError {
     }
 
     #[must_use]
-    fn prepend(self, segment: String, add_dot: bool) -> Self {
+    fn prepend(self, segment: &str, add_dot: bool) -> Self {
         let concat = |key: Option<String>| {
             let key = key.unwrap_or_else(String::new);
             let dot = if add_dot && key.as_bytes().get(0).unwrap_or(&b'[') != &b'[' {
@@ -162,13 +162,13 @@ impl ConfigError {
     }
 
     #[must_use]
-    pub(crate) fn prepend_key(self, key: String) -> Self {
+    pub(crate) fn prepend_key(self, key: &str) -> Self {
         self.prepend(key, true)
     }
 
     #[must_use]
     pub(crate) fn prepend_index(self, idx: usize) -> Self {
-        self.prepend(format!("[{}]", idx), false)
+        self.prepend(&format!("[{}]", idx), false)
     }
 }
 

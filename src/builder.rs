@@ -249,7 +249,7 @@ impl ConfigBuilder<DefaultState> {
         let mut cache: Value = Map::<String, Value>::new().into();
 
         // Add defaults
-        for (key, val) in defaults.into_iter() {
+        for (key, val) in defaults {
             key.set(&mut cache, val);
         }
 
@@ -257,7 +257,7 @@ impl ConfigBuilder<DefaultState> {
         sources.collect_to(&mut cache)?;
 
         // Add overrides
-        for (key, val) in overrides.into_iter() {
+        for (key, val) in overrides {
             key.set(&mut cache, val);
         }
 
@@ -329,7 +329,7 @@ impl ConfigBuilder<AsyncState> {
         let mut cache: Value = Map::<String, Value>::new().into();
 
         // Add defaults
-        for (key, val) in defaults.into_iter() {
+        for (key, val) in defaults {
             key.set(&mut cache, val);
         }
 
@@ -341,7 +341,7 @@ impl ConfigBuilder<AsyncState> {
         }
 
         // Add overrides
-        for (key, val) in overrides.into_iter() {
+        for (key, val) in overrides {
             key.set(&mut cache, val);
         }
 
