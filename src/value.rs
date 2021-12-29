@@ -60,19 +60,19 @@ impl<'a> From<&'a str> for ValueKind {
 
 impl From<i8> for ValueKind {
     fn from(value: i8) -> Self {
-        ValueKind::I64(value as i64)
+        ValueKind::I64(value.into())
     }
 }
 
 impl From<i16> for ValueKind {
     fn from(value: i16) -> Self {
-        ValueKind::I64(value as i64)
+        ValueKind::I64(value.into())
     }
 }
 
 impl From<i32> for ValueKind {
     fn from(value: i32) -> Self {
-        ValueKind::I64(value as i64)
+        ValueKind::I64(value.into())
     }
 }
 
@@ -90,19 +90,19 @@ impl From<i128> for ValueKind {
 
 impl From<u8> for ValueKind {
     fn from(value: u8) -> Self {
-        ValueKind::U64(value as u64)
+        ValueKind::U64(value.into())
     }
 }
 
 impl From<u16> for ValueKind {
     fn from(value: u16) -> Self {
-        ValueKind::U64(value as u64)
+        ValueKind::U64(value.into())
     }
 }
 
 impl From<u32> for ValueKind {
     fn from(value: u32) -> Self {
-        ValueKind::U64(value as u64)
+        ValueKind::U64(value.into())
     }
 }
 
@@ -322,9 +322,9 @@ impl Value {
     /// Returns `self` into an i128, if possible.
     pub fn into_int128(self) -> Result<i128> {
         match self.kind {
-            ValueKind::I64(value) => Ok(value as i128),
+            ValueKind::I64(value) => Ok(value.into()),
             ValueKind::I128(value) => Ok(value),
-            ValueKind::U64(value) => Ok(value as i128),
+            ValueKind::U64(value) => Ok(value.into()),
             ValueKind::U128(value) => Err(ConfigError::invalid_type(
                 self.origin,
                 Unexpected::U128(value),
@@ -433,7 +433,7 @@ impl Value {
     /// Returns `self` into an u128, if possible.
     pub fn into_uint128(self) -> Result<u128> {
         match self.kind {
-            ValueKind::U64(value) => Ok(value as u128),
+            ValueKind::U64(value) => Ok(value.into()),
             ValueKind::U128(value) => Ok(value),
             ValueKind::I64(value) => Err(ConfigError::invalid_type(
                 self.origin,
@@ -698,17 +698,17 @@ impl<'de> Deserialize<'de> for Value {
 
             #[inline]
             fn visit_i8<E>(self, value: i8) -> ::std::result::Result<Value, E> {
-                Ok((value as i64).into())
+                Ok((i64::from(value)).into())
             }
 
             #[inline]
             fn visit_i16<E>(self, value: i16) -> ::std::result::Result<Value, E> {
-                Ok((value as i64).into())
+                Ok((i64::from(value)).into())
             }
 
             #[inline]
             fn visit_i32<E>(self, value: i32) -> ::std::result::Result<Value, E> {
-                Ok((value as i64).into())
+                Ok((i64::from(value)).into())
             }
 
             #[inline]
@@ -723,17 +723,17 @@ impl<'de> Deserialize<'de> for Value {
 
             #[inline]
             fn visit_u8<E>(self, value: u8) -> ::std::result::Result<Value, E> {
-                Ok((value as i64).into())
+                Ok((i64::from(value)).into())
             }
 
             #[inline]
             fn visit_u16<E>(self, value: u16) -> ::std::result::Result<Value, E> {
-                Ok((value as i64).into())
+                Ok((i64::from(value)).into())
             }
 
             #[inline]
             fn visit_u32<E>(self, value: u32) -> ::std::result::Result<Value, E> {
-                Ok((value as i64).into())
+                Ok((i64::from(value)).into())
             }
 
             #[inline]
