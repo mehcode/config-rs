@@ -10,7 +10,7 @@ pub struct Settings {
 
 impl Default for Settings {
     fn default() -> Self {
-        Settings {
+        Self {
             db_host: String::from("default"),
         }
     }

@@ -12,7 +12,7 @@ pub struct FileSourceString(String);
 
 impl<'a> From<&'a str> for FileSourceString {
     fn from(s: &'a str) -> Self {
-        FileSourceString(s.into())
+        Self(s.into())
     }
 }
 

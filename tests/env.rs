@@ -446,7 +446,7 @@ fn test_parse_off_string() {
 
     match config {
         TestStringEnum::String(TestString { string_val_1 }) => {
-            assert_eq!(test_string, string_val_1)
+            assert_eq!(test_string, string_val_1);
         }
     }
 

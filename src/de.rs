@@ -168,7 +168,7 @@ struct SeqAccess {
 
 impl SeqAccess {
     fn new(elements: Vec<Value>) -> Self {
-        SeqAccess {
+        Self {
             elements: elements.into_iter().enumerate(),
         }
     }
@@ -204,7 +204,7 @@ struct MapAccess {
 
 impl MapAccess {
     fn new(table: Map<String, Value>) -> Self {
-        MapAccess {
+        Self {
             elements: table.into_iter().collect(),
         }
     }

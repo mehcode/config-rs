@@ -38,8 +38,8 @@ fn test_file() {
             debug: 1.0,
             place: Place {
                 name: String::from("Torre di Pisa"),
-                longitude: 43.7224985,
-                latitude: 10.3970522,
+                longitude: 43.722_498_5,
+                latitude: 10.397_052_2,
                 favorite: false,
                 reviews: 3866,
                 rating: Some(4.5),

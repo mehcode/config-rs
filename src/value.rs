@@ -30,103 +30,103 @@ pub type Table = Map<String, Value>;
 
 impl Default for ValueKind {
     fn default() -> Self {
-        ValueKind::Nil
+        Self::Nil
     }
 }
 
 impl<T> From<Option<T>> for ValueKind
 where
-    T: Into<ValueKind>,
+    T: Into<Self>,
 {
     fn from(value: Option<T>) -> Self {
         match value {
             Some(value) => value.into(),
-            None => ValueKind::Nil,
+            None => Self::Nil,
         }
     }
 }
 
 impl From<String> for ValueKind {
     fn from(value: String) -> Self {
-        ValueKind::String(value)
+        Self::String(value)
     }
 }
 
 impl<'a> From<&'a str> for ValueKind {
     fn from(value: &'a str) -> Self {
-        ValueKind::String(value.into())
+        Self::String(value.into())
     }
 }
 
 impl From<i8> for ValueKind {
     fn from(value: i8) -> Self {
-        ValueKind::I64(value.into())
+        Self::I64(value.into())
     }
 }
 
 impl From<i16> for ValueKind {
     fn from(value: i16) -> Self {
-        ValueKind::I64(value.into())
+        Self::I64(value.into())
     }
 }
 
 impl From<i32> for ValueKind {
     fn from(value: i32) -> Self {
-        ValueKind::I64(value.into())
+        Self::I64(value.into())
     }
 }
 
 impl From<i64> for ValueKind {
     fn from(value: i64) -> Self {
-        ValueKind::I64(value)
+        Self::I64(value)
     }
 }
 
 impl From<i128> for ValueKind {
     fn from(value: i128) -> Self {
-        ValueKind::I128(value)
+        Self::I128(value)
     }
 }
 
 impl From<u8> for ValueKind {
     fn from(value: u8) -> Self {
-        ValueKind::U64(value.into())
+        Self::U64(value.into())
     }
 }
 
 impl From<u16> for ValueKind {
     fn from(value: u16) -> Self {
-        ValueKind::U64(value.into())
+        Self::U64(value.into())
     }
 }
 
 impl From<u32> for ValueKind {
     fn from(value: u32) -> Self {
-        ValueKind::U64(value.into())
+        Self::U64(value.into())
     }
 }
 
 impl From<u64> for ValueKind {
     fn from(value: u64) -> Self {
-        ValueKind::U64(value)
+        Self::U64(value)
     }
 }
 
 impl From<u128> for ValueKind {
     fn from(value: u128) -> Self {
-        ValueKind::U128(value)
+        Self::U128(value)
     }
 }
 
 impl From<f64> for ValueKind {
     fn from(value: f64) -> Self {
-        ValueKind::Float(value)
+        Self::Float(value)
     }
 }
 
 impl From<bool> for ValueKind {
     fn from(value: bool) -> Self {
-        ValueKind::Boolean(value)
+        Self::Boolean(value)
     }
 }
 
@@ -136,7 +136,7 @@ where
 {
     fn from(values: Map<String, T>) -> Self {
         let t = values.into_iter().map(|(k, v)| (k, v.into())).collect();
-        ValueKind::Table(t)
+        Self::Table(t)
     }
 }
 
@@ -145,28 +145,28 @@ where
     T: Into<Value>,
 {
     fn from(values: Vec<T>) -> Self {
-        ValueKind::Array(values.into_iter().map(T::into).collect())
+        Self::Array(values.into_iter().map(T::into).collect())
     }
 }
 
 impl Display for ValueKind {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            ValueKind::String(ref value) => write!(f, "{}", value),
-            ValueKind::Boolean(value) => write!(f, "{}", value),
-            ValueKind::I64(value) => write!(f, "{}", value),
-            ValueKind::I128(value) => write!(f, "{}", value),
-            ValueKind::U64(value) => write!(f, "{}", value),
-            ValueKind::U128(value) => write!(f, "{}", value),
-            ValueKind::Float(value) => write!(f, "{}", value),
-            ValueKind::Nil => write!(f, "nil"),
-            ValueKind::Table(ref table) => write!(f, "{{ {} }}", {
+            Self::String(ref value) => write!(f, "{}", value),
+            Self::Boolean(value) => write!(f, "{}", value),
+            Self::I64(value) => write!(f, "{}", value),
+            Self::I128(value) => write!(f, "{}", value),
+            Self::U64(value) => write!(f, "{}", value),
+            Self::U128(value) => write!(f, "{}", value),
+            Self::Float(value) => write!(f, "{}", value),
+            Self::Nil => write!(f, "nil"),
+            Self::Table(ref table) => write!(f, "{{ {} }}", {
                 table
                     .iter()
                     .map(|(k, v)| format!("{} => {}, ", k, v))
                     .collect::<String>()
             }),
-            ValueKind::Array(ref array) => write!(f, "{:?}", {
+            Self::Array(ref array) => write!(f, "{:?}", {
                 array.iter().map(|e| format!("{}, ", e)).collect::<String>()
             }),
         }
@@ -204,7 +204,7 @@ impl Value {
     where
         V: Into<ValueKind>,
     {
-        Value {
+        Self {
             origin: origin.cloned(),
             kind: kind.into(),
         }
@@ -567,7 +567,7 @@ impl Value {
 
     /// Returns `self` into an array, if possible
     // FIXME: Should this not be `try_into_*` ?
-    pub fn into_array(self) -> Result<Vec<Value>> {
+    pub fn into_array(self) -> Result<Vec<Self>> {
         match self.kind {
             ValueKind::Array(value) => Ok(value),
 
@@ -622,7 +622,7 @@ impl Value {
 
     /// If the `Value` is a Table, returns the associated Map.
     // FIXME: Should this not be `try_into_*` ?
-    pub fn into_table(self) -> Result<Map<String, Value>> {
+    pub fn into_table(self) -> Result<Map<String, Self>> {
         match self.kind {
             ValueKind::Table(value) => Ok(value),
 
@@ -678,7 +678,7 @@ impl Value {
 
 impl<'de> Deserialize<'de> for Value {
     #[inline]
-    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Value, D::Error>
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
     where
         D: Deserializer<'de>,
     {
@@ -821,7 +821,7 @@ where
     T: Into<ValueKind>,
 {
     fn from(value: T) -> Self {
-        Value {
+        Self {
             origin: None,
             kind: value.into(),
         }

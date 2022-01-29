@@ -160,8 +160,8 @@ fn test_file_struct() {
     assert!(s.debug.approx_eq_ulps(&1.0, 2));
     assert_eq!(s.production, Some("false".to_string()));
     assert_eq!(s.place.name, "Torre di Pisa");
-    assert!(s.place.longitude.approx_eq_ulps(&43.7224985, 2));
-    assert!(s.place.latitude.approx_eq_ulps(&10.3970522, 2));
+    assert!(s.place.longitude.approx_eq_ulps(&43.722_498_5, 2));
+    assert!(s.place.latitude.approx_eq_ulps(&10.397_052_2, 2));
     assert!(!s.place.favorite);
     assert_eq!(s.place.reviews, 3866);
     assert_eq!(s.place.rating, Some(4.5));
@@ -177,8 +177,8 @@ fn test_scalar_struct() {
     let p: Place = c.get("place").unwrap();
 
     assert_eq!(p.name, "Torre di Pisa");
-    assert!(p.longitude.approx_eq_ulps(&43.7224985, 2));
-    assert!(p.latitude.approx_eq_ulps(&10.3970522, 2));
+    assert!(p.longitude.approx_eq_ulps(&43.722_498_5, 2));
+    assert!(p.latitude.approx_eq_ulps(&10.397_052_2, 2));
     assert!(!p.favorite);
     assert_eq!(p.reviews, 3866);
     assert_eq!(p.rating, Some(4.5));

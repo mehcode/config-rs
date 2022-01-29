@@ -26,7 +26,7 @@ pub struct Config {
 
 impl Default for Config {
     fn default() -> Self {
-        Config {
+        Self {
             defaults: Default::default(),
             overrides: Default::default(),
             sources: Default::default(),
@@ -37,9 +37,9 @@ impl Default for Config {
 
 impl Config {
     pub(crate) fn new(value: Value) -> Self {
-        Config {
+        Self {
             cache: value,
-            ..Default::default()
+            ..Self::default()
         }
     }
 
@@ -50,7 +50,7 @@ impl Config {
 
     /// Merge in a configuration property source.
     #[deprecated(since = "0.12.0", note = "please use 'ConfigBuilder' instead")]
-    pub fn merge<T>(&mut self, source: T) -> Result<&mut Config>
+    pub fn merge<T>(&mut self, source: T) -> Result<&mut Self>
     where
         T: 'static,
         T: Source + Send + Sync,
@@ -81,7 +81,7 @@ impl Config {
     /// Configuration is automatically refreshed after a mutation
     /// operation (`set`, `merge`, `set_default`, etc.).
     #[deprecated(since = "0.12.0", note = "please use 'ConfigBuilder' instead")]
-    pub fn refresh(&mut self) -> Result<&mut Config> {
+    pub fn refresh(&mut self) -> Result<&mut Self> {
         self.cache = {
             let mut cache: Value = Map::<String, Value>::new().into();
 
@@ -106,7 +106,7 @@ impl Config {
 
     /// Set a default `value` at `key`
     #[deprecated(since = "0.12.0", note = "please use 'ConfigBuilder' instead")]
-    pub fn set_default<T>(&mut self, key: &str, value: T) -> Result<&mut Config>
+    pub fn set_default<T>(&mut self, key: &str, value: T) -> Result<&mut Self>
     where
         T: Into<Value>,
     {
@@ -125,7 +125,7 @@ impl Config {
     ///
     /// Errors if config is frozen
     #[deprecated(since = "0.12.0", note = "please use 'ConfigBuilder' instead")]
-    pub fn set<T>(&mut self, key: &str, value: T) -> Result<&mut Config>
+    pub fn set<T>(&mut self, key: &str, value: T) -> Result<&mut Self>
     where
         T: Into<Value>,
     {
