@@ -221,22 +221,18 @@ impl Expression {
 
             Self::Child(ref expr, ref key) => {
                 if let Some(parent) = expr.get_mut_forcibly(root) {
-                    if let ValueKind::Table(_) = parent.kind {
-                        Self::Identifier(key.clone()).set(parent, value);
-                    } else {
+                    if !matches!(parent.kind, ValueKind::Table(_)) {
                         // Didn't find a table. Oh well. Make a table and do this anyway
                         *parent = Map::<String, Value>::new().into();
-
-                        Self::Identifier(key.clone()).set(parent, value);
                     }
+                    Self::Identifier(key.clone()).set(parent, value);
                 }
             }
 
             Self::Subscript(ref expr, index) => {
                 if let Some(parent) = expr.get_mut_forcibly(root) {
-                    match parent.kind {
-                        ValueKind::Array(_) => (),
-                        _ => *parent = Vec::<Value>::new().into(),
+                    if !matches!(parent.kind, ValueKind::Array(_)) {
+                        *parent = Vec::<Value>::new().into()
                     }
 
                     if let ValueKind::Array(ref mut array) = parent.kind {
