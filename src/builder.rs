@@ -147,7 +147,7 @@ impl<St: BuilderState> ConfigBuilder<St> {
     /// # Errors
     ///
     /// Fails if `Expression::from_str(key)` fails.
-    pub fn set_default<S, T>(mut self, key: S, value: T) -> Result<ConfigBuilder<St>>
+    pub fn set_default<S, T>(mut self, key: S, value: T) -> Result<Self>
     where
         S: AsRef<str>,
         T: Into<Value>,
@@ -164,7 +164,7 @@ impl<St: BuilderState> ConfigBuilder<St> {
     /// # Errors
     ///
     /// Fails if `Expression::from_str(key)` fails.
-    pub fn set_override<S, T>(mut self, key: S, value: T) -> Result<ConfigBuilder<St>>
+    pub fn set_override<S, T>(mut self, key: S, value: T) -> Result<Self>
     where
         S: AsRef<str>,
         T: Into<Value>,

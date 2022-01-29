@@ -43,7 +43,7 @@ where
     F: FileStoredFormat + 'static,
 {
     pub fn from_str(s: &str, format: F) -> Self {
-        File {
+        Self {
             format: Some(format),
             required: true,
             source: s.into(),
@@ -56,7 +56,7 @@ where
     F: FileStoredFormat + 'static,
 {
     pub fn new(name: &str, format: F) -> Self {
-        File {
+        Self {
             format: Some(format),
             required: true,
             source: source::file::FileSourceFile::new(name.into()),
@@ -68,7 +68,7 @@ impl File<source::file::FileSourceFile, FileFormat> {
     /// Given the basename of a file, will attempt to locate a file by setting its
     /// extension to a registered format.
     pub fn with_name(name: &str) -> Self {
-        File {
+        Self {
             format: None,
             required: true,
             source: source::file::FileSourceFile::new(name.into()),
@@ -78,7 +78,7 @@ impl File<source::file::FileSourceFile, FileFormat> {
 
 impl<'a> From<&'a Path> for File<source::file::FileSourceFile, FileFormat> {
     fn from(path: &'a Path) -> Self {
-        File {
+        Self {
             format: None,
             required: true,
             source: source::file::FileSourceFile::new(path.to_path_buf()),
@@ -88,7 +88,7 @@ impl<'a> From<&'a Path> for File<source::file::FileSourceFile, FileFormat> {
 
 impl From<PathBuf> for File<source::file::FileSourceFile, FileFormat> {
     fn from(path: PathBuf) -> Self {
-        File {
+        Self {
             format: None,
             required: true,
             source: source::file::FileSourceFile::new(path),

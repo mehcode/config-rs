@@ -92,7 +92,7 @@ impl ConfigError {
         unexpected: Unexpected,
         expected: &'static str,
     ) -> Self {
-        ConfigError::Type {
+        Self::Type {
             origin,
             unexpected,
             expected,
@@ -104,8 +104,8 @@ impl ConfigError {
     // TODO: for now only json5 checked, need to finish others
     #[doc(hidden)]
     pub fn invalid_root(origin: Option<&String>, unexpected: Unexpected) -> Box<Self> {
-        Box::new(ConfigError::Type {
-            origin: origin.map(|s| s.to_owned()),
+        Box::new(Self::Type {
+            origin: origin.cloned(),
             unexpected,
             expected: "a map",
             key: None,
@@ -117,12 +117,12 @@ impl ConfigError {
     #[must_use]
     pub fn extend_with_key(self, key: &str) -> Self {
         match self {
-            ConfigError::Type {
+            Self::Type {
                 origin,
                 unexpected,
                 expected,
                 ..
-            } => ConfigError::Type {
+            } => Self::Type {
                 origin,
                 unexpected,
                 expected,
@@ -145,18 +145,18 @@ impl ConfigError {
             format!("{}{}{}", segment, dot, key)
         };
         match self {
-            ConfigError::Type {
+            Self::Type {
                 origin,
                 unexpected,
                 expected,
                 key,
-            } => ConfigError::Type {
+            } => Self::Type {
                 origin,
                 unexpected,
                 expected,
                 key: Some(concat(key)),
             },
-            ConfigError::NotFound(key) => ConfigError::NotFound(concat(Some(key))),
+            Self::NotFound(key) => Self::NotFound(concat(Some(key))),
             _ => self,
         }
     }
@@ -233,12 +233,12 @@ impl Error for ConfigError {}
 
 impl de::Error for ConfigError {
     fn custom<T: fmt::Display>(msg: T) -> Self {
-        ConfigError::Message(msg.to_string())
+        Self::Message(msg.to_string())
     }
 }
 
 impl ser::Error for ConfigError {
     fn custom<T: fmt::Display>(msg: T) -> Self {
-        ConfigError::Message(msg.to_string())
+        Self::Message(msg.to_string())
     }
 }

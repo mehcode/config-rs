@@ -9,14 +9,14 @@ mod parser;
 #[derive(Debug, Eq, PartialEq, Clone, Hash)]
 pub enum Expression {
     Identifier(String),
-    Child(Box<Expression>, String),
-    Subscript(Box<Expression>, isize),
+    Child(Box<Self>, String),
+    Subscript(Box<Self>, isize),
 }
 
 impl FromStr for Expression {
     type Err = ConfigError;
 
-    fn from_str(s: &str) -> Result<Expression> {
+    fn from_str(s: &str) -> Result<Self> {
         parser::from_str(s).map_err(ConfigError::PathParse)
     }
 }
@@ -32,7 +32,7 @@ fn sindex_to_uindex(index: isize, len: usize) -> usize {
 impl Expression {
     pub fn get(self, root: &Value) -> Option<&Value> {
         match self {
-            Expression::Identifier(id) => {
+            Self::Identifier(id) => {
                 match root.kind {
                     // `x` access on a table is equivalent to: map[x]
                     ValueKind::Table(ref map) => map.get(&id),
@@ -42,7 +42,7 @@ impl Expression {
                 }
             }
 
-            Expression::Child(expr, key) => {
+            Self::Child(expr, key) => {
                 match expr.get(root) {
                     Some(value) => {
                         match value.kind {
@@ -58,7 +58,7 @@ impl Expression {
                 }
             }
 
-            Expression::Subscript(expr, index) => match expr.get(root) {
+            Self::Subscript(expr, index) => match expr.get(root) {
                 Some(value) => match value.kind {
                     ValueKind::Array(ref array) => {
                         let index = sindex_to_uindex(index, array.len());
@@ -80,13 +80,13 @@ impl Expression {
 
     pub fn get_mut<'a>(&self, root: &'a mut Value) -> Option<&'a mut Value> {
         match *self {
-            Expression::Identifier(ref id) => match root.kind {
+            Self::Identifier(ref id) => match root.kind {
                 ValueKind::Table(ref mut map) => map.get_mut(id),
 
                 _ => None,
             },
 
-            Expression::Child(ref expr, ref key) => match expr.get_mut(root) {
+            Self::Child(ref expr, ref key) => match expr.get_mut(root) {
                 Some(value) => match value.kind {
                     ValueKind::Table(ref mut map) => map.get_mut(key),
 
@@ -96,7 +96,7 @@ impl Expression {
                 _ => None,
             },
 
-            Expression::Subscript(ref expr, index) => match expr.get_mut(root) {
+            Self::Subscript(ref expr, index) => match expr.get_mut(root) {
                 Some(value) => match value.kind {
                     ValueKind::Array(ref mut array) => {
                         let index = sindex_to_uindex(index, array.len());
@@ -118,7 +118,7 @@ impl Expression {
 
     pub fn get_mut_forcibly<'a>(&self, root: &'a mut Value) -> Option<&'a mut Value> {
         match *self {
-            Expression::Identifier(ref id) => match root.kind {
+            Self::Identifier(ref id) => match root.kind {
                 ValueKind::Table(ref mut map) => Some(
                     map.entry(id.clone())
                         .or_insert_with(|| Value::new(None, ValueKind::Nil)),
@@ -127,7 +127,7 @@ impl Expression {
                 _ => None,
             },
 
-            Expression::Child(ref expr, ref key) => match expr.get_mut_forcibly(root) {
+            Self::Child(ref expr, ref key) => match expr.get_mut_forcibly(root) {
                 Some(value) => {
                     if let ValueKind::Table(ref mut map) = value.kind {
                         Some(
@@ -151,7 +151,7 @@ impl Expression {
                 _ => None,
             },
 
-            Expression::Subscript(ref expr, index) => match expr.get_mut_forcibly(root) {
+            Self::Subscript(ref expr, index) => match expr.get_mut_forcibly(root) {
                 Some(value) => {
                     match value.kind {
                         ValueKind::Array(_) => (),
@@ -180,7 +180,7 @@ impl Expression {
 
     pub fn set(&self, root: &mut Value, value: Value) {
         match *self {
-            Expression::Identifier(ref id) => {
+            Self::Identifier(ref id) => {
                 // Ensure that root is a table
                 match root.kind {
                     ValueKind::Table(_) => {}
@@ -202,7 +202,7 @@ impl Expression {
 
                         // Continue the deep merge
                         for (key, val) in incoming_map {
-                            Expression::Identifier(key.clone()).set(target, val.clone());
+                            Self::Identifier(key.clone()).set(target, val.clone());
                         }
                     }
 
@@ -219,20 +219,20 @@ impl Expression {
                 }
             }
 
-            Expression::Child(ref expr, ref key) => {
+            Self::Child(ref expr, ref key) => {
                 if let Some(parent) = expr.get_mut_forcibly(root) {
                     if let ValueKind::Table(_) = parent.kind {
-                        Expression::Identifier(key.clone()).set(parent, value);
+                        Self::Identifier(key.clone()).set(parent, value);
                     } else {
                         // Didn't find a table. Oh well. Make a table and do this anyway
                         *parent = Map::<String, Value>::new().into();
 
-                        Expression::Identifier(key.clone()).set(parent, value);
+                        Self::Identifier(key.clone()).set(parent, value);
                     }
                 }
             }
 
-            Expression::Subscript(ref expr, index) => {
+            Self::Subscript(ref expr, index) => {
                 if let Some(parent) = expr.get_mut_forcibly(root) {
                     match parent.kind {
                         ValueKind::Array(_) => (),

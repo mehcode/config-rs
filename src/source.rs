@@ -76,7 +76,7 @@ impl Clone for Box<dyn AsyncSource + Send + Sync> {
 }
 
 impl Clone for Box<dyn Source + Send + Sync> {
-    fn clone(&self) -> Box<dyn Source + Send + Sync> {
+    fn clone(&self) -> Self {
         self.clone_into_box()
     }
 }

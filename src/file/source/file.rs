@@ -16,8 +16,8 @@ pub struct FileSourceFile {
 }
 
 impl FileSourceFile {
-    pub fn new(name: PathBuf) -> FileSourceFile {
-        FileSourceFile { name }
+    pub fn new(name: PathBuf) -> Self {
+        Self { name }
     }
 
     fn find_file<F>(

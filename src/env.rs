@@ -67,13 +67,13 @@ pub struct Environment {
 impl Environment {
     #[deprecated(since = "0.12.0", note = "please use 'Environment::default' instead")]
     pub fn new() -> Self {
-        Environment::default()
+        Self::default()
     }
 
     pub fn with_prefix(s: &str) -> Self {
-        Environment {
+        Self {
             prefix: Some(s.into()),
-            ..Environment::default()
+            ..Self::default()
         }
     }
 

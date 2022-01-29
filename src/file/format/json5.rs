@@ -12,8 +12,8 @@ pub enum Val {
     Integer(i64),
     Float(f64),
     String(String),
-    Array(Vec<Val>),
-    Object(Map<String, Val>),
+    Array(Vec<Self>),
+    Object(Map<String, Self>),
 }
 
 pub fn parse(
