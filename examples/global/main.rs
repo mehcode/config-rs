@@ -19,5 +19,5 @@ fn try_main() -> Result<(), Box<dyn Error>> {
 }
 
 fn main() {
-    try_main().unwrap()
+    try_main().unwrap();
 }
