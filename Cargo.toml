@@ -1,6 +1,6 @@
 [package]
 name = "config"
-version = "0.11.0"
+version = "0.12.0"
 description = "Layered configuration system for Rust applications."
 homepage = "https://github.com/mehcode/config-rs"
 repository = "https://github.com/mehcode/config-rs"
