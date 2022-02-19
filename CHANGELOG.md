@@ -4,8 +4,51 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## 0.12.0
- - Introduce `Format` trait [#219]
+## Unreleased
+
+
+## 0.12.0 - 2022-02-10
+
+### Format support changes in this version
+
+ - HJSON support was removed [#230]
+ - JSON5 format support [#206]
+ - RON format support [#202]
+
+### Other noteworthy changes
+
+ - A new ConfigBuilder interface for building configuration objects [#196]
+ - Asynchronous sources [#207]
+ - Custom ENV separators are now supported [#185]
+ - Loads of dependency updates and bugfixes of course
+ - Preserved map order [#217]
+ - Support for parsing numbers from the environment [#137]
+ - Support for unsigned integers [#178]
+ - `Format` trait for (custom) file formats [#219]
+
+### Deprecated
+
+ - `Environment::new()` - see [#235]
+ - Large parts of the `Config` interface - see [#196]
+     - `Config::merge()`
+     - `Config::with_merged()`
+     - `Config::refresh()`
+     - `Config::set_default()`
+     - `Config::set()`
+     - `Config::set_once()`
+     - `Config::deserialize()`
+
+[#137]: https://github.com/mehcode/config-rs/pull/137
+[#178]: https://github.com/mehcode/config-rs/pull/178
+[#185]: https://github.com/mehcode/config-rs/pull/185
+[#196]: https://github.com/mehcode/config-rs/pull/196
+[#202]: https://github.com/mehcode/config-rs/pull/202
+[#206]: https://github.com/mehcode/config-rs/pull/206
+[#207]: https://github.com/mehcode/config-rs/pull/207
+[#217]: https://github.com/mehcode/config-rs/pull/217
+[#219]: https://github.com/mehcode/config-rs/pull/219
+[#230]: https://github.com/mehcode/config-rs/pull/230
+[#235]: https://github.com/mehcode/config-rs/pull/235
 
 ## 0.11.0 - 2021-03-17
  - The `Config` type got a builder-pattern `with_merged()` method [#166].
@@ -19,7 +62,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 [#172]: https://github.com/mehcode/config-rs/pull/172
 [#169]: https://github.com/mehcode/config-rs/pull/169
 [#175]: https://github.com/mehcode/config-rs/pull/169
-[#219]: https://github.com/mehcode/config-rs/pull/219
 
 ## 0.10.1 - 2019-12-07
  - Allow enums as configuration keys [#119]
