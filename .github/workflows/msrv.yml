@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         rust:
-          - 1.46.0
+          - 1.48.0
           - stable
           - beta
           - nightly
@@ -45,7 +45,7 @@ jobs:
     strategy:
       matrix:
         rust:
-          - 1.46.0
+          - 1.48.0
           - stable
           - beta
           - nightly
@@ -61,14 +61,14 @@ jobs:
           override: true
 
       - name: Run cargo test
-        if: matrix.rust != 'nightly' && matrix.rust != '1.46.0'
+        if: matrix.rust != 'nightly' && matrix.rust != '1.48.0'
         uses: actions-rs/cargo@v1
         with:
           command: test
           args: --all-features
 
       - name: Run cargo test (nightly)
-        if: matrix.rust == '1.46.0'
+        if: matrix.rust == '1.48.0'
         continue-on-error: true
         uses: actions-rs/cargo@v1
         with:
@@ -145,7 +145,7 @@ jobs:
     strategy:
       matrix:
         rust:
-          - 1.46.0
+          - 1.48.0
           - stable
 
     steps:
