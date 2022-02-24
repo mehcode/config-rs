@@ -16,6 +16,9 @@ pub struct Environment {
     /// For example, the key `CONFIG_DEBUG` would become `DEBUG` with a prefix of `config`.
     prefix: Option<String>,
 
+    /// Optional character sequence that separates the prefix from the rest of the key
+    prefix_separator: Option<String>,
+
     /// Optional character sequence that separates each key segment in an environment key pattern.
     /// Consider a nested configuration such as `redis.password`, a separator of `_` would allow
     /// an environment key of `REDIS_PASSWORD` to match.
@@ -84,6 +87,12 @@ impl Environment {
     }
 
     #[must_use]
+    pub fn prefix_separator(mut self, s: &str) -> Self {
+        self.prefix_separator = Some(s.into());
+        self
+    }
+
+    #[must_use]
     pub fn separator(mut self, s: &str) -> Self {
         self.separator = Some(s.into());
         self
@@ -120,13 +129,17 @@ impl Source for Environment {
         let uri: String = "the environment".into();
 
         let separator = self.separator.as_deref().unwrap_or("");
-        let group_separator = self.separator.as_deref().unwrap_or("_");
+        let prefix_separator = match (self.prefix_separator.as_deref(), self.separator.as_deref()) {
+            (Some(pre), _) => pre,
+            (None, Some(sep)) => sep,
+            (None, None) => "_",
+        };
 
         // Define a prefix pattern to test and exclude from keys
         let prefix_pattern = self
             .prefix
             .as_ref()
-            .map(|prefix| format!("{}{}", prefix, group_separator).to_lowercase());
+            .map(|prefix| format!("{}{}", prefix, prefix_separator).to_lowercase());
 
         let collector = |(key, value): (String, String)| {
             // Treat empty environment variables as unset

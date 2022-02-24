@@ -86,6 +86,19 @@ fn test_custom_separator_behavior() {
 }
 
 #[test]
+fn test_custom_prefix_separator_behavior() {
+    env::set_var("C-B.A", "abc");
+
+    let environment = Environment::with_prefix("C")
+        .separator(".")
+        .prefix_separator("-");
+
+    assert!(environment.collect().unwrap().contains_key("b.a"));
+
+    env::remove_var("C-B.A");
+}
+
+#[test]
 fn test_parse_int() {
     // using a struct in an enum here to make serde use `deserialize_any`
     #[derive(Deserialize, Debug)]
