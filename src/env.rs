@@ -5,6 +5,7 @@ use crate::map::Map;
 use crate::source::Source;
 use crate::value::{Value, ValueKind};
 
+#[must_use]
 #[derive(Clone, Debug, Default)]
 pub struct Environment {
     /// Optional prefix that will limit access to the environment to only keys that
@@ -23,6 +24,12 @@ pub struct Environment {
     /// Consider a nested configuration such as `redis.password`, a separator of `_` would allow
     /// an environment key of `REDIS_PASSWORD` to match.
     separator: Option<String>,
+
+    /// Optional character sequence that separates each env value into a vector. only works when try_parsing is set to true
+    /// Once set, you cannot have type String on the same environment, unless you set list_parse_keys.
+    list_separator: Option<String>,
+    /// A list of keys which should always be parsed as a list. If not set you can have only Vec<String> or String (not both) in one environment.
+    list_parse_keys: Option<Vec<String>>,
 
     /// Ignore empty env values (treat as unset).
     ignore_empty: bool,
@@ -80,25 +87,43 @@ impl Environment {
         }
     }
 
-    #[must_use]
     pub fn prefix(mut self, s: &str) -> Self {
         self.prefix = Some(s.into());
         self
     }
 
-    #[must_use]
     pub fn prefix_separator(mut self, s: &str) -> Self {
         self.prefix_separator = Some(s.into());
         self
     }
 
-    #[must_use]
     pub fn separator(mut self, s: &str) -> Self {
         self.separator = Some(s.into());
         self
     }
 
-    #[must_use]
+    /// When set and try_parsing is true, then all environment variables will be parsed as [`Vec<String>`] instead of [`String`].
+    /// See [`with_list_parse_key`] when you want to use [`Vec<String>`] in combination with [`String`].
+    pub fn list_separator(mut self, s: &str) -> Self {
+        self.list_separator = Some(s.into());
+        self
+    }
+
+    /// Add a key which should be parsed as a list when collecting [`Value`]s from the environment.
+    /// Once list_separator is set, the type for string is [`Vec<String>`].
+    /// To switch the default type back to type Strings you need to provide the keys which should be [`Vec<String>`] using this function.
+    pub fn with_list_parse_key(mut self, key: &str) -> Self {
+        if self.list_parse_keys == None {
+            self.list_parse_keys = Some(vec![key.into()])
+        } else {
+            self.list_parse_keys = self.list_parse_keys.map(|mut keys| {
+                keys.push(key.into());
+                keys
+            });
+        }
+        self
+    }
+
     pub fn ignore_empty(mut self, ignore: bool) -> Self {
         self.ignore_empty = ignore;
         self
@@ -106,13 +131,11 @@ impl Environment {
 
     /// Note: enabling `try_parsing` can reduce performance it will try and parse
     /// each environment variable 3 times (bool, i64, f64)
-    #[must_use]
     pub fn try_parsing(mut self, try_parsing: bool) -> Self {
         self.try_parsing = try_parsing;
         self
     }
 
-    #[must_use]
     pub fn source(mut self, source: Option<Map<String, String>>) -> Self {
         self.source = source;
         self
@@ -173,6 +196,24 @@ impl Source for Environment {
                     ValueKind::I64(parsed)
                 } else if let Ok(parsed) = value.parse::<f64>() {
                     ValueKind::Float(parsed)
+                } else if let Some(separator) = &self.list_separator {
+                    if let Some(keys) = &self.list_parse_keys {
+                        if keys.contains(&key) {
+                            let v: Vec<Value> = value
+                                .split(separator)
+                                .map(|s| Value::new(Some(&uri), ValueKind::String(s.to_string())))
+                                .collect();
+                            ValueKind::Array(v)
+                        } else {
+                            ValueKind::String(value)
+                        }
+                    } else {
+                        let v: Vec<Value> = value
+                            .split(separator)
+                            .map(|s| Value::new(Some(&uri), ValueKind::String(s.to_string())))
+                            .collect();
+                        ValueKind::Array(v)
+                    }
                 } else {
                     ValueKind::String(value)
                 }
