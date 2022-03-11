@@ -37,6 +37,9 @@ pub struct Environment {
     /// Parses booleans, integers and floats if they're detected (can be safely parsed).
     try_parsing: bool,
 
+    // Preserve the prefix while parsing
+    keep_prefix: bool,
+
     /// Alternate source for the environment. This can be used when you want to test your own code
     /// using this source, without the need to change the actual system environment variables.
     ///
@@ -136,6 +139,11 @@ impl Environment {
         self
     }
 
+    pub fn keep_prefix(mut self, keep: bool) -> Self {
+        self.keep_prefix = keep;
+        self
+    }
+
     pub fn source(mut self, source: Option<Map<String, String>>) -> Self {
         self.source = source;
         self
@@ -175,8 +183,10 @@ impl Source for Environment {
             // Check for prefix
             if let Some(ref prefix_pattern) = prefix_pattern {
                 if key.starts_with(prefix_pattern) {
-                    // Remove this prefix from the key
-                    key = key[prefix_pattern.len()..].to_string();
+                    if !self.keep_prefix {
+                        // Remove this prefix from the key
+                        key = key[prefix_pattern.len()..].to_string();
+                    }
                 } else {
                     // Skip this key
                     return;
