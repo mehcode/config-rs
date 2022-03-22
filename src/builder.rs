@@ -173,6 +173,26 @@ impl<St: BuilderState> ConfigBuilder<St> {
             .insert(Expression::from_str(key.as_ref())?, value.into());
         Ok(self)
     }
+
+    /// Sets an override if value is Some(_)
+    ///
+    /// This function sets an overwrite value if Some(_) is passed. If None is passed, this function does nothing.
+    /// It will not be altered by any default, [`Source`] nor [`AsyncSource`]
+    ///
+    /// # Errors
+    ///
+    /// Fails if `Expression::from_str(key)` fails.
+    pub fn set_override_option<S, T>(mut self, key: S, value: Option<T>) -> Result<Self>
+    where
+        S: AsRef<str>,
+        T: Into<Value>,
+    {
+        if let Some(value) = value {
+            self.overrides
+                .insert(Expression::from_str(key.as_ref())?, value.into());
+        }
+        Ok(self)
+    }
 }
 
 impl ConfigBuilder<DefaultState> {
