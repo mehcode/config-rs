@@ -75,6 +75,27 @@ fn test_empty_value_is_ignored() {
 }
 
 #[test]
+fn test_keep_prefix() {
+    env::set_var("C_A_B", "");
+
+    // Do not keep the prefix
+    let environment = Environment::with_prefix("C");
+
+    assert!(environment.collect().unwrap().contains_key("a_b"));
+
+    let environment = Environment::with_prefix("C").keep_prefix(false);
+
+    assert!(environment.collect().unwrap().contains_key("a_b"));
+
+    // Keep the prefix
+    let environment = Environment::with_prefix("C").keep_prefix(true);
+
+    assert!(environment.collect().unwrap().contains_key("c_a_b"));
+
+    env::remove_var("C_A_B");
+}
+
+#[test]
 fn test_custom_separator_behavior() {
     env::set_var("C.B.A", "abc");
 
