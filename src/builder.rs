@@ -11,7 +11,7 @@ use crate::{config::Config, path::Expression, source::Source, value::Value};
 /// It registers ordered sources of configuration to later build consistent [`Config`] from them.
 /// Configuration sources it defines are defaults, [`Source`]s and overrides.
 ///
-/// Defaults are alaways loaded first and can be overwritten by any of two other sources.
+/// Defaults are always loaded first and can be overwritten by any of two other sources.
 /// Overrides are always loaded last, thus cannot be overridden.
 /// Both can be only set explicitly key by key in code
 /// using [`set_default`](Self::set_default) or [`set_override`](Self::set_override).
