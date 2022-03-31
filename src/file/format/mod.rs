@@ -116,6 +116,16 @@ impl FileFormat {
 
             #[cfg(feature = "json5")]
             FileFormat::Json5 => json5::parse(uri, text),
+
+            #[cfg(all(
+                not(feature = "toml"),
+                not(feature = "json"),
+                not(feature = "yaml"),
+                not(feature = "ini"),
+                not(feature = "ron"),
+                not(feature = "json5"),
+            ))]
+            _ => unreachable!("No features are enabled, this library won't work without features"),
         }
     }
 }
