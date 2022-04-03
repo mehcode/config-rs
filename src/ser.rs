@@ -28,7 +28,6 @@ impl ConfigSerializer {
             }
         };
 
-        #[allow(deprecated)]
         self.output.set(&key, value.into())?;
         Ok(())
     }
