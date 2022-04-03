@@ -200,11 +200,6 @@ impl Config {
         from.serialize(&mut serializer)?;
         Ok(serializer.output)
     }
-
-    #[deprecated(since = "0.7.0", note = "please use 'try_deserialize' instead")]
-    pub fn deserialize<'de, T: Deserialize<'de>>(self) -> Result<T> {
-        self.try_deserialize()
-    }
 }
 
 impl Source for Config {
