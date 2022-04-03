@@ -6,6 +6,25 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## 0.13.0 - 2022-04-03
+
+ - Prefix-Seperator support was added [#292]
+ - Environment lists can now be parsed [#255]
+ - Setting an overwrite from an Option was added [#303]
+ - Option to keep the prefix from an environment variable was added [#298]
+ - Some small doc/CI fixes [#307], [#309]
+ - MSRV was updated to 1.56.0 [#304]
+ - Dependencies were updated [#289], [#301]
+
+[#292]: https://github.com/mehcode/config-rs/pull/292
+[#255]: https://github.com/mehcode/config-rs/pull/255
+[#303]: https://github.com/mehcode/config-rs/pull/303
+[#298]: https://github.com/mehcode/config-rs/pull/298
+[#307]: https://github.com/mehcode/config-rs/pull/307
+[#309]: https://github.com/mehcode/config-rs/pull/309
+[#304]: https://github.com/mehcode/config-rs/pull/304
+[#289]: https://github.com/mehcode/config-rs/pull/289
+[#301]: https://github.com/mehcode/config-rs/pull/301
 
 ## 0.12.0 - 2022-02-10
 
