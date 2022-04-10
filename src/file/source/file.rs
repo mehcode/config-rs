@@ -27,7 +27,7 @@ impl FileSourceFile {
     where
         F: FileStoredFormat + Format + 'static,
     {
-        let mut filename = if self.name.is_absolute() {
+        let filename = if self.name.is_absolute() {
             self.name.clone()
         } else {
             env::current_dir()?.as_path().join(&self.name)
@@ -59,6 +59,9 @@ impl FileSourceFile {
                 )))
             };
         }
+        // Adding a dummy extension will make sure we will not override secondary extensions, i.e. "file.local"
+        // This will make the following set_extension function calls to append the extension.
+        let mut filename = add_dummy_extension(filename);
 
         match format_hint {
             Some(format) => {
@@ -120,4 +123,19 @@ where
             format,
         })
     }
+}
+
+fn add_dummy_extension(mut filename: PathBuf) -> PathBuf {
+    match filename.extension() {
+        Some(extension) => {
+            let mut ext = extension.to_os_string();
+            ext.push(".");
+            ext.push("dummy");
+            filename.set_extension(ext);
+        }
+        None => {
+            filename.set_extension("dummy");
+        }
+    }
+    filename
 }

@@ -58,3 +58,13 @@ fn test_file_ext() {
     assert_eq!(c.get("debug").ok(), Some(true));
     assert_eq!(c.get("production").ok(), Some(false));
 }
+#[test]
+fn test_file_second_ext() {
+    let c = Config::builder()
+        .add_source(File::with_name("tests/Settings2.default"))
+        .build()
+        .unwrap();
+
+    assert_eq!(c.get("debug").ok(), Some(true));
+    assert_eq!(c.get("production").ok(), Some(false));
+}
