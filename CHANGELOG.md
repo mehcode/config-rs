@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## 0.13.1 - 2022-04-13
+
+ - typo in doc comment for ConfigBuilder [#299]
+ - dot in config file name handling fixed [#306]
+
+[#299]: https://github.com/mehcode/config-rs/pull/299
+[#306]: https://github.com/mehcode/config-rs/pull/306
+
 ## 0.13.0 - 2022-04-03
 
  - Prefix-Seperator support was added [#292]
