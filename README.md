@@ -30,7 +30,7 @@ values back to the configuration file(s)!
 
 ```toml
 [dependencies]
-config = "0.13"
+config = "0.13.1"
 ```
 
 ### Feature flags
