@@ -1,122 +1,103 @@
 use config::{Config, Environment, Source};
 use serde_derive::Deserialize;
-use std::env;
 
 /// Reminder that tests using env variables need to use different env variable names, since
 /// tests can be run in parallel
 
 #[test]
 fn test_default() {
-    env::set_var("A_B_C", "abc");
+    temp_env::with_var("A_B_C", Some("abc"), || {
+        let environment = Environment::default();
 
-    let environment = Environment::default();
-
-    assert!(environment.collect().unwrap().contains_key("a_b_c"));
-
-    env::remove_var("A_B_C");
+        assert!(environment.collect().unwrap().contains_key("a_b_c"));
+    })
 }
 
 #[test]
 fn test_prefix_is_removed_from_key() {
-    env::set_var("B_A_C", "abc");
+    temp_env::with_var("B_A_C", Some("abc"), || {
+        let environment = Environment::with_prefix("B");
 
-    let environment = Environment::with_prefix("B");
-
-    assert!(environment.collect().unwrap().contains_key("a_c"));
-
-    env::remove_var("B_A_C");
+        assert!(environment.collect().unwrap().contains_key("a_c"));
+    })
 }
 
 #[test]
 fn test_prefix_with_variant_forms_of_spelling() {
-    env::set_var("a_A_C", "abc");
+    temp_env::with_var("a_A_C", Some("abc"), || {
+        let environment = Environment::with_prefix("a");
 
-    let environment = Environment::with_prefix("a");
+        assert!(environment.collect().unwrap().contains_key("a_c"));
+    });
 
-    assert!(environment.collect().unwrap().contains_key("a_c"));
+    temp_env::with_var("aB_A_C", Some("abc"), || {
+        let environment = Environment::with_prefix("aB");
 
-    env::remove_var("a_A_C");
-    env::set_var("aB_A_C", "abc");
+        assert!(environment.collect().unwrap().contains_key("a_c"));
+    });
 
-    let environment = Environment::with_prefix("aB");
+    temp_env::with_var("Ab_A_C", Some("abc"), || {
+        let environment = Environment::with_prefix("ab");
 
-    assert!(environment.collect().unwrap().contains_key("a_c"));
-
-    env::remove_var("aB_A_C");
-    env::set_var("Ab_A_C", "abc");
-
-    let environment = Environment::with_prefix("ab");
-
-    assert!(environment.collect().unwrap().contains_key("a_c"));
-
-    env::remove_var("Ab_A_C");
+        assert!(environment.collect().unwrap().contains_key("a_c"));
+    });
 }
 
 #[test]
 fn test_separator_behavior() {
-    env::set_var("C_B_A", "abc");
+    temp_env::with_var("C_B_A", Some("abc"), || {
+        let environment = Environment::with_prefix("C").separator("_");
 
-    let environment = Environment::with_prefix("C").separator("_");
-
-    assert!(environment.collect().unwrap().contains_key("b.a"));
-
-    env::remove_var("C_B_A");
+        assert!(environment.collect().unwrap().contains_key("b.a"));
+    })
 }
 
 #[test]
 fn test_empty_value_is_ignored() {
-    env::set_var("C_A_B", "");
+    temp_env::with_var("C_A_B", Some(""), || {
+        let environment = Environment::default().ignore_empty(true);
 
-    let environment = Environment::default().ignore_empty(true);
-
-    assert!(!environment.collect().unwrap().contains_key("c_a_b"));
-
-    env::remove_var("C_A_B");
+        assert!(!environment.collect().unwrap().contains_key("c_a_b"));
+    })
 }
 
 #[test]
 fn test_keep_prefix() {
-    env::set_var("C_A_B", "");
+    temp_env::with_var("C_A_B", Some(""), || {
+        // Do not keep the prefix
+        let environment = Environment::with_prefix("C");
 
-    // Do not keep the prefix
-    let environment = Environment::with_prefix("C");
+        assert!(environment.collect().unwrap().contains_key("a_b"));
 
-    assert!(environment.collect().unwrap().contains_key("a_b"));
+        let environment = Environment::with_prefix("C").keep_prefix(false);
 
-    let environment = Environment::with_prefix("C").keep_prefix(false);
+        assert!(environment.collect().unwrap().contains_key("a_b"));
 
-    assert!(environment.collect().unwrap().contains_key("a_b"));
+        // Keep the prefix
+        let environment = Environment::with_prefix("C").keep_prefix(true);
 
-    // Keep the prefix
-    let environment = Environment::with_prefix("C").keep_prefix(true);
-
-    assert!(environment.collect().unwrap().contains_key("c_a_b"));
-
-    env::remove_var("C_A_B");
+        assert!(environment.collect().unwrap().contains_key("c_a_b"));
+    })
 }
 
 #[test]
 fn test_custom_separator_behavior() {
-    env::set_var("C.B.A", "abc");
+    temp_env::with_var("C.B.A", Some("abc"), || {
+        let environment = Environment::with_prefix("C").separator(".");
 
-    let environment = Environment::with_prefix("C").separator(".");
-
-    assert!(environment.collect().unwrap().contains_key("b.a"));
-
-    env::remove_var("C.B.A");
+        assert!(environment.collect().unwrap().contains_key("b.a"));
+    })
 }
 
 #[test]
 fn test_custom_prefix_separator_behavior() {
-    env::set_var("C-B.A", "abc");
+    temp_env::with_var("C-B.A", Some("abc"), || {
+        let environment = Environment::with_prefix("C")
+            .separator(".")
+            .prefix_separator("-");
 
-    let environment = Environment::with_prefix("C")
-        .separator(".")
-        .prefix_separator("-");
-
-    assert!(environment.collect().unwrap().contains_key("b.a"));
-
-    env::remove_var("C-B.A");
+        assert!(environment.collect().unwrap().contains_key("b.a"));
+    })
 }
 
 #[test]
@@ -133,22 +114,20 @@ fn test_parse_int() {
         int_val: i32,
     }
 
-    env::set_var("INT_VAL", "42");
+    temp_env::with_var("INT_VAL", Some("42"), || {
+        let environment = Environment::default().try_parsing(true);
 
-    let environment = Environment::default().try_parsing(true);
+        let config = Config::builder()
+            .set_default("tag", "Int")
+            .unwrap()
+            .add_source(environment)
+            .build()
+            .unwrap();
 
-    let config = Config::builder()
-        .set_default("tag", "Int")
-        .unwrap()
-        .add_source(environment)
-        .build()
-        .unwrap();
+        let config: TestIntEnum = config.try_deserialize().unwrap();
 
-    let config: TestIntEnum = config.try_deserialize().unwrap();
-
-    assert!(matches!(config, TestIntEnum::Int(TestInt { int_val: 42 })));
-
-    env::remove_var("INT_VAL");
+        assert!(matches!(config, TestIntEnum::Int(TestInt { int_val: 42 })));
+    })
 }
 
 #[test]
@@ -165,25 +144,23 @@ fn test_parse_float() {
         float_val: f64,
     }
 
-    env::set_var("FLOAT_VAL", "42.3");
+    temp_env::with_var("FLOAT_VAL", Some("42.3"), || {
+        let environment = Environment::default().try_parsing(true);
 
-    let environment = Environment::default().try_parsing(true);
+        let config = Config::builder()
+            .set_default("tag", "Float")
+            .unwrap()
+            .add_source(environment)
+            .build()
+            .unwrap();
 
-    let config = Config::builder()
-        .set_default("tag", "Float")
-        .unwrap()
-        .add_source(environment)
-        .build()
-        .unwrap();
+        let config: TestFloatEnum = config.try_deserialize().unwrap();
 
-    let config: TestFloatEnum = config.try_deserialize().unwrap();
-
-    // can't use `matches!` because of float value
-    match config {
-        TestFloatEnum::Float(TestFloat { float_val }) => assert_eq!(float_val, 42.3),
-    }
-
-    env::remove_var("FLOAT_VAL");
+        // can't use `matches!` because of float value
+        match config {
+            TestFloatEnum::Float(TestFloat { float_val }) => assert_eq!(float_val, 42.3),
+        }
+    })
 }
 
 #[test]
@@ -200,25 +177,23 @@ fn test_parse_bool() {
         bool_val: bool,
     }
 
-    env::set_var("BOOL_VAL", "true");
+    temp_env::with_var("BOOL_VAL", Some("true"), || {
+        let environment = Environment::default().try_parsing(true);
 
-    let environment = Environment::default().try_parsing(true);
+        let config = Config::builder()
+            .set_default("tag", "Bool")
+            .unwrap()
+            .add_source(environment)
+            .build()
+            .unwrap();
 
-    let config = Config::builder()
-        .set_default("tag", "Bool")
-        .unwrap()
-        .add_source(environment)
-        .build()
-        .unwrap();
+        let config: TestBoolEnum = config.try_deserialize().unwrap();
 
-    let config: TestBoolEnum = config.try_deserialize().unwrap();
-
-    assert!(matches!(
-        config,
-        TestBoolEnum::Bool(TestBool { bool_val: true })
-    ));
-
-    env::remove_var("BOOL_VAL");
+        assert!(matches!(
+            config,
+            TestBoolEnum::Bool(TestBool { bool_val: true })
+        ));
+    })
 }
 
 #[test]
@@ -237,20 +212,18 @@ fn test_parse_off_int() {
         int_val_1: i32,
     }
 
-    env::set_var("INT_VAL_1", "42");
+    temp_env::with_var("INT_VAL_1", Some("42"), || {
+        let environment = Environment::default().try_parsing(false);
 
-    let environment = Environment::default().try_parsing(false);
+        let config = Config::builder()
+            .set_default("tag", "Int")
+            .unwrap()
+            .add_source(environment)
+            .build()
+            .unwrap();
 
-    let config = Config::builder()
-        .set_default("tag", "Int")
-        .unwrap()
-        .add_source(environment)
-        .build()
-        .unwrap();
-
-    env::remove_var("INT_VAL_1");
-
-    config.try_deserialize::<TestIntEnum>().unwrap();
+        config.try_deserialize::<TestIntEnum>().unwrap();
+    })
 }
 
 #[test]
@@ -269,20 +242,18 @@ fn test_parse_off_float() {
         float_val_1: f64,
     }
 
-    env::set_var("FLOAT_VAL_1", "42.3");
+    temp_env::with_var("FLOAT_VAL_1", Some("42.3"), || {
+        let environment = Environment::default().try_parsing(false);
 
-    let environment = Environment::default().try_parsing(false);
+        let config = Config::builder()
+            .set_default("tag", "Float")
+            .unwrap()
+            .add_source(environment)
+            .build()
+            .unwrap();
 
-    let config = Config::builder()
-        .set_default("tag", "Float")
-        .unwrap()
-        .add_source(environment)
-        .build()
-        .unwrap();
-
-    env::remove_var("FLOAT_VAL_1");
-
-    config.try_deserialize::<TestFloatEnum>().unwrap();
+        config.try_deserialize::<TestFloatEnum>().unwrap();
+    })
 }
 
 #[test]
@@ -301,20 +272,18 @@ fn test_parse_off_bool() {
         bool_val_1: bool,
     }
 
-    env::set_var("BOOL_VAL_1", "true");
+    temp_env::with_var("BOOL_VAL_1", Some("true"), || {
+        let environment = Environment::default().try_parsing(false);
 
-    let environment = Environment::default().try_parsing(false);
+        let config = Config::builder()
+            .set_default("tag", "Bool")
+            .unwrap()
+            .add_source(environment)
+            .build()
+            .unwrap();
 
-    let config = Config::builder()
-        .set_default("tag", "Bool")
-        .unwrap()
-        .add_source(environment)
-        .build()
-        .unwrap();
-
-    env::remove_var("BOOL_VAL_1");
-
-    config.try_deserialize::<TestBoolEnum>().unwrap();
+        config.try_deserialize::<TestBoolEnum>().unwrap();
+    })
 }
 
 #[test]
@@ -333,20 +302,18 @@ fn test_parse_int_fail() {
         int_val_2: i32,
     }
 
-    env::set_var("INT_VAL_2", "not an int");
+    temp_env::with_var("INT_VAL_2", Some("not an int"), || {
+        let environment = Environment::default().try_parsing(true);
 
-    let environment = Environment::default().try_parsing(true);
+        let config = Config::builder()
+            .set_default("tag", "Int")
+            .unwrap()
+            .add_source(environment)
+            .build()
+            .unwrap();
 
-    let config = Config::builder()
-        .set_default("tag", "Int")
-        .unwrap()
-        .add_source(environment)
-        .build()
-        .unwrap();
-
-    env::remove_var("INT_VAL_2");
-
-    config.try_deserialize::<TestIntEnum>().unwrap();
+        config.try_deserialize::<TestIntEnum>().unwrap();
+    })
 }
 
 #[test]
@@ -365,20 +332,18 @@ fn test_parse_float_fail() {
         float_val_2: f64,
     }
 
-    env::set_var("FLOAT_VAL_2", "not a float");
+    temp_env::with_var("FLOAT_VAL_2", Some("not a float"), || {
+        let environment = Environment::default().try_parsing(true);
 
-    let environment = Environment::default().try_parsing(true);
+        let config = Config::builder()
+            .set_default("tag", "Float")
+            .unwrap()
+            .add_source(environment)
+            .build()
+            .unwrap();
 
-    let config = Config::builder()
-        .set_default("tag", "Float")
-        .unwrap()
-        .add_source(environment)
-        .build()
-        .unwrap();
-
-    env::remove_var("FLOAT_VAL_2");
-
-    config.try_deserialize::<TestFloatEnum>().unwrap();
+        config.try_deserialize::<TestFloatEnum>().unwrap();
+    })
 }
 
 #[test]
@@ -397,20 +362,18 @@ fn test_parse_bool_fail() {
         bool_val_2: bool,
     }
 
-    env::set_var("BOOL_VAL_2", "not a bool");
+    temp_env::with_var("BOOL_VAL_2", Some("not a bool"), || {
+        let environment = Environment::default().try_parsing(true);
 
-    let environment = Environment::default().try_parsing(true);
+        let config = Config::builder()
+            .set_default("tag", "Bool")
+            .unwrap()
+            .add_source(environment)
+            .build()
+            .unwrap();
 
-    let config = Config::builder()
-        .set_default("tag", "Bool")
-        .unwrap()
-        .add_source(environment)
-        .build()
-        .unwrap();
-
-    env::remove_var("BOOL_VAL_2");
-
-    config.try_deserialize::<TestBoolEnum>().unwrap();
+        config.try_deserialize::<TestBoolEnum>().unwrap();
+    })
 }
 
 #[test]
@@ -428,39 +391,41 @@ fn test_parse_string_and_list() {
         string_list: Vec<String>,
     }
 
-    env::set_var("LIST_STRING_LIST", "test,string");
-    env::set_var("LIST_STRING_VAL", "test,string");
+    temp_env::with_vars(
+        vec![
+            ("LIST_STRING_LIST", Some("test,string")),
+            ("LIST_STRING_VAL", Some("test,string")),
+        ],
+        || {
+            let environment = Environment::default()
+                .prefix("LIST")
+                .list_separator(",")
+                .with_list_parse_key("string_list")
+                .try_parsing(true);
 
-    let environment = Environment::default()
-        .prefix("LIST")
-        .list_separator(",")
-        .with_list_parse_key("string_list")
-        .try_parsing(true);
+            let config = Config::builder()
+                .set_default("tag", "String")
+                .unwrap()
+                .add_source(environment)
+                .build()
+                .unwrap();
 
-    let config = Config::builder()
-        .set_default("tag", "String")
-        .unwrap()
-        .add_source(environment)
-        .build()
-        .unwrap();
+            let config: TestStringEnum = config.try_deserialize().unwrap();
 
-    let config: TestStringEnum = config.try_deserialize().unwrap();
-
-    match config {
-        TestStringEnum::String(TestString {
-            string_val,
-            string_list,
-        }) => {
-            assert_eq!(String::from("test,string"), string_val);
-            assert_eq!(
-                vec![String::from("test"), String::from("string")],
-                string_list
-            );
-        }
-    }
-
-    env::remove_var("LIST_STRING_VAL");
-    env::remove_var("LIST_STRING_LIST");
+            match config {
+                TestStringEnum::String(TestString {
+                    string_val,
+                    string_list,
+                }) => {
+                    assert_eq!(String::from("test,string"), string_val);
+                    assert_eq!(
+                        vec![String::from("test"), String::from("string")],
+                        string_list
+                    );
+                }
+            }
+        },
+    )
 }
 
 #[test]
@@ -477,26 +442,26 @@ fn test_parse_string() {
         string_val: String,
     }
 
-    env::set_var("STRING_VAL", "test string");
+    temp_env::with_var("STRING_VAL", Some("test string"), || {
+        let environment = Environment::default().try_parsing(true);
 
-    let environment = Environment::default().try_parsing(true);
+        let config = Config::builder()
+            .set_default("tag", "String")
+            .unwrap()
+            .add_source(environment)
+            .build()
+            .unwrap();
 
-    let config = Config::builder()
-        .set_default("tag", "String")
-        .unwrap()
-        .add_source(environment)
-        .build()
-        .unwrap();
+        let config: TestStringEnum = config.try_deserialize().unwrap();
 
-    let config: TestStringEnum = config.try_deserialize().unwrap();
+        let test_string = String::from("test string");
 
-    let test_string = String::from("test string");
-
-    match config {
-        TestStringEnum::String(TestString { string_val }) => assert_eq!(test_string, string_val),
-    }
-
-    env::remove_var("STRING_VAL");
+        match config {
+            TestStringEnum::String(TestString { string_val }) => {
+                assert_eq!(test_string, string_val)
+            }
+        }
+    })
 }
 
 #[test]
@@ -513,26 +478,26 @@ fn test_parse_string_list() {
         string_list: Vec<String>,
     }
 
-    env::set_var("STRING_LIST", "test string");
+    temp_env::with_var("STRING_LIST", Some("test string"), || {
+        let environment = Environment::default().try_parsing(true).list_separator(" ");
 
-    let environment = Environment::default().try_parsing(true).list_separator(" ");
+        let config = Config::builder()
+            .set_default("tag", "StringList")
+            .unwrap()
+            .add_source(environment)
+            .build()
+            .unwrap();
 
-    let config = Config::builder()
-        .set_default("tag", "StringList")
-        .unwrap()
-        .add_source(environment)
-        .build()
-        .unwrap();
+        let config: TestListEnum = config.try_deserialize().unwrap();
 
-    let config: TestListEnum = config.try_deserialize().unwrap();
+        let test_string = vec![String::from("test"), String::from("string")];
 
-    let test_string = vec![String::from("test"), String::from("string")];
-
-    match config {
-        TestListEnum::StringList(TestList { string_list }) => assert_eq!(test_string, string_list),
-    }
-
-    env::remove_var("STRING_LIST");
+        match config {
+            TestListEnum::StringList(TestList { string_list }) => {
+                assert_eq!(test_string, string_list)
+            }
+        }
+    })
 }
 
 #[test]
@@ -549,26 +514,24 @@ fn test_parse_off_string() {
         string_val_1: String,
     }
 
-    env::set_var("STRING_VAL_1", "test string");
+    temp_env::with_var("STRING_VAL_1", Some("test string"), || {
+        let environment = Environment::default().try_parsing(false);
 
-    let environment = Environment::default().try_parsing(false);
+        let config = Config::builder()
+            .set_default("tag", "String")
+            .unwrap()
+            .add_source(environment)
+            .build()
+            .unwrap();
 
-    let config = Config::builder()
-        .set_default("tag", "String")
-        .unwrap()
-        .add_source(environment)
-        .build()
-        .unwrap();
+        let config: TestStringEnum = config.try_deserialize().unwrap();
 
-    let config: TestStringEnum = config.try_deserialize().unwrap();
+        let test_string = String::from("test string");
 
-    let test_string = String::from("test string");
-
-    match config {
-        TestStringEnum::String(TestString { string_val_1 }) => {
-            assert_eq!(test_string, string_val_1);
+        match config {
+            TestStringEnum::String(TestString { string_val_1 }) => {
+                assert_eq!(test_string, string_val_1);
+            }
         }
-    }
-
-    env::remove_var("STRING_VAL_1");
+    })
 }
