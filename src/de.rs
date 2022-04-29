@@ -337,132 +337,91 @@ impl<'de> de::VariantAccess<'de> for EnumAccess {
     }
 }
 
+macro_rules! forward_to_cache_simple {
+    { $($name:ident)* } => { $(
+        #[inline]
+        fn $name<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
+            self.cache.$name(visitor)
+        }
+    )*
+    }
+}
+
 impl<'de> de::Deserializer<'de> for Config {
     type Error = ConfigError;
 
-    #[inline]
-    fn deserialize_any<V>(self, visitor: V) -> Result<V::Value>
-    where
-        V: de::Visitor<'de>,
-    {
-        // Deserialize based on the underlying type
-        match self.cache.kind {
-            ValueKind::Nil => visitor.visit_unit(),
-            ValueKind::I64(i) => visitor.visit_i64(i),
-            ValueKind::I128(i) => visitor.visit_i128(i),
-            ValueKind::U64(i) => visitor.visit_u64(i),
-            ValueKind::U128(i) => visitor.visit_u128(i),
-            ValueKind::Boolean(b) => visitor.visit_bool(b),
-            ValueKind::Float(f) => visitor.visit_f64(f),
-            ValueKind::String(s) => visitor.visit_string(s),
-            ValueKind::Array(values) => visitor.visit_seq(SeqAccess::new(values)),
-            ValueKind::Table(map) => visitor.visit_map(MapAccess::new(map)),
-        }
+    // In the order presented in the serde docs:
+    forward_to_cache_simple! {
+        deserialize_any
+        deserialize_bool
+        deserialize_i8
+        deserialize_i16
+        deserialize_i32
+        deserialize_i64
+        deserialize_u8
+        deserialize_u16
+        deserialize_u32
+        deserialize_u64
+        deserialize_f32
+        deserialize_f64
+        deserialize_char
+        deserialize_str
+        deserialize_string
+        deserialize_bytes
+        deserialize_byte_buf
+        deserialize_option
+        deserialize_unit
+
+        deserialize_seq
+        deserialize_map
+        deserialize_identifier
+        deserialize_ignored_any
     }
 
-    #[inline]
-    fn deserialize_bool<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
-        visitor.visit_bool(self.cache.into_bool()?)
+    fn deserialize_unit_struct<V: de::Visitor<'de>>(
+        self,
+        name: &'static str,
+        visitor: V,
+    ) -> Result<V::Value> {
+        self.cache.deserialize_unit_struct(name, visitor)
     }
 
-    #[inline]
-    fn deserialize_i8<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
-        // FIXME: This should *fail* if the value does not fit in the requets integer type
-        visitor.visit_i8(self.cache.into_int()? as i8)
+    fn deserialize_newtype_struct<V: de::Visitor<'de>>(
+        self,
+        name: &'static str,
+        visitor: V,
+    ) -> Result<V::Value> {
+        self.cache.deserialize_newtype_struct(name, visitor)
     }
 
-    #[inline]
-    fn deserialize_i16<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
-        // FIXME: This should *fail* if the value does not fit in the requets integer type
-        visitor.visit_i16(self.cache.into_int()? as i16)
+    fn deserialize_tuple<V: de::Visitor<'de>>(self, len: usize, visitor: V) -> Result<V::Value> {
+        self.cache.deserialize_tuple(len, visitor)
     }
 
-    #[inline]
-    fn deserialize_i32<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
-        // FIXME: This should *fail* if the value does not fit in the requets integer type
-        visitor.visit_i32(self.cache.into_int()? as i32)
+    fn deserialize_tuple_struct<V: de::Visitor<'de>>(
+        self,
+        name: &'static str,
+        len: usize,
+        visitor: V,
+    ) -> Result<V::Value> {
+        self.cache.deserialize_tuple_struct(name, len, visitor)
     }
 
-    #[inline]
-    fn deserialize_i64<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
-        visitor.visit_i64(self.cache.into_int()?)
+    fn deserialize_struct<V: de::Visitor<'de>>(
+        self,
+        name: &'static str,
+        fields: &'static [&'static str],
+        visitor: V,
+    ) -> Result<V::Value> {
+        self.cache.deserialize_struct(name, fields, visitor)
     }
 
-    #[inline]
-    fn deserialize_u8<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
-        // FIXME: This should *fail* if the value does not fit in the requets integer type
-        visitor.visit_u8(self.cache.into_int()? as u8)
-    }
-
-    #[inline]
-    fn deserialize_u16<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
-        // FIXME: This should *fail* if the value does not fit in the requets integer type
-        visitor.visit_u16(self.cache.into_int()? as u16)
-    }
-
-    #[inline]
-    fn deserialize_u32<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
-        // FIXME: This should *fail* if the value does not fit in the requets integer type
-        visitor.visit_u32(self.cache.into_int()? as u32)
-    }
-
-    #[inline]
-    fn deserialize_u64<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
-        // FIXME: This should *fail* if the value does not fit in the requets integer type
-        visitor.visit_u64(self.cache.into_int()? as u64)
-    }
-
-    #[inline]
-    fn deserialize_f32<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
-        visitor.visit_f32(self.cache.into_float()? as f32)
-    }
-
-    #[inline]
-    fn deserialize_f64<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
-        visitor.visit_f64(self.cache.into_float()?)
-    }
-
-    #[inline]
-    fn deserialize_str<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
-        visitor.visit_string(self.cache.into_string()?)
-    }
-
-    #[inline]
-    fn deserialize_string<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
-        visitor.visit_string(self.cache.into_string()?)
-    }
-
-    #[inline]
-    fn deserialize_option<V>(self, visitor: V) -> Result<V::Value>
-    where
-        V: de::Visitor<'de>,
-    {
-        // Match an explicit nil as None and everything else as Some
-        match self.cache.kind {
-            ValueKind::Nil => visitor.visit_none(),
-            _ => visitor.visit_some(self),
-        }
-    }
-
-    fn deserialize_enum<V>(
+    fn deserialize_enum<V: de::Visitor<'de>>(
         self,
         name: &'static str,
         variants: &'static [&'static str],
         visitor: V,
-    ) -> Result<V::Value>
-    where
-        V: de::Visitor<'de>,
-    {
-        visitor.visit_enum(EnumAccess {
-            value: self.cache,
-            name,
-            variants,
-        })
-    }
-
-    serde::forward_to_deserialize_any! {
-        char seq
-        bytes byte_buf map struct unit newtype_struct
-        identifier ignored_any unit_struct tuple_struct tuple
+    ) -> Result<V::Value> {
+        self.cache.deserialize_enum(name, variants, visitor)
     }
 }
