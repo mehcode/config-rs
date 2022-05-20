@@ -14,40 +14,16 @@ edition = "2018"
 [badges]
 maintenance = { status = "actively-developed" }
 
-[features]
-default = ["toml", "json", "yaml", "ini", "ron", "json5"]
-json = ["serde_json"]
-yaml = ["yaml-rust"]
-ini = ["rust-ini"]
-json5 = ["json5_rs"]
-preserve_order = ["indexmap", "toml/preserve_order", "serde_json/preserve_order", "ron/indexmap"]
-
 [dependencies]
-async-trait = "0.1.50"
-lazy_static = "1.0"
-serde = "1.0.8"
-nom = "7"
+serde = { version = "1.0.8", features = ["derive"] }
+thiserror = "1"
+url = "2.2"
 
-toml = { version = "0.5", optional = true }
 serde_json = { version = "1.0.2", optional = true }
-yaml-rust = { version = "0.4", optional = true }
-rust-ini = { version = "0.18", optional = true }
-ron = { version = "0.7", optional = true }
-json5_rs = { version = "0.4", optional = true, package = "json5" }
-indexmap = { version = "1.7.0", features = ["serde-1"], optional = true}
-pathdiff = "0.2"
+toml = { version = "0.5", optional = true }
 
-[dev-dependencies]
-serde_derive = "1.0.8"
-float-cmp = "0.9"
-chrono = { version = "0.4", features = ["serde"] }
-tokio = { version = "1", features = ["rt-multi-thread", "macros", "fs", "io-util", "time"]}
-warp = "=0.3.1"
-futures = "0.3.15"
-reqwest = "0.11.10"
+[features]
+default = ["json", "toml"]
+json = ["serde_json"]
+toml = ["dep:toml"]
 
-serde = "1.0"
-glob = "0.3"
-lazy_static = "1"
-notify = "^4.0.0"
-temp-env = "0.2.0"
