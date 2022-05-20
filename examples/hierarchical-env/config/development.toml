@@ -1,4 +1,0 @@
-debug = true
-
-[database]
-echo = true
