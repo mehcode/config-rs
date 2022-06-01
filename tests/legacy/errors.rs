@@ -65,7 +65,7 @@ fn test_error_type_detached() {
 
 #[test]
 fn test_error_enum_de() {
-    #[derive(Debug, Deserialize, PartialEq)]
+    #[derive(Debug, Deserialize, PartialEq, Eq)]
     enum Diode {
         Off,
         Brightness(i32),
