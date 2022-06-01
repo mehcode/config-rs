@@ -702,7 +702,7 @@ mod test {
 
     #[test]
     fn test_struct() {
-        #[derive(Debug, Serialize, Deserialize, PartialEq)]
+        #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
         struct Test {
             int: u32,
             seq: Vec<String>,
