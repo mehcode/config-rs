@@ -91,3 +91,32 @@ fn test_error_parse() {
         )
     );
 }
+
+use std::collections::HashMap;
+
+#[derive(Debug, Deserialize)]
+struct Outer {
+    inner_string: HashMap<String, Inner>,
+    inner_int: HashMap<u32, Inner>,
+}
+
+#[derive(Debug, Deserialize)]
+struct Inner {
+    member: String,
+}
+
+#[test]
+fn test_yaml_parsing_key() {
+    let config = Config::builder()
+        .add_source(File::new("tests/test-keys.yaml", FileFormat::Yaml))
+        .build()
+        .unwrap()
+        .try_deserialize::<Outer>()
+        .unwrap();
+    assert_eq!(config.inner_int.get(&1).unwrap().member, "Test Int 1");
+    assert_eq!(config.inner_int.get(&2).unwrap().member, "Test Int 2");
+    assert_eq!(
+        config.inner_string.get("str_key").unwrap().member,
+        "Test String"
+    );
+}
