@@ -1,5 +1,5 @@
 use config::Config;
-#[derive(Debug, Default, serde_derive::Deserialize, PartialEq)]
+#[derive(Debug, Default, serde_derive::Deserialize, PartialEq, Eq)]
 struct AppConfig {
     list: Vec<String>,
 }
