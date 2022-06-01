@@ -19,10 +19,10 @@ struct Place {
     rating: Option<f32>,
 }
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Debug, Deserialize, PartialEq, Eq)]
 struct PlaceNumber(u8);
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Debug, Deserialize, PartialEq, Eq)]
 struct AsciiCode(i8);
 
 #[derive(Debug, Deserialize)]

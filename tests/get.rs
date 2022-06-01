@@ -211,7 +211,7 @@ fn test_struct_array() {
 
 #[test]
 fn test_enum() {
-    #[derive(Debug, Deserialize, PartialEq)]
+    #[derive(Debug, Deserialize, PartialEq, Eq)]
     #[serde(rename_all = "lowercase")]
     enum Diode {
         Off,
@@ -268,7 +268,7 @@ fn test_enum_key() {
 
 #[test]
 fn test_int_key() {
-    #[derive(Debug, Deserialize, PartialEq)]
+    #[derive(Debug, Deserialize, PartialEq, Eq)]
     struct Settings {
         divisors: Map<u32, u32>,
     }
