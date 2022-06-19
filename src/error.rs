@@ -137,7 +137,7 @@ impl ConfigError {
     fn prepend(self, segment: &str, add_dot: bool) -> Self {
         let concat = |key: Option<String>| {
             let key = key.unwrap_or_default();
-            let dot = if add_dot && key.as_bytes().get(0).unwrap_or(&b'[') != &b'[' {
+            let dot = if add_dot && key.as_bytes().first().unwrap_or(&b'[') != &b'[' {
                 "."
             } else {
                 ""
