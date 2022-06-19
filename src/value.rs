@@ -210,6 +210,11 @@ impl Value {
         }
     }
 
+    /// Get the description of the original location of the value.
+    pub fn origin(&self) -> Option<&str> {
+        self.origin.as_ref().map(AsRef::as_ref)
+    }
+
     /// Attempt to deserialize this value into the requested type.
     pub fn try_deserialize<'de, T: Deserialize<'de>>(self) -> Result<T> {
         T::deserialize(self)
