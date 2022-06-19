@@ -51,10 +51,11 @@ fn from_yaml_value(
         yaml::Yaml::Hash(ref table) => {
             let mut m = Map::new();
             for (key, value) in table {
-                if let Some(k) = key.as_str() {
-                    m.insert(k.to_owned(), from_yaml_value(uri, value)?);
-                }
-                // TODO: should we do anything for non-string keys?
+                match key {
+                    yaml::Yaml::String(k) => m.insert(k.to_owned(), from_yaml_value(uri, value)?),
+                    yaml::Yaml::Integer(k) => m.insert(k.to_string(), from_yaml_value(uri, value)?),
+                    _ => unreachable!(),
+                };
             }
             Ok(Value::new(uri, ValueKind::Table(m)))
         }
