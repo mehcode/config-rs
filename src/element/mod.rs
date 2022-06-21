@@ -67,7 +67,18 @@ impl<'a> ConfigElement<'a> {
             (Some(AccessType::Key(k)), ConfigElement::List(_)) => {
                 Err(ConfigObjectAccessError::AccessWithKeyOnList(k.to_string()))
             }
-            (Some(AccessType::Key(k)), ConfigElement::Map(hm)) => Ok(hm.get(k.as_str())),
+            (Some(AccessType::Key(k)), ConfigElement::Map(hm)) => {
+                if let Some(value) = hm.get(k.as_str()) {
+                    accessor.advance();
+                    if accessor.current().is_none() {
+                        return Ok(Some(value))
+                    } else {
+                        value.get(accessor)
+                    }
+                } else {
+                    Ok(None)
+                }
+            },
 
             (Some(AccessType::Index(u)), ConfigElement::Null) => {
                 Err(ConfigObjectAccessError::AccessWithIndexOnNull(*u))
@@ -130,3 +141,42 @@ pub mod json;
 #[cfg(feature = "toml")]
 pub mod toml;
 
+#[cfg(test)]
+mod tests {
+    #[test]
+    #[cfg(feature = "toml")]
+    fn test_nested_toml_config() {
+        use crate::Config;
+        use crate::element::AsConfigElement;
+        use crate::element::ConfigElement;
+
+        let toml: toml::Value = toml::from_str(r#"
+            key1 = "value2"
+
+            [table]
+            key2 = "value3"
+        "#).unwrap();
+        let toml = std::sync::Arc::new(toml);
+
+        let source = crate::source::test_source::TestSource(|| toml.as_config_element().unwrap());
+
+        let c = Config::builder()
+            .load(&source)
+            .unwrap()
+            .build();
+
+        let r = c.get("key1");
+        assert!(r.is_ok());
+        let r = r.unwrap();
+        assert!(r.is_some());
+        let r = r.unwrap();
+        assert!(std::matches!(r, ConfigElement::Str("value2")));
+
+        let r = c.get("table.key2");
+        assert!(r.is_ok());
+        let r = r.unwrap();
+        assert!(r.is_some());
+        let r = r.unwrap();
+        assert!(std::matches!(r, ConfigElement::Str("value3")), "{:?} != value3", r);
+    }
+}
