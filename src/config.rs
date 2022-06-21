@@ -155,4 +155,26 @@ mod tests {
             .build();
     }
 
+    #[test]
+    #[cfg(feature = "json")]
+    fn test_load_json_get_value() {
+        let json: serde_json::Value = serde_json::from_str(r#"
+            { "key": "value" }
+        "#).unwrap();
+        let json = std::sync::Arc::new(json);
+
+        let source = crate::source::test_source::TestSource(|| json.as_config_element().unwrap());
+
+        let c = Config::builder()
+            .load(&source)
+            .unwrap()
+            .build();
+
+        let r = c.get("key");
+        assert!(r.is_ok());
+        let r = r.unwrap();
+        assert!(r.is_some());
+        let r = r.unwrap();
+        assert!(std::matches!(r, ConfigElement::Str("value")));
+    }
 }
