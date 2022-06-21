@@ -21,3 +21,16 @@ impl FormatParser for JsonFormatParser {
     }
 }
 
+
+#[cfg(feature = "toml")]
+#[derive(Debug)]
+pub struct TomlFormatParser;
+
+#[cfg(feature = "toml")]
+impl FormatParser for TomlFormatParser {
+    type Output = toml::Value;
+
+    fn parse(buffer: &str) -> Result<Self::Output, SourceError> {
+        toml::from_str(buffer).map_err(SourceError::TomlParserError)
+    }
+}

@@ -30,5 +30,5 @@ pub trait AsConfigElement {
 pub mod json;
 
 #[cfg(feature = "toml")]
-mod toml;
+pub mod toml;
 

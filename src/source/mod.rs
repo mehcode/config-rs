@@ -25,6 +25,14 @@ pub enum SourceError {
     #[cfg(feature = "json")]
     #[error("JSON load error")]
     JsonLoadError(#[from] crate::element::json::JsonIntoConfigElementError),
+
+    #[cfg(feature = "toml")]
+    #[error("TOML Parser error")]
+    TomlParserError(#[from] toml::de::Error),
+
+    #[cfg(feature = "toml")]
+    #[error("TOML load error")]
+    TomlLoadError(#[from] crate::element::toml::TomlIntoConfigElementError),
 }
 
 #[cfg(test)]
