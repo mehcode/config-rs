@@ -128,3 +128,31 @@ impl<'a> ConfigBuilder<'a> {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::element::AsConfigElement;
+
+    #[test]
+    fn test_compile_loading() {
+        let _c = Config::builder()
+            .load(&crate::source::test_source::TestSource(|| ConfigElement::Null))
+            .unwrap()
+            .build();
+    }
+
+    #[test]
+    #[cfg(feature = "json")]
+    fn test_load_json() {
+        let json: serde_json::Value = serde_json::from_str(r#"
+            { "key": "value" }
+        "#).unwrap();
+        let json = std::sync::Arc::new(json);
+
+        let _c = Config::builder()
+            .load(&crate::source::test_source::TestSource(|| json.as_config_element().unwrap()))
+            .unwrap()
+            .build();
+    }
+
+}
