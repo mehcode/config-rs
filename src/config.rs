@@ -49,9 +49,9 @@ impl<'a> Config<'a> {
     /// Access the configuration at a specific position
     ///
     /// See [`Config::get`]
-    pub fn get_with_accessor(&self, accessor: Accessor) -> Result<Option<&ConfigElement<'a>>, ConfigError> {
+    pub fn get_with_accessor(&self, mut accessor: Accessor) -> Result<Option<&ConfigElement<'a>>, ConfigError> {
         for layer in self.layers.iter() {
-            if let Some(value) = layer.get(&accessor)? {
+            if let Some(value) = layer.get(&mut accessor)? {
                 return Ok(Some(value))
             }
         }
