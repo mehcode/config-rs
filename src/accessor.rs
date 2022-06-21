@@ -17,7 +17,7 @@ impl ParsableAccessor for &str {
             })
             .collect();
 
-        Ok(Accessor(accessor))
+        Ok(Accessor::new(accessor))
     }
 }
 
@@ -28,7 +28,19 @@ impl ParsableAccessor for String {
     }
 }
 
-pub struct Accessor(Vec<AccessType>);
+pub struct Accessor {
+    stack: Vec<AccessType>,
+    index: usize,
+}
+
+impl Accessor {
+    pub(crate) fn new(stack: Vec<AccessType>) -> Self {
+        Self {
+            stack,
+            index: 0
+        }
+    }
+}
 
 pub(crate) enum AccessType {
     Key(String),
@@ -36,13 +48,12 @@ pub(crate) enum AccessType {
 }
 
 impl Accessor {
-    pub(crate) fn head(&self) -> Option<&AccessType> {
-        self.0.get(0)
+    pub(crate) fn current(&self) -> Option<&AccessType> {
+        self.stack.get(self.index)
     }
 
-    pub fn pop(mut self) -> Accessor {
-        let _ = self.0.remove(0);
-        Accessor(self.0)
+    pub fn advance(&mut self) {
+        self.index += 1;
     }
 }
 
