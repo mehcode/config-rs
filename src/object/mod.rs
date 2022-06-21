@@ -9,6 +9,10 @@ pub struct ConfigObject<'a> {
 }
 
 impl<'a> ConfigObject<'a> {
+    pub(crate) fn new(element: ConfigElement<'a>, source: ConfigSourceDescription) -> Self {
+        Self { element, source }
+    }
+
     pub(crate) fn get(&self, accessor: &Accessor) -> Result<Option<ConfigElement<'a>>, ConfigObjectAccessError> {
         unimplemented!()
     }
