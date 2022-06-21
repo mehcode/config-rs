@@ -119,7 +119,18 @@ impl<'a> ConfigElement<'a> {
             (Some(AccessType::Index(u)), ConfigElement::Str(_)) => {
                 Err(ConfigObjectAccessError::AccessWithIndexOnStr(*u))
             }
-            (Some(AccessType::Index(u)), ConfigElement::List(v)) => Ok(v.get(*u)),
+            (Some(AccessType::Index(u)), ConfigElement::List(v)) => {
+                if let Some(value) = v.get(*u) {
+                    accessor.advance();
+                    if accessor.current().is_none() {
+                        return Ok(Some(value))
+                    } else {
+                        value.get(accessor)
+                    }
+                } else {
+                    Ok(None)
+                }
+            },
             (Some(AccessType::Index(u)), ConfigElement::Map(_)) => {
                 Err(ConfigObjectAccessError::AccessWithIndexOnMap(*u))
             }
@@ -178,5 +189,36 @@ mod tests {
         assert!(r.is_some());
         let r = r.unwrap();
         assert!(std::matches!(r, ConfigElement::Str("value3")), "{:?} != value3", r);
+    }
+
+    #[test]
+    #[cfg(feature = "toml")]
+    fn test_nested_toml_config_with_index() {
+        use crate::Config;
+        use crate::element::AsConfigElement;
+        use crate::element::ConfigElement;
+
+        let toml: toml::Value = toml::from_str(r#"
+            [[key]]
+            k = "a"
+
+            [[key]]
+            k = "b"
+        "#).unwrap();
+        let toml = std::sync::Arc::new(toml);
+
+        let source = crate::source::test_source::TestSource(|| toml.as_config_element().unwrap());
+
+        let c = Config::builder()
+            .load(&source)
+            .unwrap()
+            .build();
+
+        let r = c.get("key.0.k");
+        assert!(r.is_ok());
+        let r = r.unwrap();
+        assert!(r.is_some());
+        let r = r.unwrap();
+        assert!(std::matches!(r, ConfigElement::Str("a")), "{:?} != a", r);
     }
 }
