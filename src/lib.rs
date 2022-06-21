@@ -7,3 +7,4 @@ mod source;
 
 pub use crate::config::Config;
 pub use crate::source::ConfigSource;
+pub use crate::source::StringSource;

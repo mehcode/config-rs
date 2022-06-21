@@ -27,7 +27,7 @@ pub trait AsConfigElement {
 }
 
 #[cfg(feature = "json")]
-mod json;
+pub mod json;
 
 #[cfg(feature = "toml")]
 mod toml;
