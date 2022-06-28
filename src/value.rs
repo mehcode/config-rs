@@ -1,3 +1,4 @@
+use std::convert::TryInto;
 use std::fmt;
 use std::fmt::Display;
 
@@ -269,21 +270,27 @@ impl Value {
     pub fn into_int(self) -> Result<i64> {
         match self.kind {
             ValueKind::I64(value) => Ok(value),
-            ValueKind::I128(value) => Err(ConfigError::invalid_type(
-                self.origin,
-                Unexpected::I128(value),
-                "an signed 64 bit or less integer",
-            )),
-            ValueKind::U64(value) => Err(ConfigError::invalid_type(
-                self.origin,
-                Unexpected::U64(value),
-                "an signed 64 bit or less integer",
-            )),
-            ValueKind::U128(value) => Err(ConfigError::invalid_type(
-                self.origin,
-                Unexpected::U128(value),
-                "an signed 64 bit or less integer",
-            )),
+            ValueKind::I128(value) => value.try_into().map_err(|_| {
+                ConfigError::invalid_type(
+                    self.origin,
+                    Unexpected::I128(value),
+                    "an signed 64 bit or less integer",
+                )
+            }),
+            ValueKind::U64(value) => value.try_into().map_err(|_| {
+                ConfigError::invalid_type(
+                    self.origin,
+                    Unexpected::U64(value),
+                    "an signed 64 bit or less integer",
+                )
+            }),
+            ValueKind::U128(value) => value.try_into().map_err(|_| {
+                ConfigError::invalid_type(
+                    self.origin,
+                    Unexpected::U128(value),
+                    "an signed 64 bit or less integer",
+                )
+            }),
 
             ValueKind::String(ref s) => {
                 match s.to_lowercase().as_ref() {
@@ -330,11 +337,13 @@ impl Value {
             ValueKind::I64(value) => Ok(value.into()),
             ValueKind::I128(value) => Ok(value),
             ValueKind::U64(value) => Ok(value.into()),
-            ValueKind::U128(value) => Err(ConfigError::invalid_type(
-                self.origin,
-                Unexpected::U128(value),
-                "an signed 128 bit integer",
-            )),
+            ValueKind::U128(value) => value.try_into().map_err(|_| {
+                ConfigError::invalid_type(
+                    self.origin,
+                    Unexpected::U128(value),
+                    "an signed 128 bit integer",
+                )
+            }),
 
             ValueKind::String(ref s) => {
                 match s.to_lowercase().as_ref() {
@@ -380,21 +389,27 @@ impl Value {
     pub fn into_uint(self) -> Result<u64> {
         match self.kind {
             ValueKind::U64(value) => Ok(value),
-            ValueKind::U128(value) => Err(ConfigError::invalid_type(
-                self.origin,
-                Unexpected::U128(value),
-                "an unsigned 64 bit or less integer",
-            )),
-            ValueKind::I64(value) => Err(ConfigError::invalid_type(
-                self.origin,
-                Unexpected::I64(value),
-                "an unsigned 64 bit or less integer",
-            )),
-            ValueKind::I128(value) => Err(ConfigError::invalid_type(
-                self.origin,
-                Unexpected::I128(value),
-                "an unsigned 64 bit or less integer",
-            )),
+            ValueKind::U128(value) => value.try_into().map_err(|_| {
+                ConfigError::invalid_type(
+                    self.origin,
+                    Unexpected::U128(value),
+                    "an unsigned 64 bit or less integer",
+                )
+            }),
+            ValueKind::I64(value) => value.try_into().map_err(|_| {
+                ConfigError::invalid_type(
+                    self.origin,
+                    Unexpected::I64(value),
+                    "an unsigned 64 bit or less integer",
+                )
+            }),
+            ValueKind::I128(value) => value.try_into().map_err(|_| {
+                ConfigError::invalid_type(
+                    self.origin,
+                    Unexpected::I128(value),
+                    "an unsigned 64 bit or less integer",
+                )
+            }),
 
             ValueKind::String(ref s) => {
                 match s.to_lowercase().as_ref() {
@@ -440,16 +455,20 @@ impl Value {
         match self.kind {
             ValueKind::U64(value) => Ok(value.into()),
             ValueKind::U128(value) => Ok(value),
-            ValueKind::I64(value) => Err(ConfigError::invalid_type(
-                self.origin,
-                Unexpected::I64(value),
-                "an unsigned 128 bit or less integer",
-            )),
-            ValueKind::I128(value) => Err(ConfigError::invalid_type(
-                self.origin,
-                Unexpected::I128(value),
-                "an unsigned 128 bit or less integer",
-            )),
+            ValueKind::I64(value) => value.try_into().map_err(|_| {
+                ConfigError::invalid_type(
+                    self.origin,
+                    Unexpected::I64(value),
+                    "an unsigned 128 bit or less integer",
+                )
+            }),
+            ValueKind::I128(value) => value.try_into().map_err(|_| {
+                ConfigError::invalid_type(
+                    self.origin,
+                    Unexpected::I128(value),
+                    "an unsigned 128 bit or less integer",
+                )
+            }),
 
             ValueKind::String(ref s) => {
                 match s.to_lowercase().as_ref() {

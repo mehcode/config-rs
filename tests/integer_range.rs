@@ -33,3 +33,20 @@ fn nonwrapping_u32() {
     let port: u32 = c.get("settings.port").unwrap();
     assert_eq!(port, 66000);
 }
+
+#[test]
+#[should_panic]
+fn invalid_signedness() {
+    let c = Config::builder()
+        .add_source(config::File::from_str(
+            r#"
+            [settings]
+            port = -1
+            "#,
+            config::FileFormat::Toml,
+        ))
+        .build()
+        .unwrap();
+
+    let _: u32 = c.get("settings.port").unwrap();
+}
