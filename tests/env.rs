@@ -152,6 +152,39 @@ fn test_parse_int() {
 }
 
 #[test]
+fn test_parse_uint() {
+    // using a struct in an enum here to make serde use `deserialize_any`
+    #[derive(Deserialize, Debug)]
+    #[serde(tag = "tag")]
+    enum TestUintEnum {
+        Uint(TestUint),
+    }
+
+    #[derive(Deserialize, Debug)]
+    struct TestUint {
+        int_val: u32,
+    }
+
+    temp_env::with_var("INT_VAL", Some("42"), || {
+        let environment = Environment::default().try_parsing(true);
+
+        let config = Config::builder()
+            .set_default("tag", "Uint")
+            .unwrap()
+            .add_source(environment)
+            .build()
+            .unwrap();
+
+        let config: TestUintEnum = config.try_deserialize().unwrap();
+
+        assert!(matches!(
+            config,
+            TestUintEnum::Uint(TestUint { int_val: 42 })
+        ));
+    })
+}
+
+#[test]
 fn test_parse_float() {
     // using a struct in an enum here to make serde use `deserialize_any`
     #[derive(Deserialize, Debug)]
@@ -571,4 +604,44 @@ fn test_parse_off_string() {
     }
 
     env::remove_var("STRING_VAL_1");
+}
+
+#[test]
+fn test_parse_int_default() {
+    #[derive(Deserialize, Debug)]
+    struct TestInt {
+        int_val: i32,
+    }
+
+    let environment = Environment::default().try_parsing(true);
+
+    let config = Config::builder()
+        .set_default("int_val", 42_i32)
+        .unwrap()
+        .add_source(environment)
+        .build()
+        .unwrap();
+
+    let config: TestInt = config.try_deserialize().unwrap();
+    assert_eq!(config.int_val, 42);
+}
+
+#[test]
+fn test_parse_uint_default() {
+    #[derive(Deserialize, Debug)]
+    struct TestUint {
+        int_val: u32,
+    }
+
+    let environment = Environment::default().try_parsing(true);
+
+    let config = Config::builder()
+        .set_default("int_val", 42_u32)
+        .unwrap()
+        .add_source(environment)
+        .build()
+        .unwrap();
+
+    let config: TestUint = config.try_deserialize().unwrap();
+    assert_eq!(config.int_val, 42);
 }
