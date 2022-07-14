@@ -15,5 +15,7 @@
       "username": "jsmith",
       "email": "jsmith@localhost"
     }
-  }
+  },
+  "FOO": "FOO should be overridden",
+  "bar": "I am bar"
 }

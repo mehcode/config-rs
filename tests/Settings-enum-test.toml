@@ -1,0 +1,2 @@
+# Test for Enum deserialization. See file_tomls.rs override tests 
+bar = "bar is a lowercase param"

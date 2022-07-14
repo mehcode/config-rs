@@ -8,6 +8,10 @@ code = 53
 # errors
 boolean_s_parse = "fals"
 
+# For override tests 
+FOO="FOO should be overridden"
+bar="I am bar"
+
 arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 quarks = ["up", "down", "strange", "charm", "bottom", "top"]
 
