@@ -345,19 +345,8 @@ impl<'de> de::Deserializer<'de> for Config {
     where
         V: de::Visitor<'de>,
     {
-        // Deserialize based on the underlying type
-        match self.cache.kind {
-            ValueKind::Nil => visitor.visit_unit(),
-            ValueKind::I64(i) => visitor.visit_i64(i),
-            ValueKind::I128(i) => visitor.visit_i128(i),
-            ValueKind::U64(i) => visitor.visit_u64(i),
-            ValueKind::U128(i) => visitor.visit_u128(i),
-            ValueKind::Boolean(b) => visitor.visit_bool(b),
-            ValueKind::Float(f) => visitor.visit_f64(f),
-            ValueKind::String(s) => visitor.visit_string(s),
-            ValueKind::Array(values) => visitor.visit_seq(SeqAccess::new(values)),
-            ValueKind::Table(map) => visitor.visit_map(MapAccess::new(map)),
-        }
+        // Delegate deserialization to Value
+        de::Deserializer::deserialize_any(self.cache, visitor)
     }
 
     #[inline]
