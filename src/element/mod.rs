@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::{accessor::{AccessType, Accessor}, object::ConfigObjectAccessError};
 
-#[derive(Debug, PartialEq, serde::Deserialize)]
+#[derive(Clone, Debug, PartialEq, serde::Deserialize)]
 #[serde(untagged)]
 pub enum ConfigElement<'a> {
     Null,

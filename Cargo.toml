@@ -19,6 +19,9 @@ serde = { version = "1.0.8", features = ["derive"] }
 thiserror = "1"
 url = "2.2"
 
+async-trait = { version = "0.1", optional = true }
+itertools = { version = "0.10", optional = true }
+futures = { version = "0.3", optional = true }
 serde_json = { version = "1.0.2", optional = true }
 toml = { version = "0.5", optional = true }
 
@@ -26,4 +29,4 @@ toml = { version = "0.5", optional = true }
 default = ["json", "toml"]
 json = ["serde_json"]
 toml = ["dep:toml"]
-
+async = ["async-trait", "futures", "itertools"]

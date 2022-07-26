@@ -2,7 +2,7 @@ use crate::accessor::Accessor;
 use crate::description::ConfigSourceDescription;
 use crate::element::ConfigElement;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct ConfigObject<'a> {
     element: ConfigElement<'a>,
     source: ConfigSourceDescription,

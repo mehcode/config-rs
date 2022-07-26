@@ -22,9 +22,7 @@ impl<P: FormatParser> StringSource<P> {
 impl<P: FormatParser + std::fmt::Debug> ConfigSource for StringSource<P>
     where SourceError: From<<<P as FormatParser>::Output as AsConfigElement>::Error>
 {
-    type Error = SourceError;
-
-    fn load<'a>(&'a self) -> Result<ConfigObject<'a>, Self::Error> {
+    fn load<'a>(&'a self) -> Result<ConfigObject<'a>, SourceError> {
         let element = self.data
             .as_config_element()?;
 

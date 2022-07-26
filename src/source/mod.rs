@@ -8,9 +8,13 @@ pub use crate::source::format::FormatParser;
 pub use crate::source::format::JsonFormatParser;
 
 pub trait ConfigSource: std::fmt::Debug {
-    type Error: std::error::Error;
+    fn load<'a>(&'a self) -> Result<ConfigObject<'a>, SourceError>;
+}
 
-    fn load<'a>(&'a self) -> Result<ConfigObject<'a>, Self::Error>;
+#[cfg(feature = "async")]
+#[async_trait::async_trait]
+pub trait AsyncConfigSource: std::fmt::Debug {
+    async fn load<'a>(&'a self) -> Result<ConfigObject<'a>, SourceError>;
 }
 
 #[derive(Debug, thiserror::Error)]

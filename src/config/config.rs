@@ -1,5 +1,7 @@
 use crate::accessor::Accessor;
 use crate::accessor::ParsableAccessor;
+#[cfg(feature = "async")]
+use crate::config::AsyncConfigBuilder;
 use crate::config::ConfigBuilder;
 use crate::config::ConfigError;
 use crate::element::ConfigElement;
@@ -13,6 +15,11 @@ pub struct Config<'a> {
 impl<'a> Config<'a> {
     pub fn builder() -> ConfigBuilder<'a> {
         ConfigBuilder::new()
+    }
+
+    #[cfg(feature = "async")]
+    pub fn async_builder() -> AsyncConfigBuilder {
+        AsyncConfigBuilder::new()
     }
 
     /// Access the configuration at a specific position
