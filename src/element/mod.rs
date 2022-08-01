@@ -140,10 +140,10 @@ impl<'a> ConfigElement<'a> {
     }
 }
 
-pub trait AsConfigElement {
+pub trait AsConfigElement<'source> {
     type Error: std::error::Error;
 
-    fn as_config_element<'a>(&'a self) -> Result<ConfigElement<'a>, Self::Error>;
+    fn as_config_element(&'source self) -> Result<ConfigElement<'source>, Self::Error>;
 }
 
 #[cfg(feature = "json")]

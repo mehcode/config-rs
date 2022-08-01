@@ -7,14 +7,14 @@ pub use crate::source::string::StringSource;
 pub use crate::source::format::FormatParser;
 pub use crate::source::format::JsonFormatParser;
 
-pub trait ConfigSource: std::fmt::Debug {
-    fn load<'a>(&'a self) -> Result<ConfigObject<'a>, SourceError>;
+pub trait ConfigSource<'source>: std::fmt::Debug {
+    fn load(&'source self) -> Result<ConfigObject<'source>, SourceError>;
 }
 
 #[cfg(feature = "async")]
 #[async_trait::async_trait]
-pub trait AsyncConfigSource: std::fmt::Debug {
-    async fn load<'a>(&'a self) -> Result<ConfigObject<'a>, SourceError>;
+pub trait AsyncConfigSource<'source>: std::fmt::Debug {
+    async fn load(&'source self) -> Result<ConfigObject<'source>, SourceError>;
 }
 
 #[derive(Debug, thiserror::Error)]

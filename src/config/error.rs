@@ -5,6 +5,15 @@ pub enum ConfigError {
 
     #[error("Config object access error")]
     ConfigObjectAccessError(#[from] crate::object::ConfigObjectAccessError),
+
+    #[error("Error loading Source")]
+    SourceError(#[from] crate::source::SourceError),
+
+    #[error("RwLock poisoned")]
+    InternalRwLockPoisioned,
+
+    #[error("Configuration is not loaded")]
+    NotLoaded,
 }
 
 #[derive(Debug, thiserror::Error)]

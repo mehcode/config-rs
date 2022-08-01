@@ -6,10 +6,10 @@ use crate::element::ConfigElement;
 #[derive(Debug, thiserror::Error)]
 pub enum TomlIntoConfigElementError {}
 
-impl AsConfigElement for toml::Value {
+impl<'source> AsConfigElement<'source> for toml::Value {
     type Error = TomlIntoConfigElementError;
 
-    fn as_config_element<'a>(&'a self) -> Result<ConfigElement<'a>, Self::Error> {
+    fn as_config_element(&'source self) -> Result<ConfigElement<'source>, Self::Error> {
         match self {
             toml::Value::String(s) => Ok(ConfigElement::Str(&s)),
             toml::Value::Integer(i) => Ok(ConfigElement::I64(*i)),

@@ -6,10 +6,10 @@ use crate::element::ConfigElement;
 #[derive(Debug, thiserror::Error)]
 pub enum JsonIntoConfigElementError {}
 
-impl AsConfigElement for serde_json::Value {
+impl<'source> AsConfigElement<'source> for serde_json::Value {
     type Error = JsonIntoConfigElementError;
 
-    fn as_config_element<'a>(&'a self) -> Result<ConfigElement<'a>, Self::Error> {
+    fn as_config_element(&'source self) -> Result<ConfigElement<'source>, Self::Error> {
         match self {
             serde_json::Value::Null => Ok(ConfigElement::Null),
             serde_json::Value::Bool(b) => Ok(ConfigElement::Bool(*b)),

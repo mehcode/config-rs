@@ -7,24 +7,27 @@ use crate::source::format::FormatParser;
 use super::SourceError;
 
 #[derive(Debug)]
-pub struct StringSource<P: FormatParser + std::fmt::Debug> {
-    data: P::Output,
+pub struct StringSource<'source, P: FormatParser<'source> + std::fmt::Debug> {
+    source: &'source str,
+    _pd: std::marker::PhantomData<P>,
 }
 
-impl<P: FormatParser> StringSource<P> {
-    pub fn new(buffer: &str) -> Result<Self, SourceError> {
+impl<'source, P: FormatParser<'source>> StringSource<'source, P> {
+    pub fn new(source: &'source str) -> Result<Self, SourceError> {
         Ok(StringSource {
-            data: P::parse(buffer)?,
+            source,
+            _pd: std::marker::PhantomData
         })
     }
 }
 
-impl<P: FormatParser + std::fmt::Debug> ConfigSource for StringSource<P>
-    where SourceError: From<<<P as FormatParser>::Output as AsConfigElement>::Error>
+impl<'source, P> ConfigSource<'source> for StringSource<'source, P>
+    where P: FormatParser<'source> + std::fmt::Debug + 'source,
+        SourceError: From<<<P as FormatParser<'source>>::Output as AsConfigElement<'source>>::Error>
 {
-    fn load<'a>(&'a self) -> Result<ConfigObject<'a>, SourceError> {
-        let element = self.data
-            .as_config_element()?;
+    fn load(&'source self) -> Result<ConfigObject<'source>, SourceError> {
+        let element = P::parse(self.source)?;
+        let element = element.as_config_element()?;
 
         let desc = ConfigSourceDescription::Custom("String".to_string());
         Ok(ConfigObject::new(element, desc))
