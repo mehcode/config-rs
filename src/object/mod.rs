@@ -3,20 +3,20 @@ use crate::description::ConfigSourceDescription;
 use crate::element::ConfigElement;
 
 #[derive(Clone, Debug)]
-pub struct ConfigObject<'a> {
-    element: ConfigElement<'a>,
+pub struct ConfigObject {
+    element: ConfigElement,
     source: ConfigSourceDescription,
 }
 
-impl<'a> ConfigObject<'a> {
-    pub(crate) fn new(element: ConfigElement<'a>, source: ConfigSourceDescription) -> Self {
+impl ConfigObject {
+    pub(crate) fn new(element: ConfigElement, source: ConfigSourceDescription) -> Self {
         Self { element, source }
     }
 
     pub(crate) fn get(
         &self,
         accessor: &mut Accessor,
-    ) -> Result<Option<&ConfigElement<'a>>, ConfigObjectAccessError> {
+    ) -> Result<Option<&ConfigElement>, ConfigObjectAccessError> {
         self.element.get(accessor)
     }
 }

@@ -1,77 +1,26 @@
-use std::sync::RwLock;
-
 use crate::accessor::Accessor;
 use crate::accessor::ParsableAccessor;
-#[cfg(feature = "async")]
-use crate::config::AsyncConfigBuilder;
 use crate::config::ConfigBuilder;
 use crate::config::ConfigError;
 use crate::element::ConfigElement;
 use crate::object::ConfigObject;
 
 #[derive(Debug)]
-pub struct Config<'source> {
-    builder: Builder<'source>,
-    layers: RwLock<Option<Vec<ConfigObject<'source>>>>,
+pub struct Config {
+    layers: Vec<ConfigObject>,
 }
 
-#[derive(Debug)]
-enum Builder<'source> {
-    Sync(ConfigBuilder<'source>),
-
-    #[cfg(feature = "async")]
-    Async(AsyncConfigBuilder<'source>),
-}
-
-impl<'source> Config<'source> {
-    pub fn builder() -> ConfigBuilder<'source> {
+impl Config {
+    pub fn builder() -> ConfigBuilder {
         ConfigBuilder::new()
     }
 
-    pub(super) fn build_from_builder(builder: ConfigBuilder<'source>) -> Result<Self, ConfigError> {
+    pub(super) fn build_from_builder(builder: &ConfigBuilder) -> Result<Self, ConfigError> {
         let config = Config {
-            layers: RwLock::new(None),
-            builder: Builder::Sync(builder),
+            layers: builder.reload()?,
         };
 
-        {
-            let mut layers = config.layers.write().unwrap();
-            #[allow(irrefutable_let_patterns)]
-            if let Builder::Sync(builder) = &config.builder {
-                *layers = Some(builder.reload()?);
-            } else {
-                unreachable!()
-            }
-        }
-
         Ok(config)
-    }
-
-    #[cfg(feature = "async")]
-    pub(super) async fn build_from_async_builder(
-        builder: AsyncConfigBuilder<'source>,
-    ) -> Result<Config<'source>, ConfigError> {
-        let config = Config {
-            layers: RwLock::new(None),
-            builder: Builder::Async(builder),
-        };
-
-        {
-            let l = match config.builder {
-                Builder::Sync(ref builder) => builder.reload()?,
-                Builder::Async(ref builder) => builder.reload().await?,
-            };
-
-            let mut layers = config.layers.write().unwrap();
-            *layers = Some(l);
-        }
-
-        Ok(config)
-    }
-
-    #[cfg(feature = "async")]
-    pub fn async_builder() -> AsyncConfigBuilder<'source> {
-        AsyncConfigBuilder::new()
     }
 
     /// Access the configuration at a specific position
@@ -99,7 +48,7 @@ impl<'source> Config<'source> {
     ///     // ...
     /// # ;
     /// ```
-    pub fn get<A>(&self, accessor: A) -> Result<Option<&ConfigElement<'source>>, ConfigError>
+    pub fn get<A>(&self, accessor: A) -> Result<Option<&ConfigElement>, ConfigError>
     where
         A: ParsableAccessor,
     {
@@ -113,14 +62,8 @@ impl<'source> Config<'source> {
     pub fn get_with_accessor(
         &self,
         mut accessor: Accessor,
-    ) -> Result<Option<&ConfigElement<'source>>, ConfigError> {
-        let layers = self
-            .layers
-            .read()
-            .map_err(|_| ConfigError::InternalRwLockPoisioned)?
-            .ok_or_else(|| ConfigError::NotLoaded)?;
-
-        for layer in layers.iter() {
+    ) -> Result<Option<&ConfigElement>, ConfigError> {
+        for layer in self.layers.iter() {
             if let Some(value) = layer.get(&mut accessor)? {
                 return Ok(Some(value));
             }

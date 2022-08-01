@@ -7,14 +7,8 @@ pub use crate::source::string::StringSource;
 pub use crate::source::format::FormatParser;
 pub use crate::source::format::JsonFormatParser;
 
-pub trait ConfigSource<'source>: std::fmt::Debug {
-    fn load(&'source self) -> Result<ConfigObject<'source>, SourceError>;
-}
-
-#[cfg(feature = "async")]
-#[async_trait::async_trait]
-pub trait AsyncConfigSource<'source>: std::fmt::Debug {
-    async fn load(&'source self) -> Result<ConfigObject<'source>, SourceError>;
+pub trait ConfigSource: std::fmt::Debug {
+    fn load(&self) -> Result<ConfigObject, SourceError>;
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -46,24 +40,14 @@ pub(crate) mod test_source {
     use crate::element::ConfigElement;
     use crate::description::ConfigSourceDescription;
 
-    pub(crate) struct TestSource<'a, G>(pub(crate) G)
-        where G: Fn() -> ConfigElement<'a>;
+    use super::SourceError;
 
-    impl<'g, G> std::fmt::Debug for TestSource<'g, G>
-        where G: Fn() -> ConfigElement<'g>
-    {
-        fn fmt(&self, _: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            Ok(())
-        }
-    }
+    #[derive(Debug)]
+    pub(crate) struct TestSource(pub(crate) ConfigElement);
 
-    impl<'g, G> ConfigSource for TestSource<'g, G>
-        where G: Fn() -> ConfigElement<'g>
-    {
-        type Error = std::convert::Infallible; // can never happen
-
-        fn load<'a>(&'a self) -> Result<ConfigObject<'a>, Self::Error> {
-            Ok(ConfigObject::new(self.0(), ConfigSourceDescription::Unknown))
+    impl ConfigSource for TestSource {
+        fn load(&self) -> Result<ConfigObject, SourceError> {
+            Ok(ConfigObject::new(self.0.clone(), ConfigSourceDescription::Unknown))
         }
     }
 }

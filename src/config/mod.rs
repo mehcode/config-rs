@@ -9,15 +9,15 @@ pub use crate::config::error::*;
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::element::AsConfigElement;
+    use crate::element::IntoConfigElement;
     use crate::element::ConfigElement;
 
     #[test]
     fn test_compile_loading() {
         let _c = Config::builder()
-            .load(&crate::source::test_source::TestSource(|| ConfigElement::Null))
-            .unwrap()
-            .build();
+            .load(Box::new(crate::source::test_source::TestSource(ConfigElement::Null)))
+            .build()
+            .unwrap();
     }
 
     #[test]
@@ -26,12 +26,11 @@ mod tests {
         let json: serde_json::Value = serde_json::from_str(r#"
             { "key": "value" }
         "#).unwrap();
-        let json = std::sync::Arc::new(json);
 
         let _c = Config::builder()
-            .load(&crate::source::test_source::TestSource(|| json.as_config_element().unwrap()))
-            .unwrap()
-            .build();
+            .load(Box::new(crate::source::test_source::TestSource(json.into_config_element().unwrap())))
+            .build()
+            .unwrap();
     }
 
     #[test]
@@ -40,21 +39,23 @@ mod tests {
         let json: serde_json::Value = serde_json::from_str(r#"
             { "key": "value" }
         "#).unwrap();
-        let json = std::sync::Arc::new(json);
 
-        let source = crate::source::test_source::TestSource(|| json.as_config_element().unwrap());
+        let source = crate::source::test_source::TestSource(json.into_config_element().unwrap());
 
         let c = Config::builder()
-            .load(&source)
-            .unwrap()
-            .build();
+            .load(Box::new(source))
+            .build()
+            .unwrap();
 
         let r = c.get("key");
         assert!(r.is_ok());
         let r = r.unwrap();
         assert!(r.is_some());
         let r = r.unwrap();
-        assert!(std::matches!(r, ConfigElement::Str("value")));
+        match r {
+            ConfigElement::Str(s) => assert_eq!(s, "value"),
+            _ => panic!(),
+        }
     }
 
     #[test]
@@ -63,36 +64,39 @@ mod tests {
         let json1: serde_json::Value = serde_json::from_str(r#"
             { "key1": "value1" }
         "#).unwrap();
-        let json1 = std::sync::Arc::new(json1);
 
         let json2: serde_json::Value = serde_json::from_str(r#"
             { "key1": "value2", "key2": "value3" }
         "#).unwrap();
-        let json2 = std::sync::Arc::new(json2);
 
-        let source1 = crate::source::test_source::TestSource(|| json1.as_config_element().unwrap());
-        let source2 = crate::source::test_source::TestSource(|| json2.as_config_element().unwrap());
+        let source1 = crate::source::test_source::TestSource(json1.into_config_element().unwrap());
+        let source2 = crate::source::test_source::TestSource(json2.into_config_element().unwrap());
 
         let c = Config::builder()
-            .load(&source1)
-            .unwrap()
-            .load(&source2)
-            .unwrap()
-            .build();
+            .load(Box::new(source1))
+            .load(Box::new(source2))
+            .build()
+            .unwrap();
 
         let r = c.get("key1");
         assert!(r.is_ok());
         let r = r.unwrap();
         assert!(r.is_some());
         let r = r.unwrap();
-        assert!(std::matches!(r, ConfigElement::Str("value1")));
+        match r {
+            ConfigElement::Str(s) => assert_eq!(s, "value1"),
+            _ => panic!(),
+        }
 
         let r = c.get("key2");
         assert!(r.is_ok());
         let r = r.unwrap();
         assert!(r.is_some());
         let r = r.unwrap();
-        assert!(std::matches!(r, ConfigElement::Str("value3")));
+        match r {
+            ConfigElement::Str(s) => assert_eq!(s, "value3"),
+            _ => panic!(),
+        }
     }
 
     #[test]
@@ -101,36 +105,39 @@ mod tests {
         let json: serde_json::Value = serde_json::from_str(r#"
             { "key1": "value1" }
         "#).unwrap();
-        let json = std::sync::Arc::new(json);
 
         let toml: toml::Value = toml::from_str(r#"
             key1 = "value2"
             key2 = "value3"
         "#).unwrap();
-        let toml = std::sync::Arc::new(toml);
 
-        let source1 = crate::source::test_source::TestSource(|| json.as_config_element().unwrap());
-        let source2 = crate::source::test_source::TestSource(|| toml.as_config_element().unwrap());
+        let source1 = crate::source::test_source::TestSource(json.into_config_element().unwrap());
+        let source2 = crate::source::test_source::TestSource(toml.into_config_element().unwrap());
 
         let c = Config::builder()
-            .load(&source1)
-            .unwrap()
-            .load(&source2)
-            .unwrap()
-            .build();
+            .load(Box::new(source1))
+            .load(Box::new(source2))
+            .build()
+            .unwrap();
 
         let r = c.get("key1");
         assert!(r.is_ok());
         let r = r.unwrap();
         assert!(r.is_some());
         let r = r.unwrap();
-        assert!(std::matches!(r, ConfigElement::Str("value1")));
+        match r {
+            ConfigElement::Str(s) => assert_eq!(s, "value1"),
+            _ => panic!(),
+        }
 
         let r = c.get("key2");
         assert!(r.is_ok());
         let r = r.unwrap();
         assert!(r.is_some());
         let r = r.unwrap();
-        assert!(std::matches!(r, ConfigElement::Str("value3")));
+        match r {
+            ConfigElement::Str(s) => assert_eq!(s, "value3"),
+            _ => panic!(),
+        }
     }
 }

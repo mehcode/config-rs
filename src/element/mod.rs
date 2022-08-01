@@ -4,7 +4,7 @@ use crate::{accessor::{AccessType, Accessor}, object::ConfigObjectAccessError};
 
 #[derive(Clone, Debug, PartialEq, serde::Deserialize)]
 #[serde(untagged)]
-pub enum ConfigElement<'a> {
+pub enum ConfigElement {
     Null,
     Bool(bool),
     I8(i8),
@@ -17,13 +17,13 @@ pub enum ConfigElement<'a> {
     U64(u64),
     F32(f32),
     F64(f64),
-    Str(&'a str),
-    List(Vec<ConfigElement<'a>>),
-    Map(HashMap<&'a str, ConfigElement<'a>>),
+    Str(String),
+    List(Vec<ConfigElement>),
+    Map(HashMap<String, ConfigElement>),
 }
 
-impl<'a> ConfigElement<'a> {
-    pub(crate) fn get(&self, accessor: &mut Accessor) -> Result<Option<&ConfigElement<'a>>, ConfigObjectAccessError> {
+impl ConfigElement {
+    pub(crate) fn get(&self, accessor: &mut Accessor) -> Result<Option<&ConfigElement>, ConfigObjectAccessError> {
         match (accessor.current(), &self) {
             (Some(AccessType::Key(k)), ConfigElement::Null) => {
                 Err(ConfigObjectAccessError::AccessWithKeyOnNull(k.to_string()))
@@ -140,10 +140,10 @@ impl<'a> ConfigElement<'a> {
     }
 }
 
-pub trait AsConfigElement<'source> {
+pub trait IntoConfigElement {
     type Error: std::error::Error;
 
-    fn as_config_element(&'source self) -> Result<ConfigElement<'source>, Self::Error>;
+    fn into_config_element(self) -> Result<ConfigElement, Self::Error>;
 }
 
 #[cfg(feature = "json")]
@@ -158,7 +158,7 @@ mod tests {
     #[cfg(feature = "toml")]
     fn test_nested_toml_config() {
         use crate::Config;
-        use crate::element::AsConfigElement;
+        use crate::element::IntoConfigElement;
         use crate::element::ConfigElement;
 
         let toml: toml::Value = toml::from_str(r#"
@@ -167,35 +167,40 @@ mod tests {
             [table]
             key2 = "value3"
         "#).unwrap();
-        let toml = std::sync::Arc::new(toml);
 
-        let source = crate::source::test_source::TestSource(|| toml.as_config_element().unwrap());
+        let source = crate::source::test_source::TestSource(toml.into_config_element().unwrap());
 
         let c = Config::builder()
-            .load(&source)
-            .unwrap()
-            .build();
+            .load(Box::new(source))
+            .build()
+            .unwrap();
 
         let r = c.get("key1");
         assert!(r.is_ok());
         let r = r.unwrap();
         assert!(r.is_some());
         let r = r.unwrap();
-        assert!(std::matches!(r, ConfigElement::Str("value2")));
+        match r {
+            ConfigElement::Str(s) => assert_eq!(s, "value2"),
+            _ => panic!(),
+        }
 
         let r = c.get("table.key2");
         assert!(r.is_ok());
         let r = r.unwrap();
         assert!(r.is_some());
         let r = r.unwrap();
-        assert!(std::matches!(r, ConfigElement::Str("value3")), "{:?} != value3", r);
+        match r {
+            ConfigElement::Str(s) => assert_eq!(s, "value3"),
+            _ => panic!(),
+        }
     }
 
     #[test]
     #[cfg(feature = "toml")]
     fn test_nested_toml_config_with_index() {
         use crate::Config;
-        use crate::element::AsConfigElement;
+        use crate::element::IntoConfigElement;
         use crate::element::ConfigElement;
 
         let toml: toml::Value = toml::from_str(r#"
@@ -205,20 +210,22 @@ mod tests {
             [[key]]
             k = "b"
         "#).unwrap();
-        let toml = std::sync::Arc::new(toml);
 
-        let source = crate::source::test_source::TestSource(|| toml.as_config_element().unwrap());
+        let source = crate::source::test_source::TestSource(toml.into_config_element().unwrap());
 
         let c = Config::builder()
-            .load(&source)
-            .unwrap()
-            .build();
+            .load(Box::new(source))
+            .build()
+            .unwrap();
 
         let r = c.get("key.0.k");
         assert!(r.is_ok());
         let r = r.unwrap();
         assert!(r.is_some());
         let r = r.unwrap();
-        assert!(std::matches!(r, ConfigElement::Str("a")), "{:?} != a", r);
+        match r {
+            ConfigElement::Str(s) => assert_eq!(s, "a"),
+            _ => panic!(),
+        }
     }
 }
