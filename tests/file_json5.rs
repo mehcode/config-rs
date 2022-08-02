@@ -84,7 +84,7 @@ fn test_error_parse() {
     assert_eq!(
         res.unwrap_err().to_string(),
         format!(
-            " --> 2:7\n  |\n2 |   ok: true␊\n  |       ^---\n  |\n  = expected null in {}",
+            " --> 2:7\n  |\n2 |   ok: true\n  |       ^---\n  |\n  = expected null in {}",
             path_with_extension.display()
         )
     );
