@@ -191,7 +191,9 @@ fn test_parse_float() {
 
         // can't use `matches!` because of float value
         match config {
-            TestFloatEnum::Float(TestFloat { float_val }) => assert_eq!(float_val, 42.3),
+            TestFloatEnum::Float(TestFloat { float_val }) => {
+                assert!(float_cmp::approx_eq!(f64, float_val, 42.3))
+            }
         }
     })
 }
