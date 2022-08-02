@@ -6,6 +6,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## 0.13.2 - 2022-08-02
+
+ - Backport of [#316] to be testing with temp_env. The backport was necessary to
+   be able to backport the next change. This change shouldn't be user-visible.
+ - Backport of [#353] to use TryInto for more permissive deserialization of
+   integers
+ - Backport of commit [518a3cafa1e62ba7405709e5c508247e328e0a18] from [#362] to
+   fix tests
+
+[#316]: https://github.com/mehcode/config-rs/pull/316
+[#353]: https://github.com/mehcode/config-rs/pull/353
+[518a3cafa1e62ba7405709e5c508247e328e0a18]: https://github.com/mehcode/config-rs/commit/518a3cafa1e62ba7405709e5c508247e328e0a18
+[#362]: https://github.com/mehcode/config-rs/pull/362
+
 ## 0.13.1 - 2022-04-13
 
  - typo in doc comment for ConfigBuilder [#299]
