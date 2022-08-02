@@ -8,7 +8,7 @@ fn test_file_not_required() {
         .add_source(File::new("tests/NoSettings", FileFormat::Yaml).required(false))
         .build();
 
-    assert!(res.is_ok());
+    assert!(res.unwrap());
 }
 
 #[test]
