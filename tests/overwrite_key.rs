@@ -4,6 +4,7 @@ use serde::{Serialize,  Deserialize};
 const CONFIG: &str = r#"
 name = "foo"
 [v4]
+ca_path = "ca"
 cert_path = "bar"
 key_path = "baz"
 "#;
