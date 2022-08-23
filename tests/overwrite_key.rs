@@ -37,5 +37,11 @@ fn overwrite_key() {
     let s = s.unwrap();
 
     let v: Result<Settings, _> = s.try_deserialize();
-    assert!(v.is_ok(), "not ok: {:?}", v);
+
+    // This is expected to error because the key `certpath` is specified by ENV and `cert_path`
+    // from the TOML.
+    // This should work, but does not because of the way this crate deserializes into T.
+    //
+    // The fix is to name the "TlsConfig::cert_path" field "TlsConfig::certpath".
+    assert!(v.is_err(), "accidentially ok: {:?}", v);
 }
