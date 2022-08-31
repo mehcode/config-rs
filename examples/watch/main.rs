@@ -1,7 +1,8 @@
 #![allow(deprecated)]
 use config::{Config, File};
-use notify::{DebouncedEvent, RecommendedWatcher, RecursiveMode, Watcher};
+use notify::{Event, RecommendedWatcher, RecursiveMode, Watcher};
 use std::collections::HashMap;
+use std::path::Path;
 use std::sync::mpsc::channel;
 use std::sync::RwLock;
 use std::time::Duration;
@@ -33,19 +34,29 @@ fn watch() {
 
     // Automatically select the best implementation for your platform.
     // You can also access each implementation directly e.g. INotifyWatcher.
-    let mut watcher: RecommendedWatcher = Watcher::new(tx, Duration::from_secs(2)).unwrap();
+    let mut watcher: RecommendedWatcher = Watcher::new(
+        tx,
+        notify::Config::default().with_poll_interval(Duration::from_secs(2)),
+    )
+    .unwrap();
 
     // Add a path to be watched. All files and directories at that path and
     // below will be monitored for changes.
     watcher
-        .watch("examples/watch/Settings.toml", RecursiveMode::NonRecursive)
+        .watch(
+            Path::new("examples/watch/Settings.toml"),
+            RecursiveMode::NonRecursive,
+        )
         .unwrap();
 
     // This is a simple loop, but you may want to use more complex logic here,
     // for example to handle I/O.
     loop {
         match rx.recv() {
-            Ok(DebouncedEvent::Write(_)) => {
+            Ok(Ok(Event {
+                kind: notify::event::EventKind::Modify(_),
+                ..
+            })) => {
                 println!(" * Settings.toml written; refreshing configuration ...");
                 SETTINGS.write().unwrap().refresh().unwrap();
                 show();
