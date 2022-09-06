@@ -42,7 +42,7 @@ serde_derive = "1.0.8"
 float-cmp = "0.9"
 chrono = { version = "0.4", features = ["serde"] }
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "fs", "io-util", "time"]}
-warp = "=0.3.1"
+warp = "=0.3.2"
 futures = "0.3.15"
 reqwest = "0.11.10"
 
