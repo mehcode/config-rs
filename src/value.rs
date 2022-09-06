@@ -779,7 +779,7 @@ impl<'de> Deserialize<'de> for Value {
                 let num: i128 = value.try_into().map_err(|_| {
                     E::invalid_type(
                         ::serde::de::Unexpected::Other(
-                            format!("integer `{value}` as u128").as_str(),
+                            format!("integer `{}` as u128", value).as_str(),
                         ),
                         &self,
                     )
