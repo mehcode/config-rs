@@ -33,12 +33,12 @@ pub struct Accessor {
 }
 
 impl Accessor {
-    pub(crate) fn new(stack: Vec<AccessType>) -> Self {
+    pub fn new(stack: Vec<AccessType>) -> Self {
         Self { stack, index: 0 }
     }
 }
 
-pub(crate) enum AccessType {
+pub enum AccessType {
     Key(String),
     Index(usize),
 }
@@ -48,7 +48,7 @@ impl Accessor {
         self.stack.get(self.index)
     }
 
-    pub fn advance(&mut self) {
+    pub(crate) fn advance(&mut self) {
         self.index += 1;
     }
 }
