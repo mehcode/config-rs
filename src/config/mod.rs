@@ -9,13 +9,15 @@ pub use crate::config::error::*;
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::element::IntoConfigElement;
     use crate::element::ConfigElement;
+    use crate::element::IntoConfigElement;
 
     #[test]
     fn test_compile_loading() {
         let _c = Config::builder()
-            .load(Box::new(crate::source::test_source::TestSource(ConfigElement::Null)))
+            .load(Box::new(crate::source::test_source::TestSource(
+                ConfigElement::Null,
+            )))
             .build()
             .unwrap();
     }
@@ -23,12 +25,17 @@ mod tests {
     #[test]
     #[cfg(feature = "json")]
     fn test_load_json() {
-        let json: serde_json::Value = serde_json::from_str(r#"
+        let json: serde_json::Value = serde_json::from_str(
+            r#"
             { "key": "value" }
-        "#).unwrap();
+        "#,
+        )
+        .unwrap();
 
         let _c = Config::builder()
-            .load(Box::new(crate::source::test_source::TestSource(json.into_config_element().unwrap())))
+            .load(Box::new(crate::source::test_source::TestSource(
+                json.into_config_element().unwrap(),
+            )))
             .build()
             .unwrap();
     }
@@ -36,16 +43,16 @@ mod tests {
     #[test]
     #[cfg(feature = "json")]
     fn test_load_json_get_value() {
-        let json: serde_json::Value = serde_json::from_str(r#"
+        let json: serde_json::Value = serde_json::from_str(
+            r#"
             { "key": "value" }
-        "#).unwrap();
+        "#,
+        )
+        .unwrap();
 
         let source = crate::source::test_source::TestSource(json.into_config_element().unwrap());
 
-        let c = Config::builder()
-            .load(Box::new(source))
-            .build()
-            .unwrap();
+        let c = Config::builder().load(Box::new(source)).build().unwrap();
 
         let r = c.get("key");
         assert!(r.is_ok());
@@ -61,13 +68,19 @@ mod tests {
     #[test]
     #[cfg(feature = "json")]
     fn test_layered_json_config() {
-        let json1: serde_json::Value = serde_json::from_str(r#"
+        let json1: serde_json::Value = serde_json::from_str(
+            r#"
             { "key1": "value1" }
-        "#).unwrap();
+        "#,
+        )
+        .unwrap();
 
-        let json2: serde_json::Value = serde_json::from_str(r#"
+        let json2: serde_json::Value = serde_json::from_str(
+            r#"
             { "key1": "value2", "key2": "value3" }
-        "#).unwrap();
+        "#,
+        )
+        .unwrap();
 
         let source1 = crate::source::test_source::TestSource(json1.into_config_element().unwrap());
         let source2 = crate::source::test_source::TestSource(json2.into_config_element().unwrap());
@@ -102,14 +115,20 @@ mod tests {
     #[test]
     #[cfg(all(feature = "json", feature = "toml"))]
     fn test_layered_json_toml_config() {
-        let json: serde_json::Value = serde_json::from_str(r#"
+        let json: serde_json::Value = serde_json::from_str(
+            r#"
             { "key1": "value1" }
-        "#).unwrap();
+        "#,
+        )
+        .unwrap();
 
-        let toml: toml::Value = toml::from_str(r#"
+        let toml: toml::Value = toml::from_str(
+            r#"
             key1 = "value2"
             key2 = "value3"
-        "#).unwrap();
+        "#,
+        )
+        .unwrap();
 
         let source1 = crate::source::test_source::TestSource(json.into_config_element().unwrap());
         let source2 = crate::source::test_source::TestSource(toml.into_config_element().unwrap());

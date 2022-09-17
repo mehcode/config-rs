@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use crate::element::IntoConfigElement;
 use crate::element::ConfigElement;
+use crate::element::IntoConfigElement;
 
 #[derive(Debug, thiserror::Error)]
 pub enum JsonIntoConfigElementError {}
@@ -47,7 +47,10 @@ mod tests {
         let e: ConfigElement = serde_json::from_str(s).unwrap();
         match e {
             ConfigElement::Map(map) => {
-                assert_eq!(*map.get("key").unwrap(), ConfigElement::Str("value".to_string()));
+                assert_eq!(
+                    *map.get("key").unwrap(),
+                    ConfigElement::Str("value".to_string())
+                );
             }
             _ => panic!("Not a map"),
         }

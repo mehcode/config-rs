@@ -1,8 +1,8 @@
-use crate::ConfigSource;
 use crate::description::ConfigSourceDescription;
 use crate::element::IntoConfigElement;
 use crate::object::ConfigObject;
 use crate::source::format::FormatParser;
+use crate::ConfigSource;
 
 use super::SourceError;
 
@@ -16,14 +16,15 @@ impl<P: FormatParser> StringSource<P> {
     pub fn new(source: String) -> Result<Self, SourceError> {
         Ok(StringSource {
             source,
-            _pd: std::marker::PhantomData
+            _pd: std::marker::PhantomData,
         })
     }
 }
 
 impl<P> ConfigSource for StringSource<P>
-    where P: FormatParser + std::fmt::Debug,
-        SourceError: From<<<P as FormatParser>::Output as IntoConfigElement>::Error>
+where
+    P: FormatParser + std::fmt::Debug,
+    SourceError: From<<<P as FormatParser>::Output as IntoConfigElement>::Error>,
 {
     fn load(&self) -> Result<ConfigObject, SourceError> {
         let element = P::parse(&self.source)?;
@@ -43,8 +44,8 @@ mod test_source_impl {
 
         let source = "{}";
 
-        let source = StringSource::<crate::source::JsonFormatParser>::new(source.to_string()).unwrap();
+        let source =
+            StringSource::<crate::source::JsonFormatParser>::new(source.to_string()).unwrap();
         let _object = source.load().unwrap();
     }
 }
-

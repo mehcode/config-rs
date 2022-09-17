@@ -21,7 +21,6 @@ impl FormatParser for JsonFormatParser {
     }
 }
 
-
 #[cfg(feature = "toml")]
 #[derive(Debug)]
 pub struct TomlFormatParser;

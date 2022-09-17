@@ -8,12 +8,11 @@ impl ParsableAccessor for &str {
 
         // TODO: Make this non-trivial and bulletproof
 
-        let accessor = self.split('.')
-            .map(|s| {
-                match usize::from_str(s) {
-                    Ok(u) => AccessType::Index(u),
-                    Err(_) => AccessType::Key(s.to_string())
-                }
+        let accessor = self
+            .split('.')
+            .map(|s| match usize::from_str(s) {
+                Ok(u) => AccessType::Index(u),
+                Err(_) => AccessType::Key(s.to_string()),
             })
             .collect();
 
@@ -35,10 +34,7 @@ pub struct Accessor {
 
 impl Accessor {
     pub(crate) fn new(stack: Vec<AccessType>) -> Self {
-        Self {
-            stack,
-            index: 0
-        }
+        Self { stack, index: 0 }
     }
 }
 
@@ -58,6 +54,4 @@ impl Accessor {
 }
 
 #[derive(Debug, thiserror::Error)]
-pub enum AccessorParseError {
-}
-
+pub enum AccessorParseError {}

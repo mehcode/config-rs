@@ -8,4 +8,3 @@ pub enum ConfigSourceDescription {
     Uri(url::Url),
     Custom(String),
 }
-

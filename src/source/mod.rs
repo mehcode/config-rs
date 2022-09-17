@@ -3,9 +3,9 @@ use crate::object::ConfigObject;
 mod format;
 mod string;
 
-pub use crate::source::string::StringSource;
 pub use crate::source::format::FormatParser;
 pub use crate::source::format::JsonFormatParser;
+pub use crate::source::string::StringSource;
 
 pub trait ConfigSource: std::fmt::Debug {
     fn load(&self) -> Result<ConfigObject, SourceError>;
@@ -35,10 +35,10 @@ pub enum SourceError {
 
 #[cfg(test)]
 pub(crate) mod test_source {
-    use crate::source::ConfigSource;
-    use crate::object::ConfigObject;
-    use crate::element::ConfigElement;
     use crate::description::ConfigSourceDescription;
+    use crate::element::ConfigElement;
+    use crate::object::ConfigObject;
+    use crate::source::ConfigSource;
 
     use super::SourceError;
 
@@ -47,8 +47,10 @@ pub(crate) mod test_source {
 
     impl ConfigSource for TestSource {
         fn load(&self) -> Result<ConfigObject, SourceError> {
-            Ok(ConfigObject::new(self.0.clone(), ConfigSourceDescription::Unknown))
+            Ok(ConfigObject::new(
+                self.0.clone(),
+                ConfigSourceDescription::Unknown,
+            ))
         }
     }
 }
-

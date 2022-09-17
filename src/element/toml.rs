@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use crate::element::IntoConfigElement;
 use crate::element::ConfigElement;
+use crate::element::IntoConfigElement;
 
 #[derive(Debug, thiserror::Error)]
 pub enum TomlIntoConfigElementError {}
@@ -16,19 +16,16 @@ impl IntoConfigElement for toml::Value {
             toml::Value::Float(f) => Ok(ConfigElement::F64(f)),
             toml::Value::Boolean(b) => Ok(ConfigElement::Bool(b)),
             toml::Value::Datetime(_) => unimplemented!(), // TODO
-            toml::Value::Array(ary) => {
-                ary.into_iter()
-                    .map(|e| e.into_config_element())
-                    .collect::<Result<Vec<_>, Self::Error>>()
-                    .map(ConfigElement::List)
-            },
-            toml::Value::Table(table) => {
-                table.into_iter()
-                    .map(|(k, v)| v.into_config_element().map(|v| (k.to_string(), v)))
-                    .collect::<Result<HashMap<String, ConfigElement>, Self::Error>>()
-                    .map(ConfigElement::Map)
-            }
-
+            toml::Value::Array(ary) => ary
+                .into_iter()
+                .map(|e| e.into_config_element())
+                .collect::<Result<Vec<_>, Self::Error>>()
+                .map(ConfigElement::List),
+            toml::Value::Table(table) => table
+                .into_iter()
+                .map(|(k, v)| v.into_config_element().map(|v| (k.to_string(), v)))
+                .collect::<Result<HashMap<String, ConfigElement>, Self::Error>>()
+                .map(ConfigElement::Map),
         }
     }
 }
@@ -46,10 +43,12 @@ mod tests {
         let e: ConfigElement = toml::from_str(s).unwrap();
         match e {
             ConfigElement::Map(map) => {
-                assert_eq!(*map.get("key").unwrap(), ConfigElement::Str("value".to_string()));
+                assert_eq!(
+                    *map.get("key").unwrap(),
+                    ConfigElement::Str("value".to_string())
+                );
             }
             _ => panic!("Not a map"),
         }
     }
 }
-

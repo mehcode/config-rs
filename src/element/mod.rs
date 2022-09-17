@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 
-use crate::{accessor::{AccessType, Accessor}, object::ConfigObjectAccessError};
+use crate::{
+    accessor::{AccessType, Accessor},
+    object::ConfigObjectAccessError,
+};
 
 #[derive(Clone, Debug, PartialEq, serde::Deserialize)]
 #[serde(untagged)]
@@ -23,7 +26,10 @@ pub enum ConfigElement {
 }
 
 impl ConfigElement {
-    pub(crate) fn get(&self, accessor: &mut Accessor) -> Result<Option<&ConfigElement>, ConfigObjectAccessError> {
+    pub(crate) fn get(
+        &self,
+        accessor: &mut Accessor,
+    ) -> Result<Option<&ConfigElement>, ConfigObjectAccessError> {
         match (accessor.current(), &self) {
             (Some(AccessType::Key(k)), ConfigElement::Null) => {
                 Err(ConfigObjectAccessError::AccessWithKeyOnNull(k.to_string()))
@@ -71,14 +77,14 @@ impl ConfigElement {
                 if let Some(value) = hm.get(k.as_str()) {
                     accessor.advance();
                     if accessor.current().is_none() {
-                        return Ok(Some(value))
+                        return Ok(Some(value));
                     } else {
                         value.get(accessor)
                     }
                 } else {
                     Ok(None)
                 }
-            },
+            }
 
             (Some(AccessType::Index(u)), ConfigElement::Null) => {
                 Err(ConfigObjectAccessError::AccessWithIndexOnNull(*u))
@@ -123,14 +129,14 @@ impl ConfigElement {
                 if let Some(value) = v.get(*u) {
                     accessor.advance();
                     if accessor.current().is_none() {
-                        return Ok(Some(value))
+                        return Ok(Some(value));
                     } else {
                         value.get(accessor)
                     }
                 } else {
                     Ok(None)
                 }
-            },
+            }
             (Some(AccessType::Index(u)), ConfigElement::Map(_)) => {
                 Err(ConfigObjectAccessError::AccessWithIndexOnMap(*u))
             }
@@ -157,23 +163,23 @@ mod tests {
     #[test]
     #[cfg(feature = "toml")]
     fn test_nested_toml_config() {
-        use crate::Config;
-        use crate::element::IntoConfigElement;
         use crate::element::ConfigElement;
+        use crate::element::IntoConfigElement;
+        use crate::Config;
 
-        let toml: toml::Value = toml::from_str(r#"
+        let toml: toml::Value = toml::from_str(
+            r#"
             key1 = "value2"
 
             [table]
             key2 = "value3"
-        "#).unwrap();
+        "#,
+        )
+        .unwrap();
 
         let source = crate::source::test_source::TestSource(toml.into_config_element().unwrap());
 
-        let c = Config::builder()
-            .load(Box::new(source))
-            .build()
-            .unwrap();
+        let c = Config::builder().load(Box::new(source)).build().unwrap();
 
         let r = c.get("key1");
         assert!(r.is_ok());
@@ -199,24 +205,24 @@ mod tests {
     #[test]
     #[cfg(feature = "toml")]
     fn test_nested_toml_config_with_index() {
-        use crate::Config;
-        use crate::element::IntoConfigElement;
         use crate::element::ConfigElement;
+        use crate::element::IntoConfigElement;
+        use crate::Config;
 
-        let toml: toml::Value = toml::from_str(r#"
+        let toml: toml::Value = toml::from_str(
+            r#"
             [[key]]
             k = "a"
 
             [[key]]
             k = "b"
-        "#).unwrap();
+        "#,
+        )
+        .unwrap();
 
         let source = crate::source::test_source::TestSource(toml.into_config_element().unwrap());
 
-        let c = Config::builder()
-            .load(Box::new(source))
-            .build()
-            .unwrap();
+        let c = Config::builder().load(Box::new(source)).build().unwrap();
 
         let r = c.get("key.0.k");
         assert!(r.is_ok());
