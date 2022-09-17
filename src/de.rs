@@ -1,12 +1,37 @@
 use std::collections::VecDeque;
+use std::convert::TryInto;
 use std::iter::Enumerate;
 
 use serde::de;
 
 use crate::config::Config;
-use crate::error::{ConfigError, Result};
+use crate::error::{ConfigError, Result, Unexpected};
 use crate::map::Map;
 use crate::value::{Table, Value, ValueKind};
+
+macro_rules! try_convert_number {
+    (signed, $self:expr, $size:literal) => {{
+        let num = $self.into_int()?;
+        num.try_into().map_err(|_| {
+            ConfigError::invalid_type(
+                None,
+                Unexpected::I64(num),
+                concat!("an signed ", $size, " bit integer"),
+            )
+        })?
+    }};
+
+    (unsigned, $self:expr, $size:literal) => {{
+        let num = $self.into_uint()?;
+        num.try_into().map_err(|_| {
+            ConfigError::invalid_type(
+                None,
+                Unexpected::U64(num),
+                concat!("an unsigned ", $size, " bit integer"),
+            )
+        })?
+    }};
+}
 
 impl<'de> de::Deserializer<'de> for Value {
     type Error = ConfigError;
@@ -38,49 +63,50 @@ impl<'de> de::Deserializer<'de> for Value {
 
     #[inline]
     fn deserialize_i8<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
-        // FIXME: This should *fail* if the value does not fit in the requets integer type
-        visitor.visit_i8(self.into_int()? as i8)
+        let num = try_convert_number!(signed, self, "8");
+        visitor.visit_i8(num)
     }
 
     #[inline]
     fn deserialize_i16<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
-        // FIXME: This should *fail* if the value does not fit in the requets integer type
-        visitor.visit_i16(self.into_int()? as i16)
+        let num = try_convert_number!(signed, self, "16");
+        visitor.visit_i16(num)
     }
 
     #[inline]
     fn deserialize_i32<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
-        // FIXME: This should *fail* if the value does not fit in the requets integer type
-        visitor.visit_i32(self.into_int()? as i32)
+        let num = try_convert_number!(signed, self, "32");
+        visitor.visit_i32(num)
     }
 
     #[inline]
     fn deserialize_i64<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
-        visitor.visit_i64(self.into_int()?)
+        let num = try_convert_number!(signed, self, "64");
+        visitor.visit_i64(num)
     }
 
     #[inline]
     fn deserialize_u8<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
-        // FIXME: This should *fail* if the value does not fit in the requets integer type
-        visitor.visit_u8(self.into_uint()? as u8)
+        let num = try_convert_number!(unsigned, self, "8");
+        visitor.visit_u8(num)
     }
 
     #[inline]
     fn deserialize_u16<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
-        // FIXME: This should *fail* if the value does not fit in the requets integer type
-        visitor.visit_u16(self.into_uint()? as u16)
+        let num = try_convert_number!(unsigned, self, "16");
+        visitor.visit_u16(num)
     }
 
     #[inline]
     fn deserialize_u32<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
-        // FIXME: This should *fail* if the value does not fit in the requets integer type
-        visitor.visit_u32(self.into_uint()? as u32)
+        let num = try_convert_number!(unsigned, self, "32");
+        visitor.visit_u32(num)
     }
 
     #[inline]
     fn deserialize_u64<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
-        // FIXME: This should *fail* if the value does not fit in the requets integer type
-        visitor.visit_u64(self.into_uint()? as u64)
+        let num = try_convert_number!(unsigned, self, "u64");
+        visitor.visit_u64(num)
     }
 
     #[inline]
@@ -356,49 +382,50 @@ impl<'de> de::Deserializer<'de> for Config {
 
     #[inline]
     fn deserialize_i8<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
-        // FIXME: This should *fail* if the value does not fit in the requets integer type
-        visitor.visit_i8(self.cache.into_int()? as i8)
+        let num = try_convert_number!(signed, self.cache, "8");
+        visitor.visit_i8(num)
     }
 
     #[inline]
     fn deserialize_i16<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
-        // FIXME: This should *fail* if the value does not fit in the requets integer type
-        visitor.visit_i16(self.cache.into_int()? as i16)
+        let num = try_convert_number!(signed, self.cache, "16");
+        visitor.visit_i16(num)
     }
 
     #[inline]
     fn deserialize_i32<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
-        // FIXME: This should *fail* if the value does not fit in the requets integer type
-        visitor.visit_i32(self.cache.into_int()? as i32)
+        let num = try_convert_number!(signed, self.cache, "32");
+        visitor.visit_i32(num)
     }
 
     #[inline]
     fn deserialize_i64<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
-        visitor.visit_i64(self.cache.into_int()?)
+        let num = try_convert_number!(signed, self.cache, "64");
+        visitor.visit_i64(num)
     }
 
     #[inline]
     fn deserialize_u8<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
-        // FIXME: This should *fail* if the value does not fit in the requets integer type
-        visitor.visit_u8(self.cache.into_int()? as u8)
+        let num = try_convert_number!(unsigned, self.cache, "8");
+        visitor.visit_u8(num)
     }
 
     #[inline]
     fn deserialize_u16<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
-        // FIXME: This should *fail* if the value does not fit in the requets integer type
-        visitor.visit_u16(self.cache.into_int()? as u16)
+        let num = try_convert_number!(unsigned, self.cache, "16");
+        visitor.visit_u16(num)
     }
 
     #[inline]
     fn deserialize_u32<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
-        // FIXME: This should *fail* if the value does not fit in the requets integer type
-        visitor.visit_u32(self.cache.into_int()? as u32)
+        let num = try_convert_number!(unsigned, self.cache, "32");
+        visitor.visit_u32(num)
     }
 
     #[inline]
     fn deserialize_u64<V: de::Visitor<'de>>(self, visitor: V) -> Result<V::Value> {
-        // FIXME: This should *fail* if the value does not fit in the requets integer type
-        visitor.visit_u64(self.cache.into_int()? as u64)
+        let num = try_convert_number!(unsigned, self.cache, "64");
+        visitor.visit_u64(num)
     }
 
     #[inline]

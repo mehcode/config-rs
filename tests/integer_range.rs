@@ -13,8 +13,14 @@ fn wrapping_u16() {
         .build()
         .unwrap();
 
-    let port: u16 = c.get("settings.port").unwrap();
-    assert_eq!(port, 464);
+    // FIXME: Can't compare ConfigError, because Unexpected are private.
+    let _port_error = c.get::<u16>("settings.port").unwrap_err();
+    /*
+    assert!(matches!(
+        Err(ConfigError::invalid_type(None, config::Unexpected::U64(66000), "an unsigned 16 bit integer"),)
+        port_error
+    ));
+    */
 }
 
 #[test]
