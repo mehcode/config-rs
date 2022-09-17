@@ -110,7 +110,8 @@ impl Config {
     where
         T: Into<Value>,
     {
-        self.defaults.insert(key.parse()?, value.into());
+        self.defaults
+            .insert(key.to_lowercase().as_str().parse()?, value.into());
 
         #[allow(deprecated)]
         self.refresh()
@@ -129,7 +130,8 @@ impl Config {
     where
         T: Into<Value>,
     {
-        self.overrides.insert(key.parse()?, value.into());
+        self.overrides
+            .insert(key.to_lowercase().as_str().parse()?, value.into());
 
         #[allow(deprecated)]
         self.refresh()
@@ -137,7 +139,7 @@ impl Config {
 
     #[deprecated(since = "0.12.0", note = "please use 'ConfigBuilder' instead")]
     pub fn set_once(&mut self, key: &str, value: Value) -> Result<()> {
-        let expr: path::Expression = key.parse()?;
+        let expr: path::Expression = key.to_lowercase().as_str().parse()?;
 
         // Traverse the cache using the path to (possibly) retrieve a value
         if let Some(ref mut val) = expr.get_mut(&mut self.cache) {
@@ -149,6 +151,8 @@ impl Config {
     }
 
     pub fn get<'de, T: Deserialize<'de>>(&self, key: &str) -> Result<T> {
+        let k = key.to_lowercase();
+        let key = k.as_str();
         // Parse the key into a path expression
         let expr: path::Expression = key.parse()?;
 
