@@ -42,3 +42,6 @@ pub use crate::format::Format;
 pub use crate::map::Map;
 pub use crate::source::{AsyncSource, Source};
 pub use crate::value::{Value, ValueKind};
+
+// Re-export
+pub use convert_case::Case;
