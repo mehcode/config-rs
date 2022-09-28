@@ -35,7 +35,7 @@ mod value;
 
 pub use crate::builder::{AsyncConfigBuilder, ConfigBuilder};
 pub use crate::config::Config;
-pub use crate::env::Environment;
+pub use crate::env::{TranslationType, Environment};
 pub use crate::error::ConfigError;
 pub use crate::file::{File, FileFormat, FileSourceFile, FileSourceString, FileStoredFormat};
 pub use crate::format::Format;

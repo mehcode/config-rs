@@ -5,6 +5,10 @@ use crate::map::Map;
 use crate::source::Source;
 use crate::value::{Value, ValueKind};
 
+/// An environment source collects a dictionary of environment variables values into a hierarchical
+/// config Value type. We have to be aware how the config tree is created from the environment
+/// dictionary, therefore we are mindful about prefixes for the environment keys, level separators,
+/// encoding form (kebab, snake case) etc.
 #[must_use]
 #[derive(Clone, Debug, Default)]
 pub struct Environment {
@@ -24,6 +28,11 @@ pub struct Environment {
     /// Consider a nested configuration such as `redis.password`, a separator of `_` would allow
     /// an environment key of `REDIS_PASSWORD` to match.
     separator: Option<String>,
+
+    /// Optional directive to translate collected keys into a form that matches what serializers
+    /// that the configuration would expect. For example if you have the `kebab-case` attribute
+    /// for your serde config types, you may want to pass TranslatinoType::Kebab here.
+    translate_key: Option<TranslationType>,
 
     /// Optional character sequence that separates each env value into a vector. only works when try_parsing is set to true
     /// Once set, you cannot have type String on the same environment, unless you set list_parse_keys.
@@ -77,6 +86,11 @@ pub struct Environment {
     source: Option<Map<String, String>>,
 }
 
+#[derive(Clone, Debug)]
+pub enum TranslationType {
+    Kebab, // Translate '_' to '-'
+}
+
 impl Environment {
     #[deprecated(since = "0.12.0", note = "please use 'Environment::default' instead")]
     pub fn new() -> Self {
@@ -92,6 +106,15 @@ impl Environment {
 
     pub fn prefix(mut self, s: &str) -> Self {
         self.prefix = Some(s.into());
+        self
+    }
+
+    pub fn with_translate_key(tt: TranslationType) -> Self {
+        Self::default().translate_key(tt)
+    }
+
+    pub fn translate_key(mut self, tt: TranslationType) -> Self {
+        self.translate_key = Some(tt);
         self
     }
 
@@ -160,6 +183,7 @@ impl Source for Environment {
         let uri: String = "the environment".into();
 
         let separator = self.separator.as_deref().unwrap_or("");
+        let translate_key = &self.translate_key;
         let prefix_separator = match (self.prefix_separator.as_deref(), self.separator.as_deref()) {
             (Some(pre), _) => pre,
             (None, Some(sep)) => sep,
@@ -196,6 +220,13 @@ impl Source for Environment {
             // If separator is given replace with `.`
             if !separator.is_empty() {
                 key = key.replace(separator, ".");
+            }
+            if let Some(translate_key) = translate_key {
+                match translate_key {
+                    TranslationType::Kebab => {
+                        key = key.replace("_", "-");
+                    },
+                }
             }
 
             let value = if self.try_parsing {
