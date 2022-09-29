@@ -44,4 +44,5 @@ pub use crate::source::{AsyncSource, Source};
 pub use crate::value::{Value, ValueKind};
 
 // Re-export
+#[cfg(feature = "convert-case")]
 pub use convert_case::Case;

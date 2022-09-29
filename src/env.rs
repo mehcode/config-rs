@@ -5,6 +5,7 @@ use crate::map::Map;
 use crate::source::Source;
 use crate::value::{Value, ValueKind};
 
+#[cfg(feature = "convert-case")]
 use convert_case::{Case, Casing};
 
 /// An environment source collects a dictionary of environment variables values into a hierarchical
@@ -34,6 +35,7 @@ pub struct Environment {
     /// Optional directive to translate collected keys into a form that matches what serializers
     /// that the configuration would expect. For example if you have the `kebab-case` attribute
     /// for your serde config types, you may want to pass Case::Kebab here.
+    #[cfg(feature = "convert-case")]
     convert_case: Option<convert_case::Case>,
 
     /// Optional character sequence that separates each env value into a vector. only works when try_parsing is set to true
@@ -106,10 +108,12 @@ impl Environment {
         self
     }
 
+    #[cfg(feature = "convert-case")]
     pub fn with_convert_case(tt: Case) -> Self {
         Self::default().convert_case(tt)
     }
 
+    #[cfg(feature = "convert-case")]
     pub fn convert_case(mut self, tt: Case) -> Self {
         self.convert_case = Some(tt);
         self
@@ -180,6 +184,7 @@ impl Source for Environment {
         let uri: String = "the environment".into();
 
         let separator = self.separator.as_deref().unwrap_or("");
+        #[cfg(feature = "convert-case")]
         let convert_case = &self.convert_case;
         let prefix_separator = match (self.prefix_separator.as_deref(), self.separator.as_deref()) {
             (Some(pre), _) => pre,
@@ -218,6 +223,8 @@ impl Source for Environment {
             if !separator.is_empty() {
                 key = key.replace(separator, ".");
             }
+
+            #[cfg(feature = "convert-case")]
             if let Some(convert_case) = convert_case {
                 key = key.to_case(*convert_case);
             }
