@@ -5,6 +5,10 @@ use crate::map::Map;
 use crate::source::Source;
 use crate::value::{Value, ValueKind};
 
+/// An environment source collects a dictionary of environment variables values into a hierarchical
+/// config Value type. We have to be aware how the config tree is created from the environment
+/// dictionary, therefore we are mindful about prefixes for the environment keys, level separators,
+/// encoding form (kebab, snake case) etc.
 #[must_use]
 #[derive(Clone, Debug, Default)]
 pub struct Environment {
