@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3.0.2
+        uses: actions/checkout@v3.1.0
 
       - name: Install toolchain
         uses: actions-rs/toolchain@v1
@@ -50,7 +50,7 @@ jobs:
           - nightly
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3.0.2
+        uses: actions/checkout@v3.1.0
 
       - name: Install toolchain
         uses: actions-rs/toolchain@v1
@@ -92,7 +92,7 @@ jobs:
           - beta
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3.0.2
+        uses: actions/checkout@v3.1.0
 
       - name: Install toolchain
         uses: actions-rs/toolchain@v1
@@ -113,7 +113,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3.0.2
+        uses: actions/checkout@v3.1.0
 
       - name: Install toolchain
         uses: actions-rs/toolchain@v1
@@ -140,7 +140,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3.0.2
+        uses: actions/checkout@v3.1.0
 
       - name: Install toolchain
         uses: actions-rs/toolchain@v1
