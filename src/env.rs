@@ -5,6 +5,13 @@ use crate::map::Map;
 use crate::source::Source;
 use crate::value::{Value, ValueKind};
 
+#[cfg(feature = "convert-case")]
+use convert_case::{Case, Casing};
+
+/// An environment source collects a dictionary of environment variables values into a hierarchical
+/// config Value type. We have to be aware how the config tree is created from the environment
+/// dictionary, therefore we are mindful about prefixes for the environment keys, level separators,
+/// encoding form (kebab, snake case) etc.
 #[must_use]
 #[derive(Clone, Debug, Default)]
 pub struct Environment {
@@ -24,6 +31,12 @@ pub struct Environment {
     /// Consider a nested configuration such as `redis.password`, a separator of `_` would allow
     /// an environment key of `REDIS_PASSWORD` to match.
     separator: Option<String>,
+
+    /// Optional directive to translate collected keys into a form that matches what serializers
+    /// that the configuration would expect. For example if you have the `kebab-case` attribute
+    /// for your serde config types, you may want to pass Case::Kebab here.
+    #[cfg(feature = "convert-case")]
+    convert_case: Option<convert_case::Case>,
 
     /// Optional character sequence that separates each env value into a vector. only works when try_parsing is set to true
     /// Once set, you cannot have type String on the same environment, unless you set list_parse_keys.
@@ -95,6 +108,17 @@ impl Environment {
         self
     }
 
+    #[cfg(feature = "convert-case")]
+    pub fn with_convert_case(tt: Case) -> Self {
+        Self::default().convert_case(tt)
+    }
+
+    #[cfg(feature = "convert-case")]
+    pub fn convert_case(mut self, tt: Case) -> Self {
+        self.convert_case = Some(tt);
+        self
+    }
+
     pub fn prefix_separator(mut self, s: &str) -> Self {
         self.prefix_separator = Some(s.into());
         self
@@ -160,6 +184,8 @@ impl Source for Environment {
         let uri: String = "the environment".into();
 
         let separator = self.separator.as_deref().unwrap_or("");
+        #[cfg(feature = "convert-case")]
+        let convert_case = &self.convert_case;
         let prefix_separator = match (self.prefix_separator.as_deref(), self.separator.as_deref()) {
             (Some(pre), _) => pre,
             (None, Some(sep)) => sep,
@@ -196,6 +222,11 @@ impl Source for Environment {
             // If separator is given replace with `.`
             if !separator.is_empty() {
                 key = key.replace(separator, ".");
+            }
+
+            #[cfg(feature = "convert-case")]
+            if let Some(convert_case) = convert_case {
+                key = key.to_case(*convert_case);
             }
 
             let value = if self.try_parsing {
