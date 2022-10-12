@@ -98,7 +98,7 @@ pub struct ConfigBuilder<St: BuilderState> {
 pub trait BuilderState {}
 
 /// Represents data specific to builder in default, sychronous state, without support for async.
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct DefaultState {
     sources: Vec<Box<dyn Source + Send + Sync>>,
 }
@@ -124,7 +124,7 @@ pub struct DefaultState {
 pub struct AsyncConfigBuilder {}
 
 /// Represents data specific to builder in asychronous state, with support for async.
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct AsyncState {
     sources: Vec<SourceType>,
 }
