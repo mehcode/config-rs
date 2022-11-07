@@ -58,7 +58,7 @@ more usage information.
 
 ## MSRV
 
-We currently support Rust 1.56.1 and newer.
+We currently support Rust 1.59.0 and newer.
 
 
 ## License
