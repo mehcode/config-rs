@@ -309,7 +309,7 @@ impl Value {
                 }
             }
 
-            ValueKind::Boolean(value) => Ok(if value { 1 } else { 0 }),
+            ValueKind::Boolean(value) => Ok(i64::from(value)),
             ValueKind::Float(value) => Ok(value.round() as i64),
 
             // Unexpected type
@@ -362,7 +362,7 @@ impl Value {
                 }
             }
 
-            ValueKind::Boolean(value) => Ok(if value { 1 } else { 0 }),
+            ValueKind::Boolean(value) => Ok(i128::from(value)),
             ValueKind::Float(value) => Ok(value.round() as i128),
 
             // Unexpected type
@@ -428,7 +428,7 @@ impl Value {
                 }
             }
 
-            ValueKind::Boolean(value) => Ok(if value { 1 } else { 0 }),
+            ValueKind::Boolean(value) => Ok(u64::from(value)),
             ValueKind::Float(value) => Ok(value.round() as u64),
 
             // Unexpected type
@@ -487,7 +487,7 @@ impl Value {
                 }
             }
 
-            ValueKind::Boolean(value) => Ok(if value { 1 } else { 0 }),
+            ValueKind::Boolean(value) => Ok(u128::from(value)),
             ValueKind::Float(value) => Ok(value.round() as u128),
 
             // Unexpected type
