@@ -107,6 +107,7 @@ where
         self
     }
 
+    /// Set required to false to make a file optional when building the config.
     pub fn required(mut self, required: bool) -> Self {
         self.required = required;
         self
