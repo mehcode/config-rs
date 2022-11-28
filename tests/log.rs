@@ -46,19 +46,6 @@ fn test_case_sensitivity_json_from_str() {
 }
 
 #[test]
-#[should_panic(expected = "Expected Ok(_) for Err(enum Level does not have variant constructor error)")]
-fn test_load_level_lowercase_failing() {
-    // The following should fail because case sensitivity is not disabled
-
-    let s = r#"{ "log": "error" }"#;
-    let c = config(s);
-    assert_eq!(c.get_string("log").unwrap(), "error");
-    let l = c.get::<log::Level>("log");
-    assert!(l.is_ok(), "Expected Ok(_) for {:?}", l);
-    assert_eq!(l.unwrap(), log::Level::Error);
-}
-
-#[test]
 fn test_load_level_lowercase_succeeding() {
     let s = r#"{ "log": "error" }"#;
     let c = config(s);
