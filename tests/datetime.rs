@@ -86,25 +86,25 @@ fn test_datetime() {
     // JSON
     let date: DateTime<Utc> = s.get("json_datetime").unwrap();
 
-    assert_eq!(date, Utc.ymd(2017, 5, 10).and_hms(2, 14, 53));
+    assert_eq!(date, Utc.with_ymd_and_hms(2017, 5, 10, 2, 14, 53).unwrap());
 
     // TOML
     let date: DateTime<Utc> = s.get("toml_datetime").unwrap();
 
-    assert_eq!(date, Utc.ymd(2017, 5, 11).and_hms(14, 55, 15));
+    assert_eq!(date, Utc.with_ymd_and_hms(2017, 5, 11, 14, 55, 15).unwrap());
 
     // YAML
     let date: DateTime<Utc> = s.get("yaml_datetime").unwrap();
 
-    assert_eq!(date, Utc.ymd(2017, 6, 12).and_hms(10, 58, 30));
+    assert_eq!(date, Utc.with_ymd_and_hms(2017, 6, 12, 10, 58, 30).unwrap());
 
     // INI
     let date: DateTime<Utc> = s.get("ini_datetime").unwrap();
 
-    assert_eq!(date, Utc.ymd(2017, 5, 10).and_hms(2, 14, 53));
+    assert_eq!(date, Utc.with_ymd_and_hms(2017, 5, 10, 2, 14, 53).unwrap());
 
     // RON
     let date: DateTime<Utc> = s.get("ron_datetime").unwrap();
 
-    assert_eq!(date, Utc.ymd(2021, 4, 19).and_hms(11, 33, 2));
+    assert_eq!(date, Utc.with_ymd_and_hms(2021, 4, 19, 11, 33, 2).unwrap());
 }
