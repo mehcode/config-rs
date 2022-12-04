@@ -6,6 +6,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## 0.13.3 - 2022-12-04
+
+Please note that we had to update the MSRV for this crate from 1.56.0 to 1.59.0
+for this patch release being possible, because a transitive dependency did
+update its MSRV.
+
+ - Backport of commit [d54986c54091e4620c199d3dfadde80b82958bb3] from [#362] for
+   using float_cmp for testing floats
+ - Backport of [#379] adding `Clone` trait derive to builder states
+
+[d54986c54091e4620c199d3dfadde80b82958bb3]: https://github.com/mehcode/config-rs/commit/d54986c54091e4620c199d3dfadde80b82958bb3
+[#362]: https://github.com/mehcode/config-rs/pull/362
+[#379]: https://github.com/mehcode/config-rs/pull/379
+
 ## 0.13.2 - 2022-08-02
 
  - Backport of [#316] to be testing with temp_env. The backport was necessary to
