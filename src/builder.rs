@@ -1,8 +1,8 @@
-use std::iter::IntoIterator;
 use std::str::FromStr;
 
 use crate::error::Result;
 use crate::map::Map;
+#[cfg(feature = "async")]
 use crate::source::AsyncSource;
 use crate::{config::Config, path::Expression, source::Source, value::Value};
 
@@ -132,6 +132,7 @@ pub struct AsyncState {
 #[derive(Debug, Clone)]
 enum SourceType {
     Sync(Box<dyn Source + Send + Sync>),
+    #[cfg(feature = "async")]
     Async(Box<dyn AsyncSource + Send + Sync>),
 }
 
@@ -213,6 +214,7 @@ impl ConfigBuilder<DefaultState> {
     /// Registers new [`AsyncSource`] in this builder and forces transition to [`AsyncState`].
     ///
     /// Calling this method does not invoke any I/O. [`AsyncSource`] is only saved in internal register for later use.
+    #[cfg(feature = "async")]
     pub fn add_async_source<T>(self, source: T) -> ConfigBuilder<AsyncState>
     where
         T: AsyncSource + Send + Sync + 'static,
@@ -302,6 +304,7 @@ impl ConfigBuilder<AsyncState> {
     /// Registers new [`AsyncSource`] in this builder.
     ///
     /// Calling this method does not invoke any I/O. [`AsyncSource`] is only saved in internal register for later use.
+    #[cfg(feature = "async")]
     pub fn add_async_source<T>(mut self, source: T) -> Self
     where
         T: AsyncSource + Send + Sync + 'static,
@@ -354,6 +357,7 @@ impl ConfigBuilder<AsyncState> {
         for source in sources.iter() {
             match source {
                 SourceType::Sync(source) => source.collect_to(&mut cache)?,
+                #[cfg(feature = "async")]
                 SourceType::Async(source) => source.collect_to(&mut cache).await?,
             }
         }

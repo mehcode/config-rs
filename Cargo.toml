@@ -15,20 +15,21 @@ edition = "2018"
 maintenance = { status = "actively-developed" }
 
 [features]
-default = ["toml", "json", "yaml", "ini", "ron", "json5", "convert-case"]
+default = ["toml", "json", "yaml", "ini", "ron", "json5", "convert-case", "async"]
 json = ["serde_json"]
 yaml = ["yaml-rust"]
 ini = ["rust-ini"]
 json5 = ["json5_rs"]
 convert-case = ["convert_case"]
 preserve_order = ["indexmap", "toml/preserve_order", "serde_json/preserve_order", "ron/indexmap"]
+async = ["async-trait"]
 
 [dependencies]
-async-trait = "0.1.50"
 lazy_static = "1.0"
 serde = "1.0.8"
 nom = "7"
 
+async-trait = { version = "0.1.50", optional = true }
 toml = { version = "0.5", optional = true }
 serde_json = { version = "1.0.2", optional = true }
 yaml-rust = { version = "0.4", optional = true }

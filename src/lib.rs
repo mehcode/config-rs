@@ -40,7 +40,9 @@ pub use crate::error::ConfigError;
 pub use crate::file::{File, FileFormat, FileSourceFile, FileSourceString, FileStoredFormat};
 pub use crate::format::Format;
 pub use crate::map::Map;
-pub use crate::source::{AsyncSource, Source};
+#[cfg(feature = "async")]
+pub use crate::source::AsyncSource;
+pub use crate::source::Source;
 pub use crate::value::{Value, ValueKind};
 
 // Re-export
