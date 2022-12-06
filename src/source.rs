@@ -1,6 +1,7 @@
 use std::fmt::Debug;
 use std::str::FromStr;
 
+#[cfg(feature = "async")]
 use async_trait::async_trait;
 
 use crate::error::Result;
@@ -50,6 +51,7 @@ fn set_value(cache: &mut Value, key: &str, value: &Value) {
 /// It is advised to use `async_trait` crate while implementing this trait.
 ///
 /// See examples for sample implementation.
+#[cfg(feature = "async")]
 #[async_trait]
 pub trait AsyncSource: Debug + Sync {
     // Sync is supertrait due to https://docs.rs/async-trait/0.1.50/async_trait/index.html#dyn-traits
@@ -69,6 +71,7 @@ pub trait AsyncSource: Debug + Sync {
     }
 }
 
+#[cfg(feature = "async")]
 impl Clone for Box<dyn AsyncSource + Send + Sync> {
     fn clone(&self) -> Self {
         self.to_owned()
