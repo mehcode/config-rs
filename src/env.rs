@@ -96,6 +96,13 @@ impl Environment {
         Self::default()
     }
 
+    /// Optional prefix that will limit access to the environment to only keys that
+    /// begin with the defined prefix.
+    ///
+    /// A prefix with a separator of `_` is tested to be present on each key before its considered
+    /// to be part of the source environment.
+    ///
+    /// For example, the key `CONFIG_DEBUG` would become `DEBUG` with a prefix of `config`.
     pub fn with_prefix(s: &str) -> Self {
         Self {
             prefix: Some(s.into()),
@@ -103,6 +110,7 @@ impl Environment {
         }
     }
 
+    /// See [Environment::with_prefix]
     pub fn prefix(mut self, s: &str) -> Self {
         self.prefix = Some(s.into());
         self
@@ -119,11 +127,15 @@ impl Environment {
         self
     }
 
+    /// Optional character sequence that separates the prefix from the rest of the key
     pub fn prefix_separator(mut self, s: &str) -> Self {
         self.prefix_separator = Some(s.into());
         self
     }
 
+    /// Optional character sequence that separates each key segment in an environment key pattern.
+    /// Consider a nested configuration such as `redis.password`, a separator of `_` would allow
+    /// an environment key of `REDIS_PASSWORD` to match.
     pub fn separator(mut self, s: &str) -> Self {
         self.separator = Some(s.into());
         self
@@ -151,6 +163,7 @@ impl Environment {
         self
     }
 
+    /// Ignore empty env values (treat as unset).
     pub fn ignore_empty(mut self, ignore: bool) -> Self {
         self.ignore_empty = ignore;
         self
@@ -163,11 +176,46 @@ impl Environment {
         self
     }
 
+    // Preserve the prefix while parsing
     pub fn keep_prefix(mut self, keep: bool) -> Self {
         self.keep_prefix = keep;
         self
     }
 
+    /// Alternate source for the environment. This can be used when you want to test your own code
+    /// using this source, without the need to change the actual system environment variables.
+    ///
+    /// ## Example
+    ///
+    /// ```rust
+    /// # use config::{Environment, Config};
+    /// # use serde::Deserialize;
+    /// # use std::collections::HashMap;
+    /// # use std::convert::TryInto;
+    /// #
+    /// #[test]
+    /// fn test_config() -> Result<(), config::ConfigError> {
+    ///   #[derive(Clone, Debug, Deserialize)]
+    ///   struct MyConfig {
+    ///     pub my_string: String,
+    ///   }
+    ///
+    ///   let source = Environment::default()
+    ///     .source(Some({
+    ///       let mut env = HashMap::new();
+    ///       env.insert("MY_STRING".into(), "my-value".into());
+    ///       env
+    ///   }));
+    ///
+    ///   let config: MyConfig = Config::builder()
+    ///     .add_source(source)
+    ///     .build()?
+    ///     .try_into()?;
+    ///   assert_eq!(config.my_string, "my-value");
+    ///
+    ///   Ok(())
+    /// }
+    /// ```
     pub fn source(mut self, source: Option<Map<String, String>>) -> Self {
         self.source = source;
         self
