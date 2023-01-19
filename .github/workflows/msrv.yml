@@ -25,16 +25,12 @@ jobs:
 
       - name: Run cargo check
         if: matrix.rust != 'nightly'
-        uses: actions-rs/cargo@v1
-        with:
-          command: check
+        run: cargo check --all-features
 
       - name: Run cargo check (nightly)
         if: matrix.rust == 'nightly'
         continue-on-error: true
-        uses: actions-rs/cargo@v1
-        with:
-          command: check
+        run: cargo check --all-features
 
   test:
     needs: [check]
@@ -68,10 +64,7 @@ jobs:
       - name: Run cargo test (nightly)
         if: matrix.rust == 'nightly'
         continue-on-error: true
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --all-features
+        run: cargo test --all-features
 
   fmt:
     needs: [check]
