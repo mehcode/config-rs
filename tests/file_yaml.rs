@@ -26,6 +26,8 @@ struct Settings {
     place: Place,
     #[serde(rename = "arr")]
     elements: Vec<String>,
+    #[serde(rename = "192.168.1.1")]
+    ip_key: String,
 }
 
 fn make() -> Config {
@@ -33,6 +35,15 @@ fn make() -> Config {
         .add_source(File::new("tests/Settings", FileFormat::Yaml))
         .build()
         .unwrap()
+}
+
+#[test]
+fn test_keys_with_periods_deserialize() {
+    let c = make();
+
+    let s: Settings = c.try_deserialize().unwrap();
+
+    assert_eq!(s.ip_key, "a string value");
 }
 
 #[test]
