@@ -38,6 +38,15 @@ fn make() -> Config {
 }
 
 #[test]
+fn test_keys_with_periods_deserialize_serde_yaml() {
+    let map = "192.168.1.1: a string value";
+
+    let c: HashMap<String, String> = serde_yaml::from_str(map).unwrap();
+
+    assert_eq!(c.get("192.168.1.1").unwrap(), "a string value");
+}
+
+#[test]
 fn test_keys_with_periods_deserialize() {
     let c = make();
 
