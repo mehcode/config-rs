@@ -47,6 +47,17 @@ fn test_keys_with_periods_deserialize_serde_yaml() {
 }
 
 #[test]
+fn test_keys_with_periods_deserialize_yaml_rust() {
+    use yaml_rust::YamlLoader;
+
+    let map = "192.168.1.1: a string value";
+
+    let c = YamlLoader::load_from_str(map).unwrap().first().unwrap().clone();
+
+    assert_eq!(c["192.168.1.1"].as_str().unwrap(), "a string value");
+}
+
+#[test]
 fn test_keys_with_periods_deserialize() {
     let c = make();
 
