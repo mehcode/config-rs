@@ -150,7 +150,7 @@ impl Config {
         Ok(())
     }
 
-    pub fn get<'de, T: Deserialize<'de>>(&self, key: &str) -> Result<T> {
+    fn get_value(&self, key: &str) -> Result<Value> {
         let k = key.to_lowercase();
         let key = k.as_str();
         // Parse the key into a path expression
@@ -159,38 +159,44 @@ impl Config {
         // Traverse the cache using the path to (possibly) retrieve a value
         let value = expr.get(&self.cache).cloned();
 
-        match value {
-            Some(value) => {
-                // Deserialize the received value into the requested type
-                T::deserialize(value).map_err(|e| e.extend_with_key(key))
-            }
+        value.ok_or_else(|| ConfigError::NotFound(key.into()))
+    }
 
-            None => Err(ConfigError::NotFound(key.into())),
-        }
+    pub fn get<'de, T: Deserialize<'de>>(&self, key: &str) -> Result<T> {
+        self.get_value(key).and_then(|value| {
+            // Deserialize the received value into the requested type
+            T::deserialize(value).map_err(|e| e.extend_with_key(key))
+        })
     }
 
     pub fn get_string(&self, key: &str) -> Result<String> {
-        self.get(key).and_then(Value::into_string)
+        self.get_value(key)
+            .and_then(|value| value.into_string().map_err(|e| e.extend_with_key(key)))
     }
 
     pub fn get_int(&self, key: &str) -> Result<i64> {
-        self.get(key).and_then(Value::into_int)
+        self.get_value(key)
+            .and_then(|value| value.into_int().map_err(|e| e.extend_with_key(key)))
     }
 
     pub fn get_float(&self, key: &str) -> Result<f64> {
-        self.get(key).and_then(Value::into_float)
+        self.get_value(key)
+            .and_then(|value| value.into_float().map_err(|e| e.extend_with_key(key)))
     }
 
     pub fn get_bool(&self, key: &str) -> Result<bool> {
-        self.get(key).and_then(Value::into_bool)
+        self.get_value(key)
+            .and_then(|value| value.into_bool().map_err(|e| e.extend_with_key(key)))
     }
 
     pub fn get_table(&self, key: &str) -> Result<Map<String, Value>> {
-        self.get(key).and_then(Value::into_table)
+        self.get_value(key)
+            .and_then(|value| value.into_table().map_err(|e| e.extend_with_key(key)))
     }
 
     pub fn get_array(&self, key: &str) -> Result<Vec<Value>> {
-        self.get(key).and_then(Value::into_array)
+        self.get_value(key)
+            .and_then(|value| value.into_array().map_err(|e| e.extend_with_key(key)))
     }
 
     /// Attempt to deserialize the entire configuration into the requested type.
