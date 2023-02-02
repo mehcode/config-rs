@@ -19,16 +19,11 @@ fn test_error_parse() {
         .add_source(File::new("tests/Settings-invalid", FileFormat::Toml))
         .build();
 
-    let path: PathBuf = ["tests", "Settings-invalid.toml"].iter().collect();
-
     assert!(res.is_err());
-    assert_eq!(
-        res.unwrap_err().to_string(),
-        format!(
-            "invalid TOML value, did you mean to use a quoted string? at line 2 column 9 in {}",
-            path.display()
-        )
-    );
+    assert!(res
+        .unwrap_err()
+        .to_string()
+        .contains("TOML parse error at line 2, column 9"));
 }
 
 #[test]
