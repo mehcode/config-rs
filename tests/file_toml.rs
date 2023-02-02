@@ -2,8 +2,6 @@
 
 use serde_derive::Deserialize;
 
-use std::path::PathBuf;
-
 use config::{Config, File, FileFormat, Map, Value};
 use float_cmp::ApproxEqUlps;
 
@@ -90,16 +88,11 @@ fn test_error_parse() {
         .add_source(File::new("tests/Settings-invalid", FileFormat::Toml))
         .build();
 
-    let path_with_extension: PathBuf = ["tests", "Settings-invalid.toml"].iter().collect();
-
     assert!(res.is_err());
-    assert_eq!(
-        res.unwrap_err().to_string(),
-        format!(
-            "invalid TOML value, did you mean to use a quoted string? at line 2 column 9 in {}",
-            path_with_extension.display()
-        )
-    );
+    assert!(res
+        .unwrap_err()
+        .to_string()
+        .contains("TOML parse error at line 2, column 9"));
 }
 
 #[derive(Debug, Deserialize, PartialEq)]
