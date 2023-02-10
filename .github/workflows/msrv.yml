@@ -92,13 +92,19 @@ jobs:
     needs: [check]
     name: Clippy
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rust:
+          - 1.60.0
+          - stable
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3.3.0
 
       - name: Install toolchain
-        uses: dtolnay/rust-toolchain@1.60.0
+        uses: dtolnay/rust-toolchain@master
         with:
+          toolchain: ${{ matrix.rust }}
           components: clippy
 
       - name: Run cargo clippy
