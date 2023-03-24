@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         rust:
-          - 1.60.0
+          - 1.64.0
           - stable
 
     steps:
