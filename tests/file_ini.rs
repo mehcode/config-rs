@@ -61,7 +61,7 @@ fn test_error_parse() {
     assert_eq!(
         res.unwrap_err().to_string(),
         format!(
-            r#"2:0 expecting "[Some('='), Some(':')]" but found EOF. in {}"#,
+            r#"3:1 expecting "[Some('='), Some(':')]" but found EOF. in {}"#,
             path.display()
         )
     );
