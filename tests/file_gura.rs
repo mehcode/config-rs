@@ -1,4 +1,4 @@
-#![cfg(feature = "json")]
+#![cfg(feature = "gura")]
 
 use serde_derive::Deserialize;
 
