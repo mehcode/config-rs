@@ -15,7 +15,7 @@ edition = "2018"
 maintenance = { status = "actively-developed" }
 
 [features]
-default = ["toml", "json", "yaml", "ini", "ron", "json5", "ura", "convert-case", "async"]
+default = ["toml", "json", "yaml", "ini", "ron", "json5", "gura", "convert-case", "async"]
 json = ["serde_json"]
 yaml = ["yaml-rust"]
 ini = ["rust-ini"]
