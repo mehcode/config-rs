@@ -27,6 +27,9 @@ mod ron;
 #[cfg(feature = "json5")]
 mod json5;
 
+#[cfg(feature = "ura")]
+mod gura;
+
 /// File formats provided by the library.
 ///
 /// Although it is possible to define custom formats using [`Format`] trait it is recommended to use FileFormat if possible.
@@ -55,6 +58,10 @@ pub enum FileFormat {
     /// JSON5 (parsed with json5)
     #[cfg(feature = "json5")]
     Json5,
+
+    /// GURA (parsed with ura)
+    #[cfg(feature = "ura")]
+    Gura,
 }
 
 lazy_static! {
@@ -80,6 +87,9 @@ lazy_static! {
 
         #[cfg(feature = "json5")]
         formats.insert(FileFormat::Json5, vec!["json5"]);
+
+        #[cfg(feature = "ura")]
+        formats.insert(FileFormat::Gura, vec!["ura"]);
 
         formats
     };
@@ -116,6 +126,9 @@ impl FileFormat {
 
             #[cfg(feature = "json5")]
             FileFormat::Json5 => json5::parse(uri, text),
+
+            #[cfg(feature = "ura")]
+            FileFormat::Gura => gura::parse(uri, text),
 
             #[cfg(all(
                 not(feature = "toml"),
