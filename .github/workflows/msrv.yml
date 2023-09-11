@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         rust:
-          - 1.64.0
+          - 1.66.0
           - stable
           - beta
           - nightly
@@ -39,7 +39,7 @@ jobs:
     strategy:
       matrix:
         rust:
-          - 1.64.0
+          - 1.66.0
           - stable
           - beta
           - nightly
@@ -57,7 +57,7 @@ jobs:
         run: cargo test --all-features
 
       - name: Run cargo test (nightly)
-        if: matrix.rust == '1.64.0'
+        if: matrix.rust == '1.66.0'
         continue-on-error: true
         run: cargo test --tests --all-features
 
@@ -95,7 +95,7 @@ jobs:
     strategy:
       matrix:
         rust:
-          - 1.64.0
+          - 1.66.0
           - stable
     steps:
       - name: Checkout sources
@@ -117,7 +117,7 @@ jobs:
     strategy:
       matrix:
         rust:
-          - 1.64.0
+          - 1.66.0
           - stable
 
     steps:
