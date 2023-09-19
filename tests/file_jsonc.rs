@@ -52,7 +52,7 @@ fn test_file() {
     assert_eq!(s.place.telephone, None);
     assert_eq!(s.elements.len(), 10);
     assert_eq!(s.elements[3], "4".to_string());
-    if cfg!(feature = "preserve_order") {
+    if cfg!(feature = "TODO: preserve_order") {
         assert_eq!(
             s.place
                 .creator

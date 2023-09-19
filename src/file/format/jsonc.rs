@@ -32,15 +32,15 @@ fn from_jsonc_value(uri: Option<&String>, value: JsonValue) -> Value {
     let vk = match value {
         JsonValue::Null => ValueKind::Nil,
         JsonValue::String(v) => ValueKind::String(v.to_string()),
-        JsonValue::Number(ref value) => {
-            if let Ok(value) = value.parse::<i64>() {
-                ValueKind::I64(value)
-            } else if let Ok(value) = value.parse::<f64>() {
-                ValueKind::Float(value)
+        JsonValue::Number(number) => {
+            if let Ok(v) = number.parse::<i64>() {
+                ValueKind::I64(v)
+            } else if let Ok(v) = number.parse::<f64>() {
+                ValueKind::Float(v)
             } else {
                 unreachable!();
             }
-        },
+        }
         JsonValue::Boolean(v) => ValueKind::Boolean(v),
         JsonValue::Object(table) => {
             let m = table
