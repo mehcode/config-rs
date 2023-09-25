@@ -21,7 +21,7 @@ yaml = ["yaml-rust"]
 ini = ["rust-ini"]
 json5 = ["json5_rs", "serde/derive"]
 convert-case = ["convert_case"]
-preserve_order = ["indexmap", "toml/preserve_order", "serde_json/preserve_order", "ron/indexmap"]
+preserve_order = ["indexmap", "toml?/preserve_order", "serde_json?/preserve_order", "ron?/indexmap"]
 async = ["async-trait"]
 
 [dependencies]
