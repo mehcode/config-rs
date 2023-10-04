@@ -234,10 +234,10 @@ impl<'a> ser::Serializer for &'a mut ConfigSerializer {
         _name: &'static str,
         _variant_index: u32,
         variant: &'static str,
-        _len: usize,
+        len: usize,
     ) -> Result<Self::SerializeTupleVariant> {
         self.push_key(variant);
-        Ok(self)
+        self.serialize_seq(Some(len))
     }
 
     fn serialize_map(self, _len: Option<usize>) -> Result<Self::SerializeMap> {
@@ -286,13 +286,11 @@ impl<'a> ser::SerializeTuple for &'a mut ConfigSerializer {
     where
         T: ?Sized + ser::Serialize,
     {
-        self.inc_last_key_index()?;
-        value.serialize(&mut **self)?;
-        Ok(())
+        ser::SerializeSeq::serialize_element(self, value)
     }
 
     fn end(self) -> Result<Self::Ok> {
-        Ok(())
+        ser::SerializeSeq::end(self)
     }
 }
 
@@ -304,13 +302,11 @@ impl<'a> ser::SerializeTupleStruct for &'a mut ConfigSerializer {
     where
         T: ?Sized + ser::Serialize,
     {
-        self.inc_last_key_index()?;
-        value.serialize(&mut **self)?;
-        Ok(())
+        ser::SerializeSeq::serialize_element(self, value)
     }
 
     fn end(self) -> Result<Self::Ok> {
-        Ok(())
+        ser::SerializeSeq::end(self)
     }
 }
 
@@ -322,12 +318,11 @@ impl<'a> ser::SerializeTupleVariant for &'a mut ConfigSerializer {
     where
         T: ?Sized + ser::Serialize,
     {
-        self.inc_last_key_index()?;
-        value.serialize(&mut **self)?;
-        Ok(())
+        ser::SerializeSeq::serialize_element(self, value)
     }
 
     fn end(self) -> Result<Self::Ok> {
+        ser::SerializeSeq::end(&mut *self)?;
         self.pop_key();
         Ok(())
     }
