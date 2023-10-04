@@ -732,4 +732,28 @@ mod test {
         let actual: Test = config.try_deserialize().unwrap();
         assert_eq!(test, actual);
     }
+
+    #[test]
+    fn test_nest() {
+        let val = serde_json::json! { {
+            "top": {
+                "num": 1,
+                "array": [2],
+                "nested": [[3,4]],
+                "deep": [{
+                    "yes": true,
+                }],
+                "mixed": [
+                    { "boolish": false, },
+                    42,
+                    ["hi"],
+                    { "inner": 66 },
+                    23,
+                ],
+            }
+        } };
+        let config = Config::try_from(&val).unwrap();
+        let output: serde_json::Value = config.try_deserialize().unwrap();
+        assert_eq!(val, output);
+    }
 }
