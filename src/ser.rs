@@ -12,6 +12,8 @@ pub struct ConfigSerializer {
     pub output: Config,
 }
 
+pub struct SeqSerializer<'a>(&'a mut ConfigSerializer);
+
 impl ConfigSerializer {
     fn serialize_primitive<T>(&mut self, value: T) -> Result<()>
     where
@@ -85,10 +87,10 @@ impl ConfigSerializer {
 impl<'a> ser::Serializer for &'a mut ConfigSerializer {
     type Ok = ();
     type Error = ConfigError;
-    type SerializeSeq = Self;
-    type SerializeTuple = Self;
-    type SerializeTupleStruct = Self;
-    type SerializeTupleVariant = Self;
+    type SerializeSeq = SeqSerializer<'a>;
+    type SerializeTuple = SeqSerializer<'a>;
+    type SerializeTupleStruct = SeqSerializer<'a>;
+    type SerializeTupleVariant = SeqSerializer<'a>;
     type SerializeMap = Self;
     type SerializeStruct = Self;
     type SerializeStructVariant = Self;
@@ -159,7 +161,8 @@ impl<'a> ser::Serializer for &'a mut ConfigSerializer {
         for byte in v {
             seq.serialize_element(byte)?;
         }
-        seq.end()
+        seq.end();
+        Ok(())
     }
 
     fn serialize_none(self) -> Result<Self::Ok> {
@@ -214,7 +217,7 @@ impl<'a> ser::Serializer for &'a mut ConfigSerializer {
     }
 
     fn serialize_seq(self, _len: Option<usize>) -> Result<Self::SerializeSeq> {
-        Ok(self)
+        SeqSerializer::new(self)
     }
 
     fn serialize_tuple(self, len: usize) -> Result<Self::SerializeTuple> {
@@ -260,7 +263,17 @@ impl<'a> ser::Serializer for &'a mut ConfigSerializer {
     }
 }
 
-impl<'a> ser::SerializeSeq for &'a mut ConfigSerializer {
+impl<'a> SeqSerializer<'a> {
+    fn new(inner: &'a mut ConfigSerializer) -> Result<Self> {
+        Ok(SeqSerializer(inner))
+    }
+
+    fn end(self) -> &'a mut ConfigSerializer {
+        self.0
+    }
+}
+
+impl<'a> ser::SerializeSeq for SeqSerializer<'a> {
     type Ok = ();
     type Error = ConfigError;
 
@@ -268,17 +281,18 @@ impl<'a> ser::SerializeSeq for &'a mut ConfigSerializer {
     where
         T: ?Sized + ser::Serialize,
     {
-        self.inc_last_key_index()?;
-        value.serialize(&mut **self)?;
+        self.0.inc_last_key_index()?;
+        value.serialize(&mut *(self.0))?;
         Ok(())
     }
 
     fn end(self) -> Result<Self::Ok> {
+        self.end();
         Ok(())
     }
 }
 
-impl<'a> ser::SerializeTuple for &'a mut ConfigSerializer {
+impl<'a> ser::SerializeTuple for SeqSerializer<'a> {
     type Ok = ();
     type Error = ConfigError;
 
@@ -294,7 +308,7 @@ impl<'a> ser::SerializeTuple for &'a mut ConfigSerializer {
     }
 }
 
-impl<'a> ser::SerializeTupleStruct for &'a mut ConfigSerializer {
+impl<'a> ser::SerializeTupleStruct for SeqSerializer<'a> {
     type Ok = ();
     type Error = ConfigError;
 
@@ -310,7 +324,7 @@ impl<'a> ser::SerializeTupleStruct for &'a mut ConfigSerializer {
     }
 }
 
-impl<'a> ser::SerializeTupleVariant for &'a mut ConfigSerializer {
+impl<'a> ser::SerializeTupleVariant for SeqSerializer<'a> {
     type Ok = ();
     type Error = ConfigError;
 
@@ -322,8 +336,8 @@ impl<'a> ser::SerializeTupleVariant for &'a mut ConfigSerializer {
     }
 
     fn end(self) -> Result<Self::Ok> {
-        ser::SerializeSeq::end(&mut *self)?;
-        self.pop_key();
+        let inner = self.end();
+        inner.pop_key();
         Ok(())
     }
 }
