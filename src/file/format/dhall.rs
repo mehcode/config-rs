@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use crate::map::Map;
 use std::error::Error;
 
 use crate::{
@@ -10,13 +10,13 @@ use crate::{
 pub fn parse(
     uri: Option<&String>,
     text: &str,
-) -> Result<HashMap<String, Value>, Box<dyn Error + Send + Sync>> {
+) -> Result<Map<String, Value>, Box<dyn Error + Send + Sync>> {
     let value = from_dhall_value(uri, serde_dhall::from_str(text).parse()?);
     match value.kind {
         ValueKind::Table(map) => Ok(map),
         ValueKind::Nil => Err(Unexpected::Unit),
         ValueKind::Boolean(value) => Err(Unexpected::Bool(value)),
-        ValueKind::Integer(value) => Err(Unexpected::Integer(value)),
+        ValueKind::I64(value) => Err(Unexpected::I64(value)),
         ValueKind::Float(value) => Err(Unexpected::Float(value)),
         ValueKind::String(value) => Err(Unexpected::Str(value)),
         ValueKind::Array(value) => Err(Unexpected::Seq),
@@ -29,8 +29,8 @@ fn from_dhall_value(uri: Option<&String>, value: serde_dhall::SimpleValue) -> Va
     match value {
         serde_dhall::SimpleValue::Num(num) => match num {
             serde_dhall::NumKind::Bool(b) => Value::new(uri, ValueKind::Boolean(b)),
-            serde_dhall::NumKind::Natural(n) => Value::new(uri, ValueKind::Integer(n as i64)),
-            serde_dhall::NumKind::Integer(i) => Value::new(uri, ValueKind::Integer(i)),
+            serde_dhall::NumKind::Natural(n) => Value::new(uri, ValueKind::I64(n as i64)),
+            serde_dhall::NumKind::Integer(i) => Value::new(uri, ValueKind::I64(i)),
             serde_dhall::NumKind::Double(d) => Value::new(uri, ValueKind::Float(f64::from(d))),
         },
         serde_dhall::SimpleValue::Text(string) => Value::new(uri, ValueKind::String(string)),
