@@ -1,4 +1,4 @@
-#![cfg(feature = "json")]
+#![cfg(feature = "gura")]
 
 use serde_derive::Deserialize;
 
@@ -185,7 +185,7 @@ fn test_override_lowercase_value_for_enums() {
     std::env::set_var("test_bar", "I have been overridden_with_lower_case");
 
     let cfg = Config::builder()
-        .add_source(File::new("tests/Settings-enum-test", FileFormat::Json))
+        .add_source(File::new("tests/Settings-enum-test", FileFormat::Gura))
         .add_source(config::Environment::with_prefix("test").separator("_"))
         .build()
         .unwrap();
