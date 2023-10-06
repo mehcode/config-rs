@@ -14,7 +14,7 @@ pub fn parse(
     match val.kind {
         ValueKind::Table(map) => Ok(map),
 
-        _ => Ok(Map::new())
+        _ => Ok(Map::new()),
     }
 }
 
@@ -50,7 +50,7 @@ fn from_gura_value(uri: Option<&String>, val: &GuraType) -> Value {
             }
 
             Value::new(uri, ValueKind::Array(l))
-        } 
+        }
 
         _ => Value::new(uri, ValueKind::Nil),
     }
