@@ -24,14 +24,15 @@ fn from_ini(
 ) -> Value {
     let mut map = Map::<String, Value>::new();
 
-    let mut sections: Map<Option<&str>, Table> = data.into_iter().map(|(section, props)| {(
-        section,
-        props.iter().map(|(k, v)| {
+    let mut sections: Map<Option<&str>, Table> = data.into_iter().map(|(section, props)| {
+        let key = section;
+        let value = props.iter().map(|(k, v)| {
             let key = k.to_owned();
             let value = Value::new(uri, ValueKind::String(v.to_owned()));
             (key, value)
-        }).collect()
-    )}).collect();
+        }).collect();
+        (key, value)
+    }).collect();
 
     // Hoist (optional) sectionless properties to the top-level, alongside sections:
     map.extend(sections.remove(&None).unwrap_or_default());
