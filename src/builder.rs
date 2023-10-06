@@ -225,7 +225,7 @@ impl ConfigBuilder<DefaultState> {
                     .state
                     .sources
                     .into_iter()
-                    .map(|s| SourceType::Sync(s))
+                    .map(SourceType::Sync)
                     .collect(),
             },
             defaults: self.defaults,

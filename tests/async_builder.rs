@@ -31,7 +31,7 @@ impl AsyncSource for AsyncFile {
 
         self.format
             .parse(Some(&self.path), &text)
-            .map_err(|e| ConfigError::Foreign(e))
+            .map_err(ConfigError::Foreign)
     }
 }
 

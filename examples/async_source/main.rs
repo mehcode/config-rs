@@ -68,7 +68,7 @@ impl<F: Format + Send + Sync + Debug> AsyncSource for HttpSource<F> {
             .and_then(|text| {
                 self.format
                     .parse(Some(&self.uri), &text)
-                    .map_err(|e| ConfigError::Foreign(e))
+                    .map_err(ConfigError::Foreign)
             })
     }
 }

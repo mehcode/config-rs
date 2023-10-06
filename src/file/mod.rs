@@ -128,7 +128,7 @@ where
         let (uri, contents, format) = match self
             .source
             .resolve(self.format.clone())
-            .map_err(|err| ConfigError::Foreign(err))
+            .map_err(ConfigError::Foreign)
         {
             Ok(result) => (result.uri, result.content, result.format),
 
