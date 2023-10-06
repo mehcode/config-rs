@@ -22,26 +22,26 @@ fn from_ini(
     uri: Option<&String>,
     data: Ini,
 ) -> Value {
-    let mut map = Map::new();
+    let mut map = Map::<String, Value>::new();
 
     let mut sections: Map<Option<&str>, Table> = data.into_iter().map(|(section, props)| {(
         section,
-        props.iter().map(|(k, v)| {(
-            k.to_owned(),
-            Value::new(uri, ValueKind::String(v.to_owned())),
-        )}).collect()
+        props.iter().map(|(k, v)| {
+            let key = k.to_owned();
+            let value = Value::new(uri, ValueKind::String(v.to_owned()));
+            (key, value)
+        }).collect()
     )}).collect();
 
-    // These (optional) properties should exist top-level alongside sections:
-    if let Some(sectionless) = sections.remove(&None) {
-        map.extend(sectionless);
-    }
+    // Hoist (optional) sectionless properties to the top-level, alongside sections:
+    map.extend(sections.remove(&None).unwrap_or_default());
 
     // Wrap each section Table into Value for merging into `map`:
-    map.extend(sections.into_iter().map(|(k,v)| {(
-        k.unwrap_or_default().to_owned(),
-        Value::new(uri, ValueKind::Table(v)),
-    )}));
+    map.extend(sections.into_iter().map(|(k,v)| {
+        let key = k.unwrap_or_default().to_owned();
+        let value = Value::new(uri, ValueKind::Table(v));
+        (key , value)
+    }));
 
     Value::new(uri, ValueKind::Table(map))
 }
