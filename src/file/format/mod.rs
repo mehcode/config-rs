@@ -59,7 +59,7 @@ pub enum FileFormat {
     #[cfg(feature = "json5")]
     Json5,
 
-    /// GURA (parsed with gura)
+    /// GURA (parsed with serde_gura)
     #[cfg(feature = "gura")]
     Gura,
 }

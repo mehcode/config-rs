@@ -1,52 +1,14 @@
 use std::error::Error;
 
-use gura::GuraType;
-
 use crate::format;
 use crate::map::Map;
-use crate::value::{Value, ValueKind};
+use crate::value::Value;
 
 pub fn parse(
     uri: Option<&String>,
     text: &str,
 ) -> Result<Map<String, Value>, Box<dyn Error + Send + Sync>> {
-    let value = from_gura_value(uri, gura::parse(text).unwrap());
+    // Parse a Gura input from the provided text
+    let value = format::from_parsed_value(uri, serde_gura::from_str(text)?);
     format::extract_root_table(uri, value)
-}
-
-fn from_gura_value(uri: Option<&String>, value: GuraType) -> Value {
-    let vk = match value {
-        GuraType::String(value) => ValueKind::String(value),
-
-        GuraType::Integer(value) => ValueKind::I64(value as i64),
-        GuraType::BigInteger(value) => ValueKind::I128(value),
-        GuraType::Float(value) => ValueKind::Float(value),
-
-        GuraType::Bool(value) => ValueKind::Boolean(value),
-
-        GuraType::Object(table) => {
-            let m = table
-                .into_iter()
-                .map(|(k, v)| (k, from_gura_value(uri, v)))
-                .collect();
-
-            ValueKind::Table(m)
-        }
-
-        GuraType::Array(array) => {
-            let l = array
-                .into_iter()
-                .map(|v| from_gura_value(uri, v))
-                .collect();
-
-            ValueKind::Array(l)
-        }
-
-        GuraType::Null => ValueKind::Nil,
-
-        // Remaining types (only intended for internal use):
-        _ => ValueKind::Nil,
-    };
-
-    Value::new(uri, vk)
 }
