@@ -1,20 +1,16 @@
 use std::error::Error;
 
+use crate::format;
 use crate::map::Map;
-use crate::value::{Value, ValueKind};
+use crate::value::Value;
 
 pub fn parse(
     uri: Option<&String>,
     text: &str,
 ) -> Result<Map<String, Value>, Box<dyn Error + Send + Sync>> {
     // Parse a TOML value from the provided text
-    // TODO: Have a proper error fire if the root of a file is ever not a Table
     let value = from_toml_value(uri, &toml::from_str(text)?);
-    match value.kind {
-        ValueKind::Table(map) => Ok(map),
-
-        _ => Ok(Map::new()),
-    }
+    format::extract_root_table(uri, value)
 }
 
 fn from_toml_value(uri: Option<&String>, value: &toml::Value) -> Value {
