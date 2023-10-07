@@ -18,37 +18,38 @@ pub fn parse(
 }
 
 fn from_gura_value(uri: Option<&String>, value: GuraType) -> Value {
-    match value {
-        GuraType::String(value) => Value::new(uri, ValueKind::String(value)),
+    let vk = match value {
+        GuraType::String(value) => ValueKind::String(value),
 
-        GuraType::Integer(value) => Value::new(uri, ValueKind::I64(value as i64)),
-        GuraType::BigInteger(value) => Value::new(uri, ValueKind::I128(value)),
-        GuraType::Float(value) => Value::new(uri, ValueKind::Float(value)),
+        GuraType::Integer(value) => ValueKind::I64(value as i64),
+        GuraType::BigInteger(value) => ValueKind::I128(value),
+        GuraType::Float(value) => ValueKind::Float(value),
 
-        GuraType::Bool(value) => Value::new(uri, ValueKind::Boolean(value)),
+        GuraType::Bool(value) => ValueKind::Boolean(value),
 
         GuraType::Object(table) => {
-            let mut m = Map::new();
+            let m = table
+                .into_iter()
+                .map(|(k, v)| (k, from_gura_value(uri, v)))
+                .collect();
 
-            for (key, value) in table {
-                m.insert(key, from_gura_value(uri, value));
-            }
-
-            Value::new(uri, ValueKind::Table(m))
+            ValueKind::Table(m)
         }
 
         GuraType::Array(array) => {
-            let mut l = Vec::new();
+            let l = array
+                .into_iter()
+                .map(|v| from_gura_value(uri, v))
+                .collect();
 
-            for value in array {
-                l.push(from_gura_value(uri, value));
-            }
-
-            Value::new(uri, ValueKind::Array(l))
+            ValueKind::Array(l)
         }
 
-        // Null or remaining types (only intended for internal use):
-        GuraType::Null => Value::new(uri, ValueKind::Nil),
-        _ => Value::new(uri, ValueKind::Nil),
-    }
+        GuraType::Null => ValueKind::Nil,
+
+        // Remaining types (only intended for internal use):
+        _ => ValueKind::Nil,
+    };
+
+    Value::new(uri, vk)
 }
