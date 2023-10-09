@@ -3,6 +3,7 @@ use std::error::Error;
 use crate::error::{ConfigError, Unexpected};
 use crate::map::Map;
 use crate::value::{Value, ValueKind};
+use serde::Deserialize;
 
 /// Describes a format of configuration source data
 ///
@@ -63,34 +64,6 @@ pub enum ParsedValue {
     Array(Vec<Self>),
 }
 
-// Deserialization support for TOML `Datetime` value type into `String`
-#[derive(serde::Deserialize, Debug)]
-#[serde(untagged)]
-enum ParsedString {
-    String(String),
-    #[cfg(feature = "toml")]
-    DateTime(toml::value::Datetime),
-}
-
-fn deserialize_parsed_string<'de, D>(deserializer: D) -> Result<String, D::Error>
-where
-    D: serde::de::Deserializer<'de>,
-{
-    let s: ParsedString = serde::Deserialize::deserialize(deserializer)?;
-    Ok(s.to_string())
-}
-
-impl std::fmt::Display for ParsedString {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        let s = match self {
-            ParsedString::String(s) => s.to_string(),
-            #[cfg(feature = "toml")]
-            ParsedString::DateTime(dt) => dt.to_string()
-        };
-        write!(f, "{}", s)
-    }
-}
-
 // Value wrap ValueKind values, with optional uri (origin)
 pub fn from_parsed_value(uri: Option<&String>, value: ParsedValue) -> Value {
     let vk = match value {
@@ -122,4 +95,26 @@ pub fn from_parsed_value(uri: Option<&String>, value: ParsedValue) -> Value {
     };
 
     Value::new(uri, vk)
+}
+
+// Deserialization support for TOML `Datetime` value type into `String`
+fn deserialize_parsed_string<'de, D>(deserializer: D) -> Result<String, D::Error>
+where
+    D: serde::de::Deserializer<'de>,
+{
+    #[derive(serde::Deserialize)]
+    #[serde(untagged)]
+    enum ParsedString {
+        // Anything that can deserialize into a string successfully:
+        String(String),
+        // Config specific support for types that need string conversion:
+        #[cfg(feature = "toml")]
+        TomlDateTime(toml::value::Datetime),
+    }
+
+    Ok(match ParsedString::deserialize(deserializer)? {
+        ParsedString::String(v) => v,
+        #[cfg(feature = "toml")]
+        ParsedString::TomlDateTime(v) => v.to_string(),
+    })
 }
