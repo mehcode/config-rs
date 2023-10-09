@@ -2,44 +2,43 @@ use std::error::Error;
 
 use crate::format;
 use crate::map::Map;
-use crate::value::Value;
+use crate::value::{Value, ValueKind};
 
 pub fn parse(
     uri: Option<&String>,
     text: &str,
 ) -> Result<Map<String, Value>, Box<dyn Error + Send + Sync>> {
-    // Parse a TOML value from the provided text
-    let value = from_toml_value(uri, &toml::from_str(text)?);
+    // Parse a TOML input from the provided text
+    let value = from_toml_value(uri, toml::from_str(text)?);
     format::extract_root_table(uri, value)
 }
 
-fn from_toml_value(uri: Option<&String>, value: &toml::Value) -> Value {
-    match *value {
-        toml::Value::String(ref value) => Value::new(uri, value.to_string()),
-        toml::Value::Float(value) => Value::new(uri, value),
-        toml::Value::Integer(value) => Value::new(uri, value),
-        toml::Value::Boolean(value) => Value::new(uri, value),
+fn from_toml_value(uri: Option<&String>, value: toml::Value) -> Value {
+    let vk = match value {
+        toml::Value::Datetime(v) => ValueKind::String(v.to_string()),
+        toml::Value::String(v)   => ValueKind::String(v),
+        toml::Value::Float(v)    => ValueKind::Float(v),
+        toml::Value::Integer(v)  => ValueKind::I64(v),
+        toml::Value::Boolean(v)  => ValueKind::Boolean(v),
 
-        toml::Value::Table(ref table) => {
-            let mut m = Map::new();
+        toml::Value::Table(table) => {
+            let m = table
+                .into_iter()
+                .map(|(k, v)| (k, from_toml_value(uri, v)))
+                .collect();
 
-            for (key, value) in table {
-                m.insert(key.clone(), from_toml_value(uri, value));
-            }
-
-            Value::new(uri, m)
+            ValueKind::Table(m)
         }
 
-        toml::Value::Array(ref array) => {
-            let mut l = Vec::new();
+        toml::Value::Array(array) => {
+            let l = array
+                .into_iter()
+                .map(|v| from_toml_value(uri, v))
+                .collect();
 
-            for value in array {
-                l.push(from_toml_value(uri, value));
-            }
-
-            Value::new(uri, l)
+            ValueKind::Array(l)
         }
+    };
 
-        toml::Value::Datetime(ref datetime) => Value::new(uri, datetime.to_string()),
-    }
+    Value::new(uri, vk)
 }
