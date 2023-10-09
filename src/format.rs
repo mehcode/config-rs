@@ -57,9 +57,38 @@ pub enum ParsedValue {
     U64(u64),
     U128(u128),
     Float(f64),
+    #[serde(deserialize_with = "deserialize_parsed_string")]
     String(String),
     Table(Map<String, Self>),
     Array(Vec<Self>),
+}
+
+// Deserialization support for TOML `Datetime` value type into `String`
+#[derive(serde::Deserialize, Debug)]
+#[serde(untagged)]
+enum ParsedString {
+    String(String),
+    #[cfg(feature = "toml")]
+    DateTime(toml::value::Datetime),
+}
+
+fn deserialize_parsed_string<'de, D>(deserializer: D) -> Result<String, D::Error>
+where
+    D: serde::de::Deserializer<'de>,
+{
+    let s: ParsedString = serde::Deserialize::deserialize(deserializer)?;
+    Ok(s.to_string())
+}
+
+impl std::fmt::Display for ParsedString {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let s = match self {
+            ParsedString::String(s) => s.to_string(),
+            #[cfg(feature = "toml")]
+            ParsedString::DateTime(dt) => dt.to_string()
+        };
+        write!(f, "{}", s)
+    }
 }
 
 // Value wrap ValueKind values, with optional uri (origin)
