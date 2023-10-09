@@ -4,6 +4,7 @@ use crate::error::{ConfigError, Unexpected};
 use crate::map::Map;
 use crate::value::{Value, ValueKind};
 use serde::Deserialize;
+use serde_with::rust::deserialize_ignore_any;
 
 /// Describes a format of configuration source data
 ///
@@ -47,11 +48,12 @@ pub fn extract_root_table(
 }
 
 // Equivalent to ValueKind, except Table + Array store the same enum
-// Useful for serde to serialize values into, then convert to Value
+// Useful for serde to serialize values into, then convert to Value.
+// NOTE: Order of variants is important. Serde will use whichever
+// the input successfully deserializes into first.
 #[derive(serde::Deserialize, Debug)]
 #[serde(untagged)]
 pub enum ParsedValue {
-    Nil,
     Boolean(bool),
     I64(i64),
     I128(i128),
@@ -62,6 +64,9 @@ pub enum ParsedValue {
     String(String),
     Table(Map<String, Self>),
     Array(Vec<Self>),
+    // If nothing else above matched, use Nil:
+    #[serde(deserialize_with = "deserialize_ignore_any")]
+    Nil,
 }
 
 // Value wrap ValueKind values, with optional uri (origin)
