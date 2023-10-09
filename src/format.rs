@@ -44,3 +44,53 @@ pub fn extract_root_table(
     .map_err(|err| ConfigError::invalid_root(uri, err))
     .map_err(|err| Box::new(err) as Box<dyn Error + Send + Sync>)
 }
+
+// Equivalent to ValueKind, except Table + Array store the same enum
+// Useful for serde to serialize values into, then convert to Value
+#[derive(serde::Deserialize, Debug)]
+#[serde(untagged)]
+pub enum ParsedValue {
+    Nil,
+    Boolean(bool),
+    I64(i64),
+    I128(i128),
+    U64(u64),
+    U128(u128),
+    Float(f64),
+    String(String),
+    Table(Map<String, Self>),
+    Array(Vec<Self>),
+}
+
+// Value wrap ValueKind values, with optional uri (origin)
+pub fn from_parsed_value(uri: Option<&String>, value: ParsedValue) -> Value {
+    let vk = match value {
+        ParsedValue::Nil => ValueKind::Nil,
+        ParsedValue::String(v) => ValueKind::String(v),
+        ParsedValue::I64(v) => ValueKind::I64(v),
+        ParsedValue::I128(v) => ValueKind::I128(v),
+        ParsedValue::U64(v) => ValueKind::U64(v),
+        ParsedValue::U128(v) => ValueKind::U128(v),
+        ParsedValue::Float(v) => ValueKind::Float(v),
+        ParsedValue::Boolean(v) => ValueKind::Boolean(v),
+        ParsedValue::Table(table) => {
+            let m = table
+                .into_iter()
+                .map(|(k, v)| (k, from_parsed_value(uri, v)))
+                .collect();
+
+            ValueKind::Table(m)
+        }
+
+        ParsedValue::Array(array) => {
+            let l = array
+                .into_iter()
+                .map(|v| from_parsed_value(uri, v))
+                .collect();
+
+            ValueKind::Array(l)
+        }
+    };
+
+    Value::new(uri, vk)
+}
