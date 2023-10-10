@@ -62,6 +62,7 @@ pub enum ParsedValue {
     Float(f64),
     #[serde(deserialize_with = "deserialize_parsed_string")]
     String(String),
+    #[serde(deserialize_with = "deserialize_parsed_map")]
     Table(Map<String, Self>),
     Array(Vec<Self>),
     Option(Option<Box<Self>>),
@@ -137,5 +138,44 @@ where
                 "should not be serialized to string",
             )),
         },
+    }
+}
+
+fn deserialize_parsed_map<'de, D>(deserializer: D) -> Result<Map<String, ParsedValue>, D::Error>
+where
+    D: serde::de::Deserializer<'de>,
+{
+    #[derive(serde::Deserialize)]
+    #[serde(untagged)]
+    enum ParsedMap {
+        // Anything that can deserialize into a Map successfully:
+        Table(Map<String, ParsedValue>),
+        // Config specific support for types that need string conversion:
+        #[cfg(feature = "yaml")]
+        YamlMap(serde_yaml::Mapping),
+    }
+
+    match ParsedMap::deserialize(deserializer)? {
+        ParsedMap::Table(v) => Ok(v),
+        #[cfg(feature = "yaml")]
+        ParsedMap::YamlMap(table) => {
+            table
+                .into_iter()
+                .map(|(key, value)| {
+                    let key = match key {
+                        serde_yaml::Value::Number(k) => Some(k.to_string()),
+                        serde_yaml::Value::String(k) => Some(k),
+                        _ => None,
+                    };
+                    let value = serde_yaml::from_value::<ParsedValue>(value).ok();
+
+                    // Option to Result:
+                    match (key, value) {
+                        (Some(k), Some(v)) => Ok((k, v)),
+                        _ => Err(serde::de::Error::custom("should not be serialized to Map")),
+                    }
+                })
+                .collect()
+        }
     }
 }
