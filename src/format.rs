@@ -64,6 +64,7 @@ pub enum ParsedValue {
     String(String),
     Table(Map<String, Self>),
     Array(Vec<Self>),
+    Option(Option<Box<Self>>),
     // If nothing else above matched, use Nil:
     #[serde(deserialize_with = "deserialize_ignore_any")]
     Nil,
@@ -80,6 +81,7 @@ pub fn from_parsed_value(uri: Option<&String>, value: ParsedValue) -> Value {
         ParsedValue::U128(v) => ValueKind::U128(v),
         ParsedValue::Float(v) => ValueKind::Float(v),
         ParsedValue::Boolean(v) => ValueKind::Boolean(v),
+
         ParsedValue::Table(table) => {
             let m = table
                 .into_iter()
@@ -97,12 +99,17 @@ pub fn from_parsed_value(uri: Option<&String>, value: ParsedValue) -> Value {
 
             ValueKind::Array(l)
         }
+
+        // Boxed value must be dereferenced:
+        ParsedValue::Option(v) => match v {
+            Some(boxed) => from_parsed_value(uri, *boxed).kind,
+            None => ValueKind::Nil,
+        },
     };
 
     Value::new(uri, vk)
 }
 
-// Deserialization support for TOML `Datetime` value type into `String`
 fn deserialize_parsed_string<'de, D>(deserializer: D) -> Result<String, D::Error>
 where
     D: serde::de::Deserializer<'de>,
@@ -115,11 +122,20 @@ where
         // Config specific support for types that need string conversion:
         #[cfg(feature = "toml")]
         TomlDateTime(toml::value::Datetime),
+        #[cfg(feature = "ron")]
+        RonChar(ron::Value),
     }
 
-    Ok(match ParsedString::deserialize(deserializer)? {
-        ParsedString::String(v) => v,
+    match ParsedString::deserialize(deserializer)? {
+        ParsedString::String(v) => Ok(v),
         #[cfg(feature = "toml")]
-        ParsedString::TomlDateTime(v) => v.to_string(),
-    })
+        ParsedString::TomlDateTime(v) => Ok(v.to_string()),
+        #[cfg(feature = "ron")]
+        ParsedString::RonChar(variant) => match variant {
+            ron::Value::Char(v) => Ok(v.to_string()),
+            _ => Err(serde::de::Error::custom(
+                "should not be serialized to string",
+            )),
+        },
+    }
 }
