@@ -121,23 +121,16 @@ where
         // Anything that can deserialize into a string successfully:
         String(String),
         // Config specific support for types that need string conversion:
+        Char(char),
         #[cfg(feature = "toml")]
         TomlDateTime(toml::value::Datetime),
-        #[cfg(feature = "ron")]
-        RonChar(ron::Value),
     }
 
     match ParsedString::deserialize(deserializer)? {
         ParsedString::String(v) => Ok(v),
+        ParsedString::Char(v) => Ok(v.to_string()),
         #[cfg(feature = "toml")]
         ParsedString::TomlDateTime(v) => Ok(v.to_string()),
-        #[cfg(feature = "ron")]
-        ParsedString::RonChar(variant) => match variant {
-            ron::Value::Char(v) => Ok(v.to_string()),
-            _ => Err(serde::de::Error::custom(
-                "should not be serialized to string",
-            )),
-        },
     }
 }
 
