@@ -48,7 +48,7 @@ config = "0.13.1"
 
 Library provides out of the box support for most renowned data formats such as JSON or Yaml. Nonetheless, it contains an extensibility point - a `Format` trait that, once implemented, allows seamless integration with library's APIs using custom, less popular or proprietary data formats.
 
-See [custom_format](https://github.com/mehcode/config-rs/tree/master/examples/custom_format) example for more information.
+See [custom_file_format](https://github.com/mehcode/config-rs/tree/master/examples/custom_file_format) example for more information.
 
 ### More
 
