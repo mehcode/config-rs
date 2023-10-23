@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         rust:
-          - 1.61.0
+          - 1.63.0
           - stable
           - beta
           - nightly
@@ -45,7 +45,7 @@ jobs:
     strategy:
       matrix:
         rust:
-          - 1.61.0
+          - 1.63.0
           - stable
           - beta
           - nightly
@@ -61,14 +61,14 @@ jobs:
           override: true
 
       - name: Run cargo test
-        if: matrix.rust != 'nightly' && matrix.rust != '1.61.0'
+        if: matrix.rust != 'nightly' && matrix.rust != '1.63.0'
         uses: actions-rs/cargo@v1
         with:
           command: test
           args: --all-features
 
       - name: Run cargo test (nightly)
-        if: matrix.rust == '1.61.0'
+        if: matrix.rust == '1.63.0'
         continue-on-error: true
         uses: actions-rs/cargo@v1
         with:
@@ -121,7 +121,7 @@ jobs:
       - name: Install toolchain
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: 1.61.0
+          toolchain: 1.63.0
           override: true
           components: clippy
 
@@ -138,7 +138,7 @@ jobs:
     strategy:
       matrix:
         rust:
-          - 1.61.0
+          - 1.63.0
           - stable
 
     steps:
