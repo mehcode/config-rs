@@ -19,6 +19,9 @@ enum SerKey {
     Seq(usize),
 }
 
+/// An uninhabited type: no values like this can ever exist!
+pub enum Unreachable {}
+
 /// Serializer for numbered sequences
 ///
 /// This wrapper is present when we are outputting a sequence (numbered indices).
@@ -427,13 +430,13 @@ macro_rules! string_serialize_via_display { { $method:ident, $type:ty } => {
 impl ser::Serializer for StringKeySerializer {
     type Ok = String;
     type Error = ConfigError;
-    type SerializeSeq = Self;
-    type SerializeTuple = Self;
-    type SerializeTupleStruct = Self;
-    type SerializeTupleVariant = Self;
-    type SerializeMap = Self;
-    type SerializeStruct = Self;
-    type SerializeStructVariant = Self;
+    type SerializeSeq = Unreachable;
+    type SerializeTuple = Unreachable;
+    type SerializeTupleStruct = Unreachable;
+    type SerializeTupleVariant = Unreachable;
+    type SerializeMap = Unreachable;
+    type SerializeStruct = Unreachable;
+    type SerializeStructVariant = Unreachable;
 
     string_serialize_via_display!(serialize_bool, bool);
     string_serialize_via_display!(serialize_i8, i8);
@@ -560,7 +563,7 @@ impl ser::Serializer for StringKeySerializer {
     }
 }
 
-impl ser::SerializeSeq for StringKeySerializer {
+impl ser::SerializeSeq for Unreachable {
     type Ok = String;
     type Error = ConfigError;
 
@@ -568,15 +571,15 @@ impl ser::SerializeSeq for StringKeySerializer {
     where
         T: ?Sized + ser::Serialize,
     {
-        unreachable!()
+        match *self {}
     }
 
     fn end(self) -> Result<Self::Ok> {
-        unreachable!()
+        match self {}
     }
 }
 
-impl ser::SerializeTuple for StringKeySerializer {
+impl ser::SerializeTuple for Unreachable {
     type Ok = String;
     type Error = ConfigError;
 
@@ -584,15 +587,15 @@ impl ser::SerializeTuple for StringKeySerializer {
     where
         T: ?Sized + ser::Serialize,
     {
-        unreachable!()
+        match *self {}
     }
 
     fn end(self) -> Result<Self::Ok> {
-        unreachable!()
+        match self {}
     }
 }
 
-impl ser::SerializeTupleStruct for StringKeySerializer {
+impl ser::SerializeTupleStruct for Unreachable {
     type Ok = String;
     type Error = ConfigError;
 
@@ -600,15 +603,15 @@ impl ser::SerializeTupleStruct for StringKeySerializer {
     where
         T: ?Sized + ser::Serialize,
     {
-        unreachable!()
+        match *self {}
     }
 
     fn end(self) -> Result<Self::Ok> {
-        unreachable!()
+        match self {}
     }
 }
 
-impl ser::SerializeTupleVariant for StringKeySerializer {
+impl ser::SerializeTupleVariant for Unreachable {
     type Ok = String;
     type Error = ConfigError;
 
@@ -616,15 +619,15 @@ impl ser::SerializeTupleVariant for StringKeySerializer {
     where
         T: ?Sized + ser::Serialize,
     {
-        unreachable!()
+        match *self {}
     }
 
     fn end(self) -> Result<Self::Ok> {
-        unreachable!()
+        match self {}
     }
 }
 
-impl ser::SerializeMap for StringKeySerializer {
+impl ser::SerializeMap for Unreachable {
     type Ok = String;
     type Error = ConfigError;
 
@@ -632,22 +635,22 @@ impl ser::SerializeMap for StringKeySerializer {
     where
         T: ?Sized + ser::Serialize,
     {
-        unreachable!()
+        match *self {}
     }
 
     fn serialize_value<T>(&mut self, _value: &T) -> Result<()>
     where
         T: ?Sized + ser::Serialize,
     {
-        unreachable!()
+        match *self {}
     }
 
     fn end(self) -> Result<Self::Ok> {
-        unreachable!()
+        match self {}
     }
 }
 
-impl ser::SerializeStruct for StringKeySerializer {
+impl ser::SerializeStruct for Unreachable {
     type Ok = String;
     type Error = ConfigError;
 
@@ -655,15 +658,15 @@ impl ser::SerializeStruct for StringKeySerializer {
     where
         T: ?Sized + ser::Serialize,
     {
-        unreachable!()
+        match *self {}
     }
 
     fn end(self) -> Result<Self::Ok> {
-        unreachable!()
+        match self {}
     }
 }
 
-impl ser::SerializeStructVariant for StringKeySerializer {
+impl ser::SerializeStructVariant for Unreachable {
     type Ok = String;
     type Error = ConfigError;
 
@@ -671,11 +674,11 @@ impl ser::SerializeStructVariant for StringKeySerializer {
     where
         T: ?Sized + ser::Serialize,
     {
-        unreachable!()
+        match *self {}
     }
 
     fn end(self) -> Result<Self::Ok> {
-        unreachable!()
+        match self {}
     }
 }
 
