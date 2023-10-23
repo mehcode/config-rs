@@ -103,23 +103,18 @@ pub struct DefaultState {
     sources: Vec<Box<dyn Source + Send + Sync>>,
 }
 
-/// The asynchronous configuration builder.
-///
-/// Similar to a [`ConfigBuilder`] it maintains a set of defaults, a set of sources, and overrides.
-///
-/// Defaults do not override anything, sources override defaults, and overrides override anything else.
-/// Within those three groups order of adding them at call site matters - entities added later take precedence.
-///
-/// For more detailed description and examples see [`ConfigBuilder`].
-/// [`AsyncConfigBuilder`] is just an extension of it that takes async functions into account.
-///
-/// To obtain a [`Config`] call [`build`](AsyncConfigBuilder::build) or [`build_cloned`](AsyncConfigBuilder::build_cloned)
-///
-/// # Example
-/// Since this library does not implement any [`AsyncSource`] an example in rustdocs cannot be given.
-/// Detailed explanation about why such a source is not implemented is in [`AsyncSource`]'s documentation.
-///
-/// Refer to [`ConfigBuilder`] for similar API sample usage or to the examples folder of the crate, where such a source is implemented.
+// Dummy useless struct
+//
+// This struct exists only to avoid the semver break
+// which would be implied by removing it.
+//
+// This struct cannot be used for anything useful.
+// (Nor can it be extended without a semver break, either.)
+//
+// In a future release, we should have
+//    type AsyncConfigBuilder = ConfigBuilder<AsyncState>;
+#[deprecated = "AsyncConfigBuilder is useless.  Use ConfigBuilder<AsyncState>"]
+#[doc(hidden)]
 #[derive(Debug, Clone, Default)]
 pub struct AsyncConfigBuilder {}
 
