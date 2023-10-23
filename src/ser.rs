@@ -417,6 +417,13 @@ impl<'a> ser::SerializeStructVariant for &'a mut ConfigSerializer {
 
 pub struct StringKeySerializer;
 
+/// Define `$emthod`, `serialize_foo`, taking `$type` and serialising it via [`Display`]
+macro_rules! string_serialize_via_display { { $method:ident, $type:ty } => {
+    fn $method(self, v: $type) -> Result<Self::Ok> {
+        Ok(v.to_string())
+    }
+} }
+
 impl ser::Serializer for StringKeySerializer {
     type Ok = String;
     type Error = ConfigError;
@@ -428,57 +435,19 @@ impl ser::Serializer for StringKeySerializer {
     type SerializeStruct = Self;
     type SerializeStructVariant = Self;
 
-    fn serialize_bool(self, v: bool) -> Result<Self::Ok> {
-        Ok(v.to_string())
-    }
-
-    fn serialize_i8(self, v: i8) -> Result<Self::Ok> {
-        Ok(v.to_string())
-    }
-
-    fn serialize_i16(self, v: i16) -> Result<Self::Ok> {
-        Ok(v.to_string())
-    }
-
-    fn serialize_i32(self, v: i32) -> Result<Self::Ok> {
-        Ok(v.to_string())
-    }
-
-    fn serialize_i64(self, v: i64) -> Result<Self::Ok> {
-        Ok(v.to_string())
-    }
-
-    fn serialize_u8(self, v: u8) -> Result<Self::Ok> {
-        Ok(v.to_string())
-    }
-
-    fn serialize_u16(self, v: u16) -> Result<Self::Ok> {
-        Ok(v.to_string())
-    }
-
-    fn serialize_u32(self, v: u32) -> Result<Self::Ok> {
-        Ok(v.to_string())
-    }
-
-    fn serialize_u64(self, v: u64) -> Result<Self::Ok> {
-        Ok(v.to_string())
-    }
-
-    fn serialize_f32(self, v: f32) -> Result<Self::Ok> {
-        Ok(v.to_string())
-    }
-
-    fn serialize_f64(self, v: f64) -> Result<Self::Ok> {
-        Ok(v.to_string())
-    }
-
-    fn serialize_char(self, v: char) -> Result<Self::Ok> {
-        Ok(v.to_string())
-    }
-
-    fn serialize_str(self, v: &str) -> Result<Self::Ok> {
-        Ok(v.to_string())
-    }
+    string_serialize_via_display!(serialize_bool, bool);
+    string_serialize_via_display!(serialize_i8, i8);
+    string_serialize_via_display!(serialize_i16, i16);
+    string_serialize_via_display!(serialize_i32, i32);
+    string_serialize_via_display!(serialize_i64, i64);
+    string_serialize_via_display!(serialize_u8, u8);
+    string_serialize_via_display!(serialize_u16, u16);
+    string_serialize_via_display!(serialize_u32, u32);
+    string_serialize_via_display!(serialize_u64, u64);
+    string_serialize_via_display!(serialize_f32, f32);
+    string_serialize_via_display!(serialize_f64, f64);
+    string_serialize_via_display!(serialize_char, char);
+    string_serialize_via_display!(serialize_str, &str);
 
     fn serialize_bytes(self, v: &[u8]) -> Result<Self::Ok> {
         Ok(String::from_utf8_lossy(v).to_string())
