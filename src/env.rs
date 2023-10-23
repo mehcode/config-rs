@@ -41,7 +41,7 @@ pub struct Environment {
     /// Optional character sequence that separates each env value into a vector. only works when try_parsing is set to true
     /// Once set, you cannot have type String on the same environment, unless you set list_parse_keys.
     list_separator: Option<String>,
-    /// A list of keys which should always be parsed as a list. If not set you can have only Vec<String> or String (not both) in one environment.
+    /// A list of keys which should always be parsed as a list. If not set you can have only `Vec<String>` or `String` (not both) in one environment.
     list_parse_keys: Option<Vec<String>>,
 
     /// Ignore empty env values (treat as unset).
