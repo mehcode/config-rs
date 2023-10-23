@@ -45,6 +45,28 @@ fn test_error_type() {
 }
 
 #[test]
+fn test_error_deser_whole() {
+    #[derive(Deserialize, Debug)]
+    struct Place {
+        #[allow(dead_code)]
+        name: usize, // is actually s string
+    }
+
+    #[derive(Deserialize, Debug)]
+    struct Output {
+        #[allow(dead_code)]
+        place: Place,
+    }
+
+    let c = make();
+    let err = c.try_deserialize::<Output>().unwrap_err().to_string();
+    assert_eq!(
+        err,
+        "invalid type: string \"Torre di Pisa\", expected an integer for key `place.name` in tests/Settings.toml",
+    );
+}
+
+#[test]
 fn test_error_type_detached() {
     let c = make();
 
