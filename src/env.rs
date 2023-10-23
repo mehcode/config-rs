@@ -142,7 +142,9 @@ impl Environment {
     }
 
     /// When set and try_parsing is true, then all environment variables will be parsed as [`Vec<String>`] instead of [`String`].
-    /// See [`with_list_parse_key`] when you want to use [`Vec<String>`] in combination with [`String`].
+    /// See
+    /// [`with_list_parse_key`](Self::with_list_parse_key)
+    /// when you want to use [`Vec<String>`] in combination with [`String`].
     pub fn list_separator(mut self, s: &str) -> Self {
         self.list_separator = Some(s.into());
         self
