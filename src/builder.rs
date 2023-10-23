@@ -113,6 +113,7 @@ pub struct DefaultState {
 //
 // In a future release, we should have
 //    type AsyncConfigBuilder = ConfigBuilder<AsyncState>;
+#[deprecated = "AsyncConfigBuilder is useless.  Use ConfigBuilder<AsyncState>"]
 #[doc(hidden)]
 #[derive(Debug, Clone, Default)]
 pub struct AsyncConfigBuilder {}
