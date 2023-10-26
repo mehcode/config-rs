@@ -18,6 +18,9 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v4.1.1
 
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+
       - name: Install toolchain
         uses: dtolnay/rust-toolchain@master
         with:
@@ -46,6 +49,9 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4.1.1
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
 
       - name: Install toolchain
         uses: dtolnay/rust-toolchain@master
@@ -101,6 +107,9 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v4.1.1
 
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+
       - name: Install toolchain
         uses: dtolnay/rust-toolchain@master
         with:
@@ -123,6 +132,9 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4.1.1
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
 
       - name: Install toolchain
         uses: dtolnay/rust-toolchain@master
