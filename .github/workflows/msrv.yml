@@ -60,7 +60,7 @@ jobs:
     strategy:
       matrix:
         rust:
-          - stable
+          - 1.70.0
           - beta
     steps:
       - name: Checkout sources
