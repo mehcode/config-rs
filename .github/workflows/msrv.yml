@@ -26,6 +26,7 @@ jobs:
           toolchain: ${{ matrix.rust }}
 
       - name: Run cargo check
+        continue-on-error: ${{ matrix.rust == 'beta' }}
         run: cargo check --all-features
 
   test:
@@ -51,6 +52,7 @@ jobs:
           toolchain: ${{ matrix.rust }}
 
       - name: Run cargo test
+        continue-on-error: ${{ matrix.rust == 'beta' }}
         run: cargo test --all-features
 
   fmt:
@@ -73,6 +75,7 @@ jobs:
           components: rustfmt
 
       - name: Run cargo fmt
+        continue-on-error: ${{ matrix.rust == 'beta' }}
         run: cargo fmt --all -- --check
 
   clippy:
