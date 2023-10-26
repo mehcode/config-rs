@@ -27,7 +27,6 @@ jobs:
         run: cargo check --all-features --examples --tests
 
   test:
-    needs: [check]
     name: Test Suite
     runs-on: ubuntu-latest
     strategy:
