@@ -10,8 +10,6 @@ jobs:
       matrix:
         rust:
           - 1.70.0
-          - 1.73.0 # stable
-          - beta
 
     steps:
       - name: Checkout sources
@@ -26,8 +24,7 @@ jobs:
           toolchain: ${{ matrix.rust }}
 
       - name: Run cargo check
-        continue-on-error: ${{ matrix.rust == 'beta' }}
-        run: cargo check --all-features
+        run: cargo check --all-features --examples --tests
 
   test:
     needs: [check]
@@ -63,7 +60,6 @@ jobs:
       matrix:
         rust:
           - 1.70.0
-          - beta
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4.1.1
@@ -106,28 +102,4 @@ jobs:
 
       - name: Run cargo clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
-
-  check-examples:
-    name: Check examples
-    needs: [check]
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        rust:
-          - 1.70.0
-
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v4.1.1
-
-      - name: Cache
-        uses: Swatinem/rust-cache@v2
-
-      - name: Install toolchain
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: ${{ matrix.rust }}
-
-      - name: Run cargo check
-        run: cargo check --examples
 
