@@ -43,14 +43,17 @@ jobs:
       - name: Cache
         uses: Swatinem/rust-cache@v2
 
+      - name: Install nextest
+        uses: taiki-e/install-action@nextest
+
       - name: Install toolchain
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.rust }}
 
-      - name: Run cargo test
+      - name: Run cargo nextest
         continue-on-error: ${{ matrix.rust == 'beta' }}
-        run: cargo test --all-features
+        run: cargo nextest run --all-features
 
   fmt:
     needs: [check]
