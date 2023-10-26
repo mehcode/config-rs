@@ -12,7 +12,6 @@ jobs:
           - 1.70.0
           - stable
           - beta
-          - nightly
 
     steps:
       - name: Checkout sources
@@ -27,12 +26,6 @@ jobs:
           toolchain: ${{ matrix.rust }}
 
       - name: Run cargo check
-        if: matrix.rust != 'nightly'
-        run: cargo check --all-features
-
-      - name: Run cargo check (nightly)
-        if: matrix.rust == 'nightly'
-        continue-on-error: true
         run: cargo check --all-features
 
   test:
@@ -45,7 +38,6 @@ jobs:
           - 1.70.0
           - stable
           - beta
-          - nightly
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4.1.1
@@ -59,17 +51,6 @@ jobs:
           toolchain: ${{ matrix.rust }}
 
       - name: Run cargo test
-        if: matrix.rust != 'nightly' && matrix.rust != '1.56.1'
-        run: cargo test --all-features
-
-      - name: Run cargo test (nightly)
-        if: matrix.rust == '1.66.0'
-        continue-on-error: true
-        run: cargo test --tests --all-features
-
-      - name: Run cargo test (nightly)
-        if: matrix.rust == 'nightly'
-        continue-on-error: true
         run: cargo test --all-features
 
   fmt:
