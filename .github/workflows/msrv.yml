@@ -131,7 +131,6 @@ jobs:
       matrix:
         rust:
           - 1.70.0
-          - 1.73.0
 
     steps:
       - name: Checkout sources
