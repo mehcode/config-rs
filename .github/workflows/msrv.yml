@@ -101,8 +101,12 @@ jobs:
     strategy:
       matrix:
         rust:
+          # We run clippy only with our MSRV
+          # Running newer clippy (or even from the current stable channel) would
+          # randomly "break" our CI when the toolchain gets published in a new
+          # version. So there's no point in running it with two or more
+          # versions, MSRV should be fine.
           - 1.70.0
-          - 1.73.0
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4.1.1
