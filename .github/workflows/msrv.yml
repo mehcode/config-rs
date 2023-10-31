@@ -39,9 +39,6 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v4.1.1
 
-      - name: Install nextest
-        uses: taiki-e/install-action@nextest
-
       - name: Install toolchain
         uses: dtolnay/rust-toolchain@master
         with:
@@ -50,9 +47,9 @@ jobs:
       - name: Cache
         uses: Swatinem/rust-cache@v2
 
-      - name: Run cargo nextest
+      - name: Run cargo test
         continue-on-error: ${{ matrix.rust == 'beta' }}
-        run: cargo nextest run --all-features
+        run: cargo test --all-features
 
   fmt:
     needs: [check]
