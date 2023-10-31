@@ -15,13 +15,13 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v4.1.1
 
-      - name: Cache
-        uses: Swatinem/rust-cache@v2
-
       - name: Install toolchain
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.rust }}
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
 
       - name: Run cargo check
         run: cargo check --all-features --examples --tests
@@ -39,9 +39,6 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v4.1.1
 
-      - name: Cache
-        uses: Swatinem/rust-cache@v2
-
       - name: Install nextest
         uses: taiki-e/install-action@nextest
 
@@ -49,6 +46,9 @@ jobs:
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.rust }}
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
 
       - name: Run cargo nextest
         continue-on-error: ${{ matrix.rust == 'beta' }}
@@ -93,14 +93,14 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v4.1.1
 
-      - name: Cache
-        uses: Swatinem/rust-cache@v2
-
       - name: Install toolchain
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.rust }}
           components: clippy
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
 
       - name: Run cargo clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
