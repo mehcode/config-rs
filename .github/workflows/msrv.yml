@@ -25,6 +25,9 @@ jobs:
           minimal: true
           override: true
 
+      - name: Install Cargo.lock.msrv
+        run: cp Cargo.lock.msrv Cargo.lock
+
       - name: Run cargo check
         if: matrix.rust != 'nightly'
         uses: actions-rs/cargo@v1
@@ -59,6 +62,9 @@ jobs:
           toolchain: ${{ matrix.rust }}
           minimal: true
           override: true
+
+      - name: Install Cargo.lock.msrv
+        run: cp Cargo.lock.msrv Cargo.lock
 
       - name: Run cargo test
         if: matrix.rust != 'nightly' && matrix.rust != '1.59.0'
@@ -125,6 +131,9 @@ jobs:
           override: true
           components: clippy
 
+      - name: Install Cargo.lock.msrv
+        run: cp Cargo.lock.msrv Cargo.lock
+
       - name: Run cargo clippy
         uses: actions-rs/cargo@v1
         with:
@@ -151,6 +160,9 @@ jobs:
           toolchain: ${{ matrix.rust }}
           minimal: true
           override: true
+
+      - name: Install Cargo.lock.msrv
+        run: cp Cargo.lock.msrv Cargo.lock
 
       - name: Run cargo check
         uses: actions-rs/cargo@v1
