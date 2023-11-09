@@ -1,4 +1,5 @@
 use std::fmt::Display;
+use std::fmt::Write as _;
 
 use serde::ser;
 
@@ -8,87 +9,83 @@ use crate::Config;
 
 #[derive(Default, Debug)]
 pub struct ConfigSerializer {
-    keys: Vec<(String, Option<usize>)>,
+    keys: Vec<SerKey>,
     pub output: Config,
 }
+
+#[derive(Debug)]
+enum SerKey {
+    Named(String),
+    Seq(usize),
+}
+
+/// Serializer for numbered sequences
+///
+/// This wrapper is present when we are outputting a sequence (numbered indices).
+/// Making this a separate type centralises the handling of sequences
+/// and ensures we don't have any call sites for `ser::SerializeSeq::serialize_element`
+/// that don't do the necessary work of `SeqSerializer::new`.
+///
+/// Existence of this wrapper implies that `.0.keys.last()` is
+/// `Some(SerKey::Seq(next_index))`.
+pub struct SeqSerializer<'a>(&'a mut ConfigSerializer);
 
 impl ConfigSerializer {
     fn serialize_primitive<T>(&mut self, value: T) -> Result<()>
     where
         T: Into<Value> + Display,
     {
-        let key = match self.last_key_index_pair() {
-            Some((key, Some(index))) => format!("{}[{}]", key, index),
-            Some((key, None)) => key.to_string(),
-            None => {
-                return Err(ConfigError::Message(format!(
-                    "key is not found for value {}",
-                    value
-                )))
-            }
-        };
+        // At some future point we could perhaps retain a cursor into the output `Config`,
+        // rather than reifying the whole thing into a single string with `make_full_key`
+        // and passing that whole path to the `set` method.
+        //
+        // That would be marginally more performant, but more fiddly.
+        let key = self.make_full_key()?;
 
         #[allow(deprecated)]
         self.output.set(&key, value.into())?;
         Ok(())
     }
 
-    fn last_key_index_pair(&self) -> Option<(&str, Option<usize>)> {
-        let len = self.keys.len();
-        if len > 0 {
-            self.keys
-                .get(len - 1)
-                .map(|&(ref key, opt)| (key.as_str(), opt))
-        } else {
-            None
-        }
-    }
+    fn make_full_key(&self) -> Result<String> {
+        let mut keys = self.keys.iter();
 
-    fn inc_last_key_index(&mut self) -> Result<()> {
-        let len = self.keys.len();
-        if len > 0 {
-            self.keys
-                .get_mut(len - 1)
-                .map(|pair| pair.1 = pair.1.map(|i| i + 1).or(Some(0)))
-                .ok_or_else(|| {
-                    ConfigError::Message(format!("last key is not found in {} keys", len))
-                })
-        } else {
-            Err(ConfigError::Message("keys is empty".to_string()))
-        }
-    }
-
-    fn make_full_key(&self, key: &str) -> String {
-        let len = self.keys.len();
-        if len > 0 {
-            if let Some(&(ref prev_key, index)) = self.keys.get(len - 1) {
-                return if let Some(index) = index {
-                    format!("{}[{}].{}", prev_key, index, key)
-                } else {
-                    format!("{}.{}", prev_key, key)
-                };
+        let mut whole = match keys.next() {
+            Some(SerKey::Named(s)) => s.clone(),
+            _ => {
+                return Err(ConfigError::Message(
+                    "top level is not a struct".to_string(),
+                ))
             }
+        };
+
+        for k in keys {
+            match k {
+                SerKey::Named(s) => write!(whole, ".{}", s),
+                SerKey::Seq(i) => write!(whole, "[{}]", i),
+            }
+            .expect("write! to a string failed");
         }
-        key.to_string()
+
+        Ok(whole)
     }
 
     fn push_key(&mut self, key: &str) {
-        let full_key = self.make_full_key(key);
-        self.keys.push((full_key, None));
+        self.keys.push(SerKey::Named(key.to_string()));
     }
 
-    fn pop_key(&mut self) -> Option<(String, Option<usize>)> {
-        self.keys.pop()
+    fn pop_key(&mut self) {
+        self.keys.pop();
     }
 }
 
 impl<'a> ser::Serializer for &'a mut ConfigSerializer {
     type Ok = ();
     type Error = ConfigError;
-    type SerializeSeq = Self;
-    type SerializeTuple = Self;
-    type SerializeTupleStruct = Self;
-    type SerializeTupleVariant = Self;
+    type SerializeSeq = SeqSerializer<'a>;
+    type SerializeTuple = SeqSerializer<'a>;
+    type SerializeTupleStruct = SeqSerializer<'a>;
+    type SerializeTupleVariant = SeqSerializer<'a>;
     type SerializeMap = Self;
     type SerializeStruct = Self;
     type SerializeStructVariant = Self;
@@ -159,7 +156,8 @@ impl<'a> ser::Serializer for &'a mut ConfigSerializer {
         for byte in v {
             seq.serialize_element(byte)?;
         }
-        seq.end()
+        seq.end();
+        Ok(())
     }
 
     fn serialize_none(self) -> Result<Self::Ok> {
@@ -214,7 +212,7 @@ impl<'a> ser::Serializer for &'a mut ConfigSerializer {
     }
 
     fn serialize_seq(self, _len: Option<usize>) -> Result<Self::SerializeSeq> {
-        Ok(self)
+        SeqSerializer::new(self)
     }
 
     fn serialize_tuple(self, len: usize) -> Result<Self::SerializeTuple> {
@@ -234,10 +232,10 @@ impl<'a> ser::Serializer for &'a mut ConfigSerializer {
         _name: &'static str,
         _variant_index: u32,
         variant: &'static str,
-        _len: usize,
+        len: usize,
     ) -> Result<Self::SerializeTupleVariant> {
         self.push_key(variant);
-        Ok(self)
+        self.serialize_seq(Some(len))
     }
 
     fn serialize_map(self, _len: Option<usize>) -> Result<Self::SerializeMap> {
@@ -260,7 +258,21 @@ impl<'a> ser::Serializer for &'a mut ConfigSerializer {
     }
 }
 
-impl<'a> ser::SerializeSeq for &'a mut ConfigSerializer {
+impl<'a> SeqSerializer<'a> {
+    fn new(inner: &'a mut ConfigSerializer) -> Result<Self> {
+        inner.keys.push(SerKey::Seq(0));
+
+        Ok(SeqSerializer(inner))
+    }
+
+    fn end(self) -> &'a mut ConfigSerializer {
+        // This ought to be Some(SerKey::Seq(..)) but we don't want to panic if we are buggy
+        let _: Option<SerKey> = self.0.keys.pop();
+        self.0
+    }
+}
+
+impl<'a> ser::SerializeSeq for SeqSerializer<'a> {
     type Ok = ();
     type Error = ConfigError;
 
@@ -268,17 +280,25 @@ impl<'a> ser::SerializeSeq for &'a mut ConfigSerializer {
     where
         T: ?Sized + ser::Serialize,
     {
-        self.inc_last_key_index()?;
-        value.serialize(&mut **self)?;
+        value.serialize(&mut *(self.0))?;
+        match self.0.keys.last_mut() {
+            Some(SerKey::Seq(i)) => *i += 1,
+            _ => {
+                return Err(ConfigError::Message(
+                    "config-rs internal error (ser._element but last not Seq!".to_string(),
+                ))
+            }
+        };
         Ok(())
     }
 
     fn end(self) -> Result<Self::Ok> {
+        self.end();
         Ok(())
     }
 }
 
-impl<'a> ser::SerializeTuple for &'a mut ConfigSerializer {
+impl<'a> ser::SerializeTuple for SeqSerializer<'a> {
     type Ok = ();
     type Error = ConfigError;
 
@@ -286,17 +306,15 @@ impl<'a> ser::SerializeTuple for &'a mut ConfigSerializer {
     where
         T: ?Sized + ser::Serialize,
     {
-        self.inc_last_key_index()?;
-        value.serialize(&mut **self)?;
-        Ok(())
+        ser::SerializeSeq::serialize_element(self, value)
     }
 
     fn end(self) -> Result<Self::Ok> {
-        Ok(())
+        ser::SerializeSeq::end(self)
     }
 }
 
-impl<'a> ser::SerializeTupleStruct for &'a mut ConfigSerializer {
+impl<'a> ser::SerializeTupleStruct for SeqSerializer<'a> {
     type Ok = ();
     type Error = ConfigError;
 
@@ -304,17 +322,15 @@ impl<'a> ser::SerializeTupleStruct for &'a mut ConfigSerializer {
     where
         T: ?Sized + ser::Serialize,
     {
-        self.inc_last_key_index()?;
-        value.serialize(&mut **self)?;
-        Ok(())
+        ser::SerializeSeq::serialize_element(self, value)
     }
 
     fn end(self) -> Result<Self::Ok> {
-        Ok(())
+        ser::SerializeSeq::end(self)
     }
 }
 
-impl<'a> ser::SerializeTupleVariant for &'a mut ConfigSerializer {
+impl<'a> ser::SerializeTupleVariant for SeqSerializer<'a> {
     type Ok = ();
     type Error = ConfigError;
 
@@ -322,13 +338,12 @@ impl<'a> ser::SerializeTupleVariant for &'a mut ConfigSerializer {
     where
         T: ?Sized + ser::Serialize,
     {
-        self.inc_last_key_index()?;
-        value.serialize(&mut **self)?;
-        Ok(())
+        ser::SerializeSeq::serialize_element(self, value)
     }
 
     fn end(self) -> Result<Self::Ok> {
-        self.pop_key();
+        let inner = self.end();
+        inner.pop_key();
         Ok(())
     }
 }
@@ -716,5 +731,29 @@ mod test {
 
         let actual: Test = config.try_deserialize().unwrap();
         assert_eq!(test, actual);
+    }
+
+    #[test]
+    fn test_nest() {
+        let val = serde_json::json! { {
+            "top": {
+                "num": 1,
+                "array": [2],
+                "nested": [[3,4]],
+                "deep": [{
+                    "yes": true,
+                }],
+                "mixed": [
+                    { "boolish": false, },
+                    42,
+                    ["hi"],
+                    { "inner": 66 },
+                    23,
+                ],
+            }
+        } };
+        let config = Config::try_from(&val).unwrap();
+        let output: serde_json::Value = config.try_deserialize().unwrap();
+        assert_eq!(val, output);
     }
 }
