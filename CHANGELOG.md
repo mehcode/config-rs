@@ -6,6 +6,26 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## 0.13.4 - 2023-11-22
+
+- Relaxed the MSRV to 1.56.0 for this release. Please have a look at
+  [#495] for details
+- Backport of the following patches from PR [#465]:
+  - [aa63d2dbbcc13fbdfa846185d54d87d7822e2509]
+  - [831102fe0ffd5c7fe475efe5f379c710d201f165]
+  - [147e6c7275b65b6a74eaec9c05b317673e61084e]
+  - [ed6a3c9882fbc43eae9313ab1801610e49af863f]
+  to fix nested arrays (see
+  [the related bug report](https://github.com/mehcode/config-rs/issues/464)
+  for details).
+
+[#495]: https://github.com/mehcode/config-rs/pull/495
+[#465]: https://github.com/mehcode/config-rs/pull/465
+[aa63d2dbbcc13fbdfa846185d54d87d7822e2509]: https://github.com/mehcode/config-rs/commit/aa63d2dbbcc13fbdfa846185d54d87d7822e2509
+[831102fe0ffd5c7fe475efe5f379c710d201f165]: https://github.com/mehcode/config-rs/commit/831102fe0ffd5c7fe475efe5f379c710d201f165
+[147e6c7275b65b6a74eaec9c05b317673e61084e]: https://github.com/mehcode/config-rs/commit/147e6c7275b65b6a74eaec9c05b317673e61084e
+[ed6a3c9882fbc43eae9313ab1801610e49af863f]: https://github.com/mehcode/config-rs/commit/ed6a3c9882fbc43eae9313ab1801610e49af863f
+
 ## 0.13.3 - 2022-12-04
 
 Please note that we had to update the MSRV for this crate from 1.56.0 to 1.59.0
