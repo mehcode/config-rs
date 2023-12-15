@@ -1,0 +1,22 @@
+on: [push, pull_request]
+
+name: Check-external-types
+
+jobs:
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4.1.1
+
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly
+
+      - name: Install cargo-check-external-types
+        run: cargo install --locked cargo-check-external-types
+
+      - name: Run cargo check-external-types
+        run: cargo check-external-types --config ./external-types.toml
