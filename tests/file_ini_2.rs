@@ -1,8 +1,6 @@
-use config::{
-    builder::DefaultState, Config, ConfigBuilder, ConfigError, Environment, File, FileFormat,
-};
+use config::{Config, FileFormat};
 use serde::Deserialize;
-use std::fmt::{Debug, Display};
+use std::fmt::Debug;
 
 const ALL_CFG_FILE: &str = "./tests/all.env";
 
