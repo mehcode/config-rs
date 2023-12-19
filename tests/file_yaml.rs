@@ -26,6 +26,8 @@ struct Settings {
     place: Place,
     #[serde(rename = "arr")]
     elements: Vec<String>,
+    #[serde(rename = "192.168.1.1")]
+    ip_key: String,
 }
 
 fn make() -> Config {
@@ -33,6 +35,35 @@ fn make() -> Config {
         .add_source(File::new("tests/Settings", FileFormat::Yaml))
         .build()
         .unwrap()
+}
+
+#[test]
+fn test_keys_with_periods_deserialize_serde_yaml() {
+    let map = "192.168.1.1: a string value";
+
+    let c: HashMap<String, String> = serde_yaml::from_str(map).unwrap();
+
+    assert_eq!(c.get("192.168.1.1").unwrap(), "a string value");
+}
+
+#[test]
+fn test_keys_with_periods_deserialize_yaml_rust() {
+    use yaml_rust::YamlLoader;
+
+    let map = "192.168.1.1: a string value";
+
+    let c = YamlLoader::load_from_str(map).unwrap().first().unwrap().clone();
+
+    assert_eq!(c["192.168.1.1"].as_str().unwrap(), "a string value");
+}
+
+#[test]
+fn test_keys_with_periods_deserialize() {
+    let c = make();
+
+    let s: Settings = c.try_deserialize().unwrap();
+
+    assert_eq!(s.ip_key, "a string value");
 }
 
 #[test]

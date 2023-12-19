@@ -15,3 +15,4 @@ place:
 # For override tests
 FOO: FOO should be overridden
 bar: I am bar
+192.168.1.1: a string value
