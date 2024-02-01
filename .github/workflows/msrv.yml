@@ -31,7 +31,7 @@ jobs:
       - name: Install toolchain
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: 1.73.0
+          toolchain: 1.70.0
 
       - name: Cache
         uses: Swatinem/rust-cache@v2
