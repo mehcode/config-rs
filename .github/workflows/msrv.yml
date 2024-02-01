@@ -6,11 +6,6 @@ jobs:
   check:
     name: Check
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        rust:
-          - 1.70.0
-
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4.1.1
@@ -18,7 +13,7 @@ jobs:
       - name: Install toolchain
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: ${{ matrix.rust }}
+          toolchain: 1.70.0
 
       - name: Cache
         uses: Swatinem/rust-cache@v2
@@ -48,10 +43,6 @@ jobs:
     needs: [check]
     name: Rustfmt
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        rust:
-          - 1.70.0
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4.1.1
@@ -59,7 +50,7 @@ jobs:
       - name: Install toolchain
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: ${{ matrix.rust }}
+          toolchain: 1.70.0
           components: rustfmt
 
       - name: Run cargo fmt
@@ -70,15 +61,6 @@ jobs:
     needs: [check]
     name: Clippy
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        rust:
-          # We run clippy only with our MSRV
-          # Running newer clippy (or even from the current stable channel) would
-          # randomly "break" our CI when the toolchain gets published in a new
-          # version. So there's no point in running it with two or more
-          # versions, MSRV should be fine.
-          - 1.70.0
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4.1.1
@@ -86,7 +68,7 @@ jobs:
       - name: Install toolchain
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: ${{ matrix.rust }}
+          toolchain: 1.70.0
           components: clippy
 
       - name: Cache
