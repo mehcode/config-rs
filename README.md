@@ -32,7 +32,7 @@ Please note this library
 
 ```toml
 [dependencies]
-config = "0.13.1"
+config = "0.14.0"
 ```
 
 ### Feature flags
