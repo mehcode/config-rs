@@ -48,7 +48,8 @@ fn test_file() {
     assert_eq!(s.place.telephone, None);
     if cfg!(feature = "preserve_order") {
         assert_eq!(
-            s.place.creator
+            s.place
+                .creator
                 .into_iter()
                 .collect::<Vec<(String, config::Value)>>(),
             vec![
