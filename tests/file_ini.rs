@@ -4,21 +4,25 @@ use serde_derive::Deserialize;
 
 use std::path::PathBuf;
 
-use config::{Config, File, FileFormat};
+use config::{Config, File, FileFormat, Map, Value};
+use float_cmp::ApproxEqUlps;
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Debug, Default, Deserialize, PartialEq)]
 struct Place {
     name: String,
     longitude: f64,
     latitude: f64,
     favorite: bool,
+    telephone: Option<String>,
     reviews: u64,
     rating: Option<f32>,
+    creator: Map<String, Value>,
 }
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Debug, Default, Deserialize, PartialEq)]
 struct Settings {
     debug: f64,
+    production: Option<String>,
     place: Place,
 }
 
@@ -33,20 +37,32 @@ fn make() -> Config {
 fn test_file() {
     let c = make();
     let s: Settings = c.try_deserialize().unwrap();
-    assert_eq!(
-        s,
-        Settings {
-            debug: 1.0,
-            place: Place {
-                name: String::from("Torre di Pisa"),
-                longitude: 43.722_498_5,
-                latitude: 10.397_052_2,
-                favorite: false,
-                reviews: 3866,
-                rating: Some(4.5),
-            },
-        }
-    );
+    assert!(s.debug.approx_eq_ulps(&1.0, 2));
+    assert_eq!(s.production, Some("false".to_string()));
+    assert_eq!(s.place.name, "Torre di Pisa");
+    assert!(s.place.longitude.approx_eq_ulps(&43.722_498_5, 2));
+    assert!(s.place.latitude.approx_eq_ulps(&10.397_052_2, 2));
+    assert!(!s.place.favorite);
+    assert_eq!(s.place.reviews, 3866);
+    assert_eq!(s.place.rating, Some(4.5));
+    assert_eq!(s.place.telephone, None);
+    if cfg!(feature = "preserve_order") {
+        assert_eq!(
+            s.place.creator
+                .into_iter()
+                .collect::<Vec<(String, config::Value)>>(),
+            vec![
+                ("name".to_string(), "John Smith".into()),
+                ("username".into(), "jsmith".into()),
+                ("email".into(), "jsmith@localhost".into()),
+            ]
+        );
+    } else {
+        assert_eq!(
+            s.place.creator["name"].clone().into_string().unwrap(),
+            "John Smith".to_string()
+        );
+    }
 }
 
 #[test]

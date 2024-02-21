@@ -1,0 +1,10 @@
+allowed_external_types = [
+    "convert_case::case::Case",
+    "nom::error::ErrorKind",
+    "serde::de::Deserialize",
+    "serde::de::Deserializer",
+    "serde::de::Error",
+    "serde::ser::Error",
+    "serde::ser::Serialize",
+]
+

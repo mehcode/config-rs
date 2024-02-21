@@ -12,12 +12,12 @@ jobs:
     strategy:
       matrix:
         rust:
-          - 1.64.0
+          - 1.70.0
           - stable
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4.0.0
+        uses: actions/checkout@v4.1.1
 
       - name: Install toolchain
         uses: dtolnay/rust-toolchain@master
@@ -38,7 +38,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4.0.0
+        uses: actions/checkout@v4.1.1
 
       - name: Install toolchain
         uses: dtolnay/rust-toolchain@master

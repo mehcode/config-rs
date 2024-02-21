@@ -1,6 +1,8 @@
 use std::error::Error;
 
-use crate::{map::Map, value::Value};
+use crate::error::{ConfigError, Unexpected};
+use crate::map::Map;
+use crate::value::{Value, ValueKind};
 
 /// Describes a format of configuration source data
 ///
@@ -20,4 +22,25 @@ pub trait Format {
         uri: Option<&String>,
         text: &str,
     ) -> Result<Map<String, Value>, Box<dyn Error + Send + Sync>>;
+}
+
+// Have a proper error fire if the root of a file is ever not a Table
+pub fn extract_root_table(
+    uri: Option<&String>,
+    value: Value,
+) -> Result<Map<String, Value>, Box<dyn Error + Send + Sync>> {
+    match value.kind {
+        ValueKind::Table(map) => Ok(map),
+        ValueKind::Nil => Err(Unexpected::Unit),
+        ValueKind::Array(_value) => Err(Unexpected::Seq),
+        ValueKind::Boolean(value) => Err(Unexpected::Bool(value)),
+        ValueKind::I64(value) => Err(Unexpected::I64(value)),
+        ValueKind::I128(value) => Err(Unexpected::I128(value)),
+        ValueKind::U64(value) => Err(Unexpected::U64(value)),
+        ValueKind::U128(value) => Err(Unexpected::U128(value)),
+        ValueKind::Float(value) => Err(Unexpected::Float(value)),
+        ValueKind::String(value) => Err(Unexpected::Str(value)),
+    }
+    .map_err(|err| ConfigError::invalid_root(uri, err))
+    .map_err(|err| Box::new(err) as Box<dyn Error + Send + Sync>)
 }

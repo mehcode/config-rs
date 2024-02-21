@@ -152,6 +152,8 @@ where
 
 impl Display for ValueKind {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use std::fmt::Write;
+
         match *self {
             Self::String(ref value) => write!(f, "{}", value),
             Self::Boolean(value) => write!(f, "{}", value),
@@ -161,15 +163,20 @@ impl Display for ValueKind {
             Self::U128(value) => write!(f, "{}", value),
             Self::Float(value) => write!(f, "{}", value),
             Self::Nil => write!(f, "nil"),
-            Self::Table(ref table) => write!(f, "{{ {} }}", {
-                table
-                    .iter()
-                    .map(|(k, v)| format!("{} => {}, ", k, v))
-                    .collect::<String>()
-            }),
-            Self::Array(ref array) => write!(f, "{:?}", {
-                array.iter().map(|e| format!("{}, ", e)).collect::<String>()
-            }),
+            Self::Table(ref table) => {
+                let mut s = String::new();
+                for (k, v) in table.iter() {
+                    write!(s, "{} => {}, ", k, v)?
+                }
+                write!(f, "{{ {s} }}")
+            }
+            Self::Array(ref array) => {
+                let mut s = String::new();
+                for e in array.iter() {
+                    write!(s, "{}, ", e)?;
+                }
+                write!(f, "{s:?}")
+            }
         }
     }
 }

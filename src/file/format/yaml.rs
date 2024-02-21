@@ -4,6 +4,7 @@ use std::mem;
 
 use yaml_rust as yaml;
 
+use crate::format;
 use crate::map::Map;
 use crate::value::{Value, ValueKind};
 
@@ -21,13 +22,8 @@ pub fn parse(
         }
     };
 
-    // TODO: Have a proper error fire if the root of a file is ever not a Table
     let value = from_yaml_value(uri, &root)?;
-    match value.kind {
-        ValueKind::Table(map) => Ok(map),
-
-        _ => Ok(Map::new()),
-    }
+    format::extract_root_table(uri, value)
 }
 
 fn from_yaml_value(
