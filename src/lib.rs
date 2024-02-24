@@ -32,6 +32,7 @@ mod path;
 mod ser;
 mod source;
 mod value;
+mod shuttle_secret_store;
 
 pub use crate::builder::ConfigBuilder;
 pub use crate::config::Config;
@@ -52,3 +53,6 @@ pub use crate::builder::AsyncConfigBuilder;
 // Re-export
 #[cfg(feature = "convert-case")]
 pub use convert_case::Case;
+
+#[cfg(feature = "shuttle")]
+pub use shuttle_secret_store::ShuttleSecretStore;
