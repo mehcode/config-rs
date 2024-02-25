@@ -1,6 +1,5 @@
 use convert_case::Case;
 
-#[cfg(feature = "shuttle")]
 use shuttle_secrets::SecretStore;
 
 use crate::{ConfigError, Environment, Map, Source, Value};

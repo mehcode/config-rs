@@ -32,6 +32,8 @@ mod path;
 mod ser;
 mod source;
 mod value;
+
+#[cfg(feature = "shuttle")]
 mod shuttle_secret_store;
 
 pub use crate::builder::ConfigBuilder;
