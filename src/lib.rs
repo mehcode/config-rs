@@ -8,6 +8,7 @@
 //!  - Another Config instance
 //!  - Files: TOML, JSON, YAML, INI, RON, JSON5 and custom ones defined with Format trait
 //!  - Manual, programmatic override (via a `.set` method on the Config instance)
+//!  - [Shuttle secrets](https://docs.rs/shuttle-secrets/0.39.0/shuttle_secrets/index.html)
 //!
 //! Additionally, Config supports:
 //!
