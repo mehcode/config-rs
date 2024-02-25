@@ -4,7 +4,7 @@ use shuttle_secrets::SecretStore;
 
 use crate::{ConfigError, Environment, Map, Source, Value};
 
-/// A source for the [SecretStore](https://docs.rs/shuttle-secrets/0.39.0/shuttle_secrets/struct.SecretStore.html)
+/// A source for the [SecretStore](https://docs.rs/shuttle-secrets/latest/shuttle_secrets/struct.SecretStore.html)
 /// of [shuttle.rs](https://www.shuttle.rs/). It is based on the [Environment] source and offers all
 /// the features that Environment provides.
 /// # Example
