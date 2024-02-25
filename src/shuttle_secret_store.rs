@@ -8,6 +8,40 @@ use crate::{ConfigError, Environment, Map, Source, Value};
 /// A source for the [SecretStore](https://docs.rs/shuttle-secrets/0.39.0/shuttle_secrets/struct.SecretStore.html)
 /// of [shuttle.rs](https://www.shuttle.rs/). It is based on the [Environment] source and offers all
 /// the features that Environment provides.
+/// # Example
+/// ```ignore
+/// #[derive(Deserialize, Debug, PartialEq)]
+/// pub struct MyAppConfiguration {
+///     pub authentication: AuthenticationSettings,
+/// }
+///
+/// #[derive(Deserialize, Debug, PartialEq)]
+/// pub struct AuthenticationSettings {
+///     pub token_secret: String,
+/// }
+///
+/// #[shuttle_runtime::main]
+/// async fn main(
+///     #[shuttle_secrets::Secrets] secret_store: SecretStore, // includes MY_APP_AUTHENTICATION__TOKEN_SECRET=my_secret
+/// ) -> ShuttleActixWeb<impl FnOnce(&mut ServiceConfig) + Send + Clone + 'static> {
+///     let service_config = move |cfg: &mut ServiceConfig| {
+///         let my_config = Config::builder()
+///             .add_source(
+///                 ShuttleSecretStore::new(&secret_store)
+///                     .prefix("MY_APP")
+///                     .prefix_separator("_")
+///                     .separator("__"),
+///             )
+///             .build()
+///             .unwrap()
+///             .try_deserialize::<MyAppConfiguration>()
+///             .unwrap();
+///         cfg.app_data(Data::new(my_config));
+///     };
+///
+///     Ok(service_config.into())
+/// }
+/// ```
 #[derive(Clone, Debug, Default)]
 pub struct ShuttleSecretStore {
     environment: Environment,
