@@ -6,5 +6,6 @@ allowed_external_types = [
     "serde::de::Error",
     "serde::ser::Error",
     "serde::ser::Serialize",
+    "shuttle_secrets::SecretStore",
 ]
 

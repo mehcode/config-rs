@@ -8,6 +8,7 @@
 //!  - Another Config instance
 //!  - Files: TOML, JSON, YAML, INI, RON, JSON5 and custom ones defined with Format trait
 //!  - Manual, programmatic override (via a `.set` method on the Config instance)
+//!  - [Shuttle secrets](https://docs.rs/shuttle-secrets/latest/shuttle_secrets/)
 //!
 //! Additionally, Config supports:
 //!
@@ -33,6 +34,9 @@ mod ser;
 mod source;
 mod value;
 
+#[cfg(feature = "shuttle")]
+mod shuttle_secret_store;
+
 pub use crate::builder::ConfigBuilder;
 pub use crate::config::Config;
 pub use crate::env::Environment;
@@ -52,3 +56,6 @@ pub use crate::builder::AsyncConfigBuilder;
 // Re-export
 #[cfg(feature = "convert-case")]
 pub use convert_case::Case;
+
+#[cfg(feature = "shuttle")]
+pub use shuttle_secret_store::ShuttleSecretStore;
