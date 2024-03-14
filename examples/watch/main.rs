@@ -4,22 +4,26 @@ use notify::{Event, RecommendedWatcher, RecursiveMode, Watcher};
 use std::collections::HashMap;
 use std::path::Path;
 use std::sync::mpsc::channel;
+use std::sync::OnceLock;
 use std::sync::RwLock;
 use std::time::Duration;
 
-lazy_static::lazy_static! {
-    static ref SETTINGS: RwLock<Config> = RwLock::new({
+fn settings() -> &'static RwLock<Config> {
+    static CONFIG: OnceLock<RwLock<Config>> = OnceLock::new();
+    CONFIG.get_or_init(|| {
         let mut settings = Config::default();
-        settings.merge(File::with_name("examples/watch/Settings.toml")).unwrap();
-
         settings
-    });
+            .merge(File::with_name("examples/watch/Settings.toml"))
+            .unwrap();
+
+        RwLock::new(settings)
+    })
 }
 
 fn show() {
     println!(
         " * Settings :: \n\x1b[31m{:?}\x1b[0m",
-        SETTINGS
+        settings()
             .read()
             .unwrap()
             .clone()
@@ -58,7 +62,7 @@ fn watch() {
                 ..
             })) => {
                 println!(" * Settings.toml written; refreshing configuration ...");
-                SETTINGS.write().unwrap().refresh().unwrap();
+                settings().write().unwrap().refresh().unwrap();
                 show();
             }
 
