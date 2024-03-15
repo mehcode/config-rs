@@ -4,6 +4,7 @@
 [![Build Status](https://travis-ci.org/mehcode/config-rs.svg?branch=master)](https://travis-ci.org/mehcode/config-rs)
 [![Crates.io](https://img.shields.io/crates/d/config.svg)](https://crates.io/crates/config)
 [![Docs.rs](https://docs.rs/config/badge.svg)](https://docs.rs/config)
+[![codecov](https://codecov.io/gh/mehcode/config-rs/branch/master/graph/badge.svg)](https://codecov.io/gh/mehcode/config-rs)
 
 > Layered configuration system for Rust applications (with strong support for [12-factor] applications).
 
