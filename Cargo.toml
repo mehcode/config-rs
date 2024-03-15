@@ -10,6 +10,7 @@ authors = ["Ryan Leckey <leckey.ryan@gmail.com>"]
 categories = ["config"]
 license = "MIT OR Apache-2.0"
 edition = "2018"
+rust-version = "1.75"
 
 [badges]
 maintenance = { status = "actively-developed" }
