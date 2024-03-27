@@ -15,13 +15,27 @@ edition = "2018"
 maintenance = { status = "actively-developed" }
 
 [features]
-default = ["toml", "json", "yaml", "ini", "ron", "json5", "convert-case", "async"]
+default = [
+    "toml",
+    "json",
+    "yaml",
+    "ini",
+    "ron",
+    "json5",
+    "convert-case",
+    "async",
+]
 json = ["serde_json"]
-yaml = ["yaml-rust"]
+yaml = ["yaml-rust2"]
 ini = ["rust-ini"]
 json5 = ["json5_rs", "serde/derive"]
 convert-case = ["convert_case"]
-preserve_order = ["indexmap", "toml?/preserve_order", "serde_json?/preserve_order", "ron?/indexmap"]
+preserve_order = [
+    "indexmap",
+    "toml?/preserve_order",
+    "serde_json?/preserve_order",
+    "ron?/indexmap",
+]
 async = ["async-trait"]
 
 [dependencies]
@@ -32,7 +46,7 @@ nom = "7"
 async-trait = { version = "0.1", optional = true }
 toml = { version = "0.8", optional = true }
 serde_json = { version = "1.0", optional = true }
-yaml-rust = { version = "0.4", optional = true }
+yaml-rust2 = { version = "0.8", optional = true }
 rust-ini = { version = "0.20", optional = true }
 ron = { version = "0.8", optional = true }
 json5_rs = { version = "0.4", optional = true, package = "json5" }
@@ -44,7 +58,13 @@ pathdiff = "0.2"
 serde_derive = "1.0"
 float-cmp = "0.9"
 chrono = { version = "0.4", features = ["serde"] }
-tokio = { version = "1", features = ["rt-multi-thread", "macros", "fs", "io-util", "time"]}
+tokio = { version = "1", features = [
+    "rt-multi-thread",
+    "macros",
+    "fs",
+    "io-util",
+    "time",
+] }
 warp = "0.3"
 futures = "0.3"
 reqwest = "0.11"

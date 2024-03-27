@@ -9,24 +9,24 @@
 
 [12-factor]: https://12factor.net/config
 
- - Set defaults
- - Set explicit values (to programmatically override)
- - Read from [JSON], [TOML], [YAML], [INI], [RON], [JSON5] files
- - Read from environment
- - Loosely typed — Configuration values may be read in any supported type, as long as there exists a reasonable conversion
- - Access nested fields using a formatted path — Uses a subset of JSONPath; currently supports the child ( `redis.port` ) and subscript operators ( `databases[0].name` )
+-   Set defaults
+-   Set explicit values (to programmatically override)
+-   Read from [JSON], [TOML], [YAML], [INI], [RON], [JSON5] files
+-   Read from environment
+-   Loosely typed — Configuration values may be read in any supported type, as long as there exists a reasonable conversion
+-   Access nested fields using a formatted path — Uses a subset of JSONPath; currently supports the child ( `redis.port` ) and subscript operators ( `databases[0].name` )
 
 [JSON]: https://github.com/serde-rs/json
 [TOML]: https://github.com/toml-lang/toml
-[YAML]: https://github.com/chyh1990/yaml-rust
+[YAML]: https://github.com/Ethiraric/yaml-rust2
 [INI]: https://github.com/zonyitoo/rust-ini
 [RON]: https://github.com/ron-rs/ron
 [JSON5]: https://github.com/callum-oakley/json5-rs
 
 Please note this library
 
- - can not be used to write changed configuration values back to the configuration file(s)!
- - Is case insensitive and all the keys are converted to lowercase internally
+-   can not be used to write changed configuration values back to the configuration file(s)!
+-   Is case insensitive and all the keys are converted to lowercase internally
 
 ## Usage
 
@@ -37,12 +37,12 @@ config = "0.14.0"
 
 ### Feature flags
 
- - `ini` - Adds support for reading INI files
- - `json` - Adds support for reading JSON files
- - `yaml` - Adds support for reading YAML files
- - `toml` - Adds support for reading TOML files
- - `ron` - Adds support for reading RON files
- - `json5` - Adds support for reading JSON5 files
+-   `ini` - Adds support for reading INI files
+-   `json` - Adds support for reading JSON files
+-   `yaml` - Adds support for reading YAML files
+-   `toml` - Adds support for reading TOML files
+-   `ron` - Adds support for reading RON files
+-   `json5` - Adds support for reading JSON5 files
 
 ### Support for custom formats
 
@@ -55,11 +55,9 @@ See [custom_file_format](https://github.com/mehcode/config-rs/tree/master/exampl
 See the [documentation](https://docs.rs/config) or [examples](https://github.com/mehcode/config-rs/tree/master/examples) for
 more usage information.
 
-
 ## MSRV
 
 We currently support Rust 1.75.0 and newer.
-
 
 ## License
 
