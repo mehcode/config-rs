@@ -5,13 +5,16 @@ use std::error::Error;
 use std::sync::RwLock;
 
 lazy_static! {
-    static ref SETTINGS: RwLock<Config> = RwLock::new(Config::default());
+    static ref SETTINGS: RwLock<Config> = RwLock::new({
+        Config::builder()
+            .set_default("property", 42)
+            .unwrap()
+            .build()
+            .unwrap()
+    });
 }
 
 fn try_main() -> Result<(), Box<dyn Error>> {
-    // Set property
-    SETTINGS.write()?.set("property", 42)?;
-
     // Get property
     println!("property: {}", SETTINGS.read()?.get::<i32>("property")?);
 
