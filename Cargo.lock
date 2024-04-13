@@ -178,7 +178,6 @@ dependencies = [
  "glob",
  "indexmap 2.2.2",
  "json5",
- "lazy_static",
  "log",
  "nom",
  "notify",

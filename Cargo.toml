@@ -25,7 +25,6 @@ preserve_order = ["indexmap", "toml?/preserve_order", "serde_json?/preserve_orde
 async = ["async-trait"]
 
 [dependencies]
-lazy_static = "1.4"
 serde = "1.0"
 nom = "7"
 
